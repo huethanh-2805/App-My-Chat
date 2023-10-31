@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    tools:context=".GettingStartedActivity">
 
     <RelativeLayout
         android:layout_width="262dp"
@@ -61,7 +64,7 @@
         android:layout_width="match_parent"
         android:layout_height="42dp">
         <TextView
-            android:id="@+id/term"
+            android:id="@+id/txtTerm"
             android:layout_width="wrap_content"
             android:layout_height="94dp"
             android:layout_weight="1"
@@ -83,4 +86,5 @@
             android:text="Start Messaging" />
 
     </LinearLayout>
+
 </LinearLayout>
