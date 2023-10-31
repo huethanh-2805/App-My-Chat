@@ -1,3 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="facebook_app_id">1234</string>
+    <string name="fb_login_protocol_scheme">fb1234</string>
+    <string name="facebook_client_token">56789</string>
+
+
+
     <string name="app_name">MyChat</string>
+
+    <string name="login_main">Hi, Welcome Back!</string>
+    <string name="login_sub">Hello again, you\'ve been missed</string>
+    <string name="email">Email Address</string>
+    <string name="password">Password</string>
+    <string name="remember">Remember Me</string>
+    <string name="forgot">Forgot Password</string>
+    <string name="login">Login</string>
+    <string name="login_or">Or Login With</string>
+    <string name="facebook">Facebook</string>
+    <string name="google">Google</string>
+    <string name="login_not_account">Don\'t have an account? </string>
+    <string name="sign_up">\ Sign Up</string>
+    <string name="log_in">\ Log In</string>
+    <string name="user_name">User Name</string>
+    <string name="confirm_otp">Confirm OTP</string>
+
+
+
+
+
 </resources>
+
