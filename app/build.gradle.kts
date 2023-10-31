@@ -4,7 +4,7 @@ plugins {
 
 android {
     namespace = "com.example.mychat"
-    compileSdk = 33
+    compileSdk = 34
 
     defaultConfig {
         applicationId = "com.example.mychat"
@@ -32,7 +32,7 @@ android {
 }
 
 dependencies {
-
+    implementation ("com.googlecode.libphonenumber:libphonenumber:8.12.14")
     implementation("androidx.appcompat:appcompat:1.6.1")
     implementation("com.google.android.material:material:1.10.0")
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")

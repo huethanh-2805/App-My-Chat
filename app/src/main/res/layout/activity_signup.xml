@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".signup"
+    android:layout_marginLeft="20dp">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Create Account"
+
+        android:layout_marginTop="50dp"
+        android:textColor="@color/black"
+        android:textStyle="bold"
+        android:textSize="30dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:text="Connect with your friends today!"
+        android:textColor="#676767"
+        android:textFontWeight="400"
+        android:textSize="15dp"
+        tools:ignore="TextSizeCheck" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Email Address"
+        android:layout_marginTop="40dp"
+        android:textStyle="bold"
+        android:textColor="#070707" />
+
+    <EditText
+
+        android:id="@+id/emailAdd"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:hint="Enter your email"
+        android:inputType="textEmailAddress"
+        android:layout_marginTop="8dp"
+        android:minWidth="300dp"
+        android:minHeight="48dp"
+        android:textStyle="normal"
+        android:background="@drawable/edittext_border"
+        android:paddingLeft="16dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Mobile Number"
+        android:layout_marginTop="40dp"
+        android:textStyle="bold"
+        android:textColor="#070707" />
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:background="@drawable/edittext_border">
+
+        <Spinner
+            android:id="@+id/spinnerCountryCode"
+            android:layout_width="50dp"
+            android:layout_height="wrap_content"
+            android:minHeight="48dp"
+            android:layout_weight="0"
+            android:entries="@array/country_codes"
+            tools:ignore="TouchTargetSizeCheck" />
+
+        <EditText
+            android:id="@+id/editTextPhoneNumber"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:minWidth="250dp"
+            android:minHeight="48dp"
+            android:layout_weight="2"
+            android:inputType="text"
+            android:paddingLeft="16dp"
+            android:background="@drawable/edittext_border"
+            android:hint="Enter your phone number"
+            tools:ignore="TouchTargetSizeCheck" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginTop="40dp">
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Password"
+            android:textStyle="bold">
+
+        </TextView>
+        <EditText
+            android:id="@+id/edtPass"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:minWidth="300dp"
+            android:minHeight="48dp"
+            android:inputType="textPassword"
+            android:hint="Enter Your Password"
+            android:textSize="16sp"
+            android:background="@drawable/edittext_border"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp">
+        </EditText>
+    </LinearLayout>
+
+    <CheckBox
+        android:id="@+id/checkRemember"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="I agree to the terms and conditions"
+        android:textStyle="bold">
+    </CheckBox>
+
+    <Button
+        android:id="@+id/btnLogin"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="30dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:text="Sign Up"
+        android:textColor="@color/white">
+    </Button>
+
+
+
+
+
+
+</LinearLayout>

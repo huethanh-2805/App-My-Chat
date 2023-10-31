@@ -1,3 +1,10 @@
 <resources>
     <string name="app_name">MyChat</string>
+    <string-array name="country_codes">
+        <item>+1 (United States)</item>
+        <item>+44 (United Kingdom)</item>
+        <item>+91 (India)</item>
+        <!-- Thêm các mã quốc gia khác vào đây -->
+    </string-array>
+
 </resources>
