@@ -118,6 +118,13 @@
             android:background="@drawable/btn_login">
 
         </Button>
+
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal">
+        </ProgressBar>
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

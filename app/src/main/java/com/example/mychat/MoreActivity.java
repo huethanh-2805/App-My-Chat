@@ -15,9 +15,12 @@ public class MoreActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_more);
         listView = findViewById(R.id.listView);
-
         CustomListMore adapter = new CustomListMore(this, R.layout.custom_listview_more, items, icons);
-// bind intrinsic ListView to custom adapter
         listView.setAdapter(adapter);
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
     }
 }

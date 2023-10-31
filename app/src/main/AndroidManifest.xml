@@ -17,7 +17,15 @@
             android:exported="true" />
         <activity
             android:name=".LoginActivity"
-            android:exported="true" />
+            android:exported="true">
+            <intent-filter>
+<!--                <data-->
+<!--                    android:host="mychat-7f8c6.firebaseapp.com/"-->
+<!--                    android:scheme="https" />-->
+            </intent-filter>
+        </activity>
+
+
         <activity android:name=".MoreActivity"
             android:exported="true"/>
         <activity
