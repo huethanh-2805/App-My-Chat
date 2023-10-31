@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    tools:context=".GettingStartedActivity">
 
     <RelativeLayout
         android:layout_width="262dp"
@@ -61,7 +64,7 @@
 
     <Button
         android:id="@+id/btnStart"
-        android:layout_width="360dp"
+        android:layout_width="330dp"
         android:layout_height="wrap_content"
         android:background="@drawable/btn_start"
         android:text="Start Messaging"
