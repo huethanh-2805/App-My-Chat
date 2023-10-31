@@ -1,6 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">MyChat</string>
+<!--    <string-array name="country_codes">-->
+<!--        <item>+1 (United States)</item>-->
+<!--        <item>+44 (United Kingdom)</item>-->
+<!--        <item>+91 (India)</item>-->
+<!--        &lt;!&ndash; Thêm các mã quốc gia khác vào đây &ndash;&gt;-->
+<!--    </string-array>-->
+
     <string name="login_main">Hi, Welcome Back!</string>
     <string name="login_sub">Hello again, you\'ve been missed</string>
     <string name="email">Email Address</string>
@@ -13,4 +20,6 @@
     <string name="google">Google</string>
     <string name="login_not_account">Don\'t have an account? </string>
     <string name="sign_up">\ Sign Up</string>
+
 </resources>
+
