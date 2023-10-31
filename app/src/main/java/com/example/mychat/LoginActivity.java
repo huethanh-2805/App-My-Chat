@@ -33,6 +33,8 @@ public class LoginActivity extends Activity implements View.OnClickListener {
         checkRemember=findViewById(R.id.checkRemember);
         btnLogWithFacebook=findViewById(R.id.btnFacebook);
         btnLogWithGoogle=findViewById(R.id.btnGoogle);
+        btnToSignUp=findViewById(R.id.btnSignUp);
+
     }
     @NonNull
     @Override

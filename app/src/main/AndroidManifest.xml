@@ -18,6 +18,8 @@
         <activity
             android:name=".LoginActivity"
             android:exported="true" />
+        <activity android:name=".MoreActivity"
+            android:exported="true"/>
         <activity
             android:name=".MainActivity"
             android:exported="true">
