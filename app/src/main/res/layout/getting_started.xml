@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <RelativeLayout
+        android:layout_width="262dp"
+        android:layout_height="271dp"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginLeft="75dp"
+        android:layout_marginTop="130dp"
+        android:layout_marginBottom="90px">
+
+        <RelativeLayout
+            android:layout_width="110dp"
+            android:layout_height="100dp"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginLeft="141dp"
+            android:layout_marginTop="10dp">
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:src="@drawable/start_1"></ImageView>
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="149.98dp"
+            android:layout_height="228dp"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginTop="43dp">
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:src="@drawable/start_2"></ImageView>
+        </RelativeLayout>
+
+    </RelativeLayout>
+    <TextView
+        android:id="@+id/text1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Connect easily with\n your family and friends\n over countries"
+        android:textAlignment="center"
+        android:textSize="25sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/term"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="100dp"
+        android:layout_marginBottom="20dp"
+        android:text="Term and Privacy Policy"
+        android:textAlignment="center"
+        android:textStyle="bold"/>
+
+    <Button
+        android:id="@+id/btnStart"
+        android:layout_width="360dp"
+        android:layout_height="wrap_content"
+        android:background="@drawable/btn_start"
+        android:text="Start Messaging"
+        android:layout_gravity="center"/>
+</LinearLayout>
