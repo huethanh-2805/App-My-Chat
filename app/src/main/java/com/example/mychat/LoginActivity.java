@@ -1,6 +1,5 @@
 package com.example.mychat;
 
-import static android.content.ContentValues.TAG;
 
 
 import android.app.Activity;
@@ -16,32 +15,27 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.window.OnBackInvokedDispatcher;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.ActionCodeSettings;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.FirebaseFirestore;
 
-import java.util.HashMap;
-import java.util.Map;
+
 
 public class LoginActivity extends Activity implements View.OnClickListener {
-    EditText edtEmail;
-    EditText edtPass;
-    CheckBox checkRemember;
-    TextView btnForgot;
-    Button btnLogin;
-    LinearLayout btnLogWithFacebook;
-    LinearLayout btnLogWithGoogle;
-    TextView btnToSignUp;
-    ProgressBar progressBar;
+    private EditText edtEmail;
+    private EditText edtPass;
+    private CheckBox checkRemember;
+    private TextView btnForgot;
+    private Button btnLogin;
+    private LinearLayout btnLogWithFacebook;
+    private LinearLayout btnLogWithGoogle;
+    private TextView btnToSignUp;
+    private ProgressBar progressBar;
 
-    ActionCodeSettings actionCodeSettings;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -70,22 +64,7 @@ public class LoginActivity extends Activity implements View.OnClickListener {
         btnToSignUp=findViewById(R.id.btnSignUp);
         btnToSignUp.setOnClickListener(this);
 
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        Map<String,String> test=new HashMap<>();
 
-        actionCodeSettings=
-                ActionCodeSettings.newBuilder()
-                        // URL you want to redirect back to. The domain (www.example.com) for this
-                        // URL must be whitelisted in the Firebase Console.
-                        .setUrl("https://www.example.com/finishSignUp?cartId=1234")
-                        // This must be true
-                        .setHandleCodeInApp(true)
-                        .setIOSBundleId("com.example.ios")
-                        .setAndroidPackageName(
-                                "com.example.android",
-                                true, /* installIfNotAvailable */
-                                "12"    /* minimumVersion */)
-                        .build();
     }
 
     @Override
@@ -93,24 +72,55 @@ public class LoginActivity extends Activity implements View.OnClickListener {
         if (view.getId()==R.id.btnLogin){
             progressBar.setVisibility(View.VISIBLE);
 
-            FirebaseAuth auth = FirebaseAuth.getInstance();
-            auth.sendSignInLinkToEmail(edtEmail.getText().toString(), actionCodeSettings)
-                    .addOnCompleteListener(new OnCompleteListener<Void>() {
-                        @Override
-                        public void onComplete(@NonNull Task<Void> task) {
-                            if (task.isSuccessful()) {
-                                Log.d(TAG, "Email sent.");
-                            }
-                        }
-                    });
+            final FirebaseAuth auth=FirebaseAuth.getInstance();
+            String email=edtEmail.getText().toString();
+            String password=edtPass.getText().toString();
+            if ((email.length()==0)||(password.length()==0)) {
+                Toast.makeText(getApplicationContext(),"Enter email & password",Toast.LENGTH_SHORT).show();
+                return;
+            }
             new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    Intent intent = new Intent(LoginActivity.this, MoreActivity.class);
-                    startActivity(intent);
-                    finish();
+                    auth.signInWithEmailAndPassword(email,password).addOnCompleteListener(task -> {
+                        if (task.isSuccessful()){
+                            if (auth.getCurrentUser().isEmailVerified()){
+                                startActivity(new Intent(LoginActivity.this,MoreActivity.class));
+                                finish();
+                            }
+                            else {
+                                Toast.makeText(LoginActivity.this,"Please verify your email." ,Toast.LENGTH_SHORT).show();
+                                progressBar.setVisibility(View.INVISIBLE);
+
+                            }
+                        }
+                        else {
+                            Toast.makeText(LoginActivity.this,task.getException().getMessage(),Toast.LENGTH_SHORT).show();
+                            progressBar.setVisibility(View.INVISIBLE);
+
+                        }
+                    });
                 }
-            },2000);
+            },1500);
         }
+
+        if (view.getId()==R.id.btnSignUp) {
+            progressBar.setVisibility(View.VISIBLE);
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    Intent intent = new Intent(LoginActivity.this, SignupActivity.class);
+                    startActivity(intent);
+//                    finish();
+                }
+            },500);
+        }
+    }
+
+    @NonNull
+    @Override
+    public OnBackInvokedDispatcher getOnBackInvokedDispatcher() {
+        progressBar.setVisibility(View.INVISIBLE);
+        return super.getOnBackInvokedDispatcher();
     }
 }

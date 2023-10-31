@@ -13,24 +13,23 @@
         android:theme="@style/Theme.MyChat"
         tools:targetApi="34">
         <activity
-            android:name=".signup"
+            android:name=".SignupActivity"
             android:exported="true">
-        <intent-filter>
-            <action android:name="android.intent.action.MAIN" />
+            <intent-filter>
+                <data
+                    android:host="mychat-7f8c6.firebaseapp.com/"
+                    android:scheme="https" />
+            </intent-filter>
 
-            <category android:name="android.intent.category.LAUNCHER" />
-        </intent-filter>/>
         </activity>
+
         <activity android:name=".GettingStartedActivity"
             android:exported="true" />
+
         <activity
             android:name=".LoginActivity"
             android:exported="true">
-            <intent-filter>
-<!--                <data-->
-<!--                    android:host="mychat-7f8c6.firebaseapp.com/"-->
-<!--                    android:scheme="https" />-->
-            </intent-filter>
+
         </activity>
 
 
@@ -39,6 +38,11 @@
         <activity
             android:name=".MainActivity"
             android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
 
         </activity>
     </application>

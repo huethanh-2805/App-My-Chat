@@ -45,12 +45,12 @@
             </TextView>
 
             <TextView
-                android:id="@+id/txtPhone"
+                android:id="@+id/txtEmail"
                 android:layout_width="wrap_content"
                 android:layout_height="20dp"
                 android:gravity="center_vertical"
                 android:paddingLeft="20dp"
-                android:text="0912345678"
+                android:text="abcxyz@gmail.com"
                 android:textColor="#ADB5BD"
                 android:textSize="15dp">
             </TextView>

@@ -20,6 +20,9 @@
     <string name="google">Google</string>
     <string name="login_not_account">Don\'t have an account? </string>
     <string name="sign_up">\ Sign Up</string>
+    <string name="log_in">\ Log In</string>
+    <string name="user_name">User Name</string>
+    <string name="confirm_otp">Confirm OTP</string>
 
 </resources>
 
