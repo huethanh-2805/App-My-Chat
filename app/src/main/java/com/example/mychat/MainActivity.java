@@ -2,6 +2,7 @@ package com.example.mychat;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.Activity;
 import android.os.Bundle;
 import android.widget.ListView;
 
@@ -18,6 +19,7 @@ public class MainActivity extends AppCompatActivity {
         CustomListMore adapter = new CustomListMore(this, R.layout.custom_listview_more, items, icons);
 // bind intrinsic ListView to custom adapter
         listView.setAdapter(adapter);
+
     }
 
 }
