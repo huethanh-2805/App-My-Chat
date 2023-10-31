@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="facebook_app_id">1234</string>
+    <string name="fb_login_protocol_scheme">fb1234</string>
+    <string name="facebook_client_token">56789</string>
+
+
+
     <string name="app_name">MyChat</string>
-<!--    <string-array name="country_codes">-->
-<!--        <item>+1 (United States)</item>-->
-<!--        <item>+44 (United Kingdom)</item>-->
-<!--        <item>+91 (India)</item>-->
-<!--        &lt;!&ndash; Thêm các mã quốc gia khác vào đây &ndash;&gt;-->
-<!--    </string-array>-->
 
     <string name="login_main">Hi, Welcome Back!</string>
     <string name="login_sub">Hello again, you\'ve been missed</string>
@@ -23,6 +23,10 @@
     <string name="log_in">\ Log In</string>
     <string name="user_name">User Name</string>
     <string name="confirm_otp">Confirm OTP</string>
+
+
+
+
 
 </resources>
 

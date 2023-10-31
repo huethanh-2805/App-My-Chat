@@ -33,7 +33,6 @@ android {
 }
 
 dependencies {
-    implementation("androidx.appcompat:appcompat:1.6.1")
     implementation("com.google.android.material:material:1.10.0")
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
     implementation("com.google.firebase:firebase-firestore:24.9.1")
@@ -49,5 +48,6 @@ dependencies {
     implementation("com.google.firebase:firebase-auth")
 
     // Also add the dependency for the Google Play services library and specify its version
-    implementation("com.google.android.gms:play-services-auth:20.7.0")
+    /*implementation("com.google.android.gms:play-services-auth:20.7.0")
+    implementation("com.facebook.android:facebook-android-sdk:[4,5)")*/
 }
