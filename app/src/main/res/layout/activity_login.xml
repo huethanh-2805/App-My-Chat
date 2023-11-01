@@ -23,7 +23,6 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-
             android:text="@string/login_sub"
             android:textColor="@color/gray">
         </TextView>
@@ -142,7 +141,7 @@
             </View>
             <TextView
                 android:layout_width="0dp"
-                android:layout_weight="1"
+                android:layout_weight="0.5"
                 android:layout_height="wrap_content"
                 android:textAlignment="center"
                 android:textColor="@color/gray"
@@ -190,6 +189,16 @@
                     android:textColor="@color/black">
                 </TextView>
             </LinearLayout>
+
+            <com.facebook.login.widget.LoginButton
+                android:id="@+id/login_button"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="30dp"
+                android:layout_marginBottom="30dp"
+                android:visibility="gone"
+                />
 
 
             <LinearLayout
