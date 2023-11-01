@@ -29,7 +29,7 @@ public class ChatActivity extends Activity {
     String[] id; //get id, không hiện lên, để ánh xạ các thuộc tính còn lại
     String[] name; //tên người liên hệ
     String[] string;
-    //chuỗi nếu như trong ContactActivity sẽ hiện username,
+    //chuỗi nếu như trong ContactActivity sẽ hiện email,
     // nếu như trong ChatActivity sẽ hiện tin nhắn gần nhất
     Integer[] img; //hình ảnh, ảnh đại diện
     @Override
