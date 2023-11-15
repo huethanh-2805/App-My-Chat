@@ -36,6 +36,12 @@
         <activity android:name=".MoreActivity"
             android:exported="true"/>
         <activity
+            android:name=".ChatActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ContactActivity"
+            android:exported="false" />
+        <activity
             android:name=".MainActivity"
             android:exported="true">
             <intent-filter>

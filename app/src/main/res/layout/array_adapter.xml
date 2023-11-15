@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal">
+    <ImageView
+        android:id="@+id/imgView"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:layout_marginLeft="5dp"
+        android:src ="@drawable/default_profile_pic"
+        android:layout_margin="10dp"
+        android:scaleType="centerCrop"
+        android:background="@drawable/round_corner_shape"
+        >
+    </ImageView>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:layout_margin="10dp"
+        android:orientation="vertical">
+        <TextView
+            android:id="@+id/txtName"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:text="NAME"
+            android:textSize="25dp"
+            android:textStyle="bold"
+            android:paddingLeft="16dp"
+            android:gravity="bottom">
+        </TextView>
+
+        <TextView
+            android:id="@+id/txtString"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:text="\@username"
+            android:textSize="20dp"
+            android:paddingLeft="16dp"
+            android:gravity="top">
+        </TextView>
+    </LinearLayout>
+
+</LinearLayout>
