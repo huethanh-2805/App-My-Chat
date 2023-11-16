@@ -3,8 +3,11 @@ package com.example.mychat;
 import static android.content.ContentValues.TAG;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -67,6 +70,19 @@ public class MoreActivity extends Activity {
                         Toast.makeText(getApplicationContext(),"Fail read field in database",Toast.LENGTH_SHORT).show();
                     }
                 });
+
+        //Click on Item
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener(){
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                if(position == 2){
+                    Intent intent = new Intent(MoreActivity.this, ApperanceActivity.class);
+                    startActivity(intent);
+                    finish();
+                }
+
+            }
+        });
     }
 
 
