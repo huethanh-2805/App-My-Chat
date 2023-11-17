@@ -36,4 +36,6 @@ public class MyArrayAdapter extends ArrayAdapter {
         imgView.setImageResource(img[position]);
         return(row);
     }
+
+
 }
