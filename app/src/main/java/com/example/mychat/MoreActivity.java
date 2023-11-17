@@ -50,10 +50,14 @@ public class MoreActivity extends Activity implements View.OnClickListener {
     SharedPreferences sharedPreferences;
     SharedPreferences.Editor editor;
 
+     String UsernameCurrentUser;
+     String EmailCurrentUser;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_more);
+        Toast.makeText(getApplicationContext(),auth.getCurrentUser().getDisplayName().toString(),Toast.LENGTH_SHORT).show();
 
         btnSignOut=findViewById(R.id.btnSignOut);
         btnSignOut.setOnClickListener(this);
@@ -73,11 +77,11 @@ public class MoreActivity extends Activity implements View.OnClickListener {
                     public void onSuccess(DocumentSnapshot documentSnapshot) {
                         if (documentSnapshot.exists()) {
                             // Lấy giá trị của trường "username" và "email" từ document
-                            String username = documentSnapshot.getString("username");
-                            String email = documentSnapshot.getString("email");
+                            UsernameCurrentUser = documentSnapshot.getString("username");
+                            EmailCurrentUser = documentSnapshot.getString("email");
 
-                            txtEmail.setText(email);
-                            txtUserName.setText(username);
+                            txtEmail.setText(EmailCurrentUser);
+                            txtUserName.setText(UsernameCurrentUser);
                         } else {
                             Toast.makeText(getApplicationContext(),"Document không tồn tại",Toast.LENGTH_SHORT).show();
                         }
@@ -123,6 +127,7 @@ public class MoreActivity extends Activity implements View.OnClickListener {
                 }
             }
         });
+
 
     }
 

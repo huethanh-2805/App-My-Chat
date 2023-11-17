@@ -3,7 +3,9 @@ package com.example.mychat;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.AdapterView;
 
@@ -12,9 +14,35 @@ import android.widget.Button;
 import android.widget.EditText;
 
 import android.widget.ListView;
+import android.widget.SearchView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -22,28 +50,125 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
-public class ContactActivity extends Activity {
-    Button btnNewContact, btnChat;
+public class ContactActivity extends Activity implements View.OnClickListener {
+    Button btnNewContact, btnMore;
+    SearchView searchView;
     ListView listView;
+
+
+    FirebaseAuth auth=FirebaseAuth.getInstance();
+
     //
-    String[] id; //get id, không hiện lên, để ánh xạ các thuộc tính còn lại
-    String[] name; //tên người liên hệ
-    String[] string;
-    //chuỗi nếu như trong ContactActivity sẽ hiện email,
-    // nếu như trong ChatActivity sẽ hiện tin nhắn gần nhất
-    Integer[] img; //hình ảnh, ảnh đại diện
+    FirebaseFirestore db;
+    CollectionReference cref;
+    Query query;
+    //
+    List<User> user=new ArrayList<>(); //tên người liên hệ
+
+    String emailCurrentUser;
+
+    private MyArrayAdapter adapter;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_contact);
 
+        searchView=findViewById(R.id.searchView);
         listView = (ListView) findViewById(R.id.listView);
+        listView.setTextFilterEnabled(true);
         btnNewContact = (Button) findViewById(R.id.btnNewContact);
-        btnChat = (Button) findViewById(R.id.btnChat);
+        btnMore = (Button) findViewById(R.id.btnMore);
+        btnMore.setOnClickListener(this);
 
-        MyArrayAdapter adapter = new MyArrayAdapter(ContactActivity.this, R.layout.array_adapter, name, string, img);
-        listView.setAdapter(adapter);
+        getListUserFromDatabase();
+
+        searchUserWithUserName();
+
+    }
+
+    private void searchUserWithUserName() {
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                adapter.getFilter().filter(query);
+                return false;
+            }
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                adapter.getFilter().filter(newText);
+                return false;
+            }
+        });
+    }
+
+    private void getListUserFromDatabase() {
+        user = new ArrayList<>();
+        db = FirebaseFirestore.getInstance();
+
+        cref = db.collection("contact");
+        DocumentReference doc = cref.document(auth.getCurrentUser().getUid().toString());
+        doc.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot documentSnapshot = task.getResult();
+                    if (documentSnapshot.exists()) {
+                        List<DocumentReference> docUser = (List<DocumentReference>) documentSnapshot.get("userContact");
+
+                        final int totalUsers = docUser.size();
+                        final int[] counter = {0};
+                        for (DocumentReference d : docUser) {
+                            d.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                @Override
+                                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                    if (task.isSuccessful()) {
+                                        DocumentSnapshot userSnapshot = task.getResult();
+                                        if (userSnapshot.exists()) {
+                                            String username = userSnapshot.getString("username");
+                                            String email = userSnapshot.getString("email");
+                                            user.add(new User(username, "...", R.drawable.ic_avt, email));
+                                        }
+                                    }
+
+                                    counter[0]++;
+
+                                    // Kiểm tra nếu tất cả các cuộc gọi đã hoàn thành
+                                    if (counter[0] == totalUsers) {
+                                        // Tất cả các cuộc gọi đã hoàn thành, cập nhật adapter ở đây
+                                        adapter = new MyArrayAdapter(ContactActivity.this, R.layout.array_adapter, user);
+                                        listView.setAdapter(adapter);
+                                        adapter.notifyDataSetChanged();
+                                    }
+                                }
+                            }).addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    Toast.makeText(getApplicationContext(), "fail for", Toast.LENGTH_SHORT).show();
+                                    counter[0]++;
+                                }
+                            });
+                        }
+                    }
+
+                } else {
+                    Toast.makeText(getApplicationContext(), "fail", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+    }
+
+    @Override
+    public void onClick(View view) {
+        if (view.getId()==R.id.btnMore) {
+            startActivity(new Intent(ContactActivity.this, MoreActivity.class));
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        finishAffinity();
     }
 }
 

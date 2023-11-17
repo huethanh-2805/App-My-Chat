@@ -41,8 +41,8 @@ public class ChatActivity extends Activity {
         btnMore = (Button) findViewById(R.id.btnMore);
         btnChat = (Button) findViewById(R.id.btnChat);
 
-        MyArrayAdapter adapter = new MyArrayAdapter(ChatActivity.this, R.layout.array_adapter, name, string, img);
-        listView.setAdapter(adapter);
+//        MyArrayAdapter adapter = new MyArrayAdapter(ChatActivity.this, R.layout.array_adapter, name, string, img);
+//        listView.setAdapter(adapter);
     }
 }
 

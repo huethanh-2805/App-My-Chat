@@ -6,24 +6,31 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Filter;
+import android.widget.Filterable;
 import android.widget.ImageView;
+import android.widget.SearchView;
 import android.widget.TextView;
 
-public class MyArrayAdapter extends ArrayAdapter {
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
+public class MyArrayAdapter extends ArrayAdapter<User> implements Filterable {
     Context context;
-    String[] id; //get id, không hiện lên, để ánh xạ các thuộc tính còn lại
-    String[] name; //tên người liên hệ
-    String[] string;
-    //chuỗi nếu như trong ContactActivity sẽ hiện username,
-    // nếu như trong ChatActivity sẽ hiện tin nhắn gần nhất
-    Integer[] img; //hình ảnh, ảnh đại diện
-    public MyArrayAdapter(Context context, int layoutToBeInflated, String[] name, String[] string,Integer[] img) {
-        super(context,R.layout.array_adapter,name);
-        this.context=context;
-        this.name=name;
-        this.string=string;
-        this.img=img;
+    List<User> user=new ArrayList<>();
+    List<User> userOld=new ArrayList<>();
+    List<User> userSearch;
+
+
+    public MyArrayAdapter(Context context, int layoutToBeInflated, List<User> user) {
+        super(context, R.layout.array_adapter, user);
+        this.context = context;
+        this.user = user;
+        this.userOld=new ArrayList<>(user);
     }
+
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         LayoutInflater inflater=((Activity)context).getLayoutInflater();
@@ -31,9 +38,46 @@ public class MyArrayAdapter extends ArrayAdapter {
         TextView txtName=(TextView)row.findViewById(R.id.txtName);
         TextView txtString=(TextView)row.findViewById(R.id.txtString);
         ImageView imgView =(ImageView)row.findViewById(R.id.imgView);
-        txtName.setText(name[position]);
-        txtString.setText(string[position]);
-        imgView.setImageResource(img[position]);
+        txtName.setText(user.get(position).getName());
+        txtString.setText(user.get(position).getEmail());
+        imgView.setImageResource(user.get(position).getImg());
         return(row);
+    }
+
+    @Override
+    public Filter getFilter(){
+        return new Filter() {
+            @Override
+            protected FilterResults performFiltering(CharSequence constraint) {
+                String search=constraint.toString();
+                if(search.isEmpty())
+                {
+                    userSearch=new ArrayList<>(userOld);
+                }
+                else
+                {
+                    List<User> searchName=new ArrayList<>();
+                    for(User i:userOld)
+                    {
+                        if(i.getName().toLowerCase().contains(search.toLowerCase())){
+                            searchName.add(i);
+                        }
+                    }
+                    userSearch=searchName;
+                }
+
+                FilterResults filterResults=new FilterResults();
+                filterResults.values = userSearch;
+                filterResults.count = userSearch.size();
+                return filterResults;
+            }
+
+            @Override
+            protected void publishResults(CharSequence constraint, FilterResults results) {
+                user.clear();
+                user.addAll((List<User>) results.values);
+                notifyDataSetChanged();
+            }
+        };
     }
 }

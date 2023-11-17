@@ -36,15 +36,14 @@
         android:layout_width="match_parent"
         android:layout_height="600dp"
         android:orientation="vertical">
-        <EditText
-            android:id="@+id/searchBox"
+        <SearchView
+            android:id="@+id/searchView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:textSize="25dp"
-            android:hint="Find contact"
-            >
-        </EditText>
+            android:queryHint="Search Contacts">
+        </SearchView>
         <ListView
             android:id="@+id/listView"
             android:layout_width="match_parent"
@@ -59,11 +58,11 @@
         android:gravity="right">
 
         <Button
-            android:id="@+id/btnChat"
+            android:id="@+id/btnMore"
             android:layout_width="200dp"
             android:layout_height="match_parent"
             android:color="@color/white"
-            android:text="Chat"
+            android:text="More"
             android:textColor="@color/black"
             android:background = "@drawable/round_corner_shape"
             android:textSize="20sp" />

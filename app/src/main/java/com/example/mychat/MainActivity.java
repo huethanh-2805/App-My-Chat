@@ -23,7 +23,7 @@ public class MainActivity extends Activity {
 
         auth = FirebaseAuth.getInstance();
         if (auth.getCurrentUser()!=null) {
-            Intent i = new Intent(MainActivity.this, MoreActivity.class);
+            Intent i = new Intent(MainActivity.this, ContactActivity.class);
             i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(i);
             finish();
