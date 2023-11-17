@@ -3,7 +3,9 @@ package com.example.mychat;
 import static android.content.ContentValues.TAG;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -14,6 +16,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatDelegate;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -75,16 +78,37 @@ public class MoreActivity extends Activity {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener(){
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                if(position == 2){
-                    Intent intent = new Intent(MoreActivity.this, ApperanceActivity.class);
-                    startActivity(intent);
-                    finish();
-                }
+                switch (position){
+                    case 0:
 
+                        break;
+                    case 1:
+
+                        break;
+                    case 2:
+                        Intent intent2 = new Intent(MoreActivity.this, ApperanceActivity.class);
+                        startActivity(intent2);
+                        break;
+                    case 3:
+
+                        break;
+                    case 4:
+
+                        break;
+                    case 5:
+
+                        break;
+                    case 6:
+
+                        break;
+                    case 7:
+
+                        break;
+                }
             }
         });
-    }
 
+    }
 
     @Override
     public void onBackPressed() {
