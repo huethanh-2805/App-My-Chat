@@ -7,7 +7,7 @@
     android:layout_marginRight="20dp"
     android:layout_marginLeft="20dp"
     style="@style/SCREEN"
-    tools:context=".ApperanceActivity" android:orientation="vertical">
+    tools:context=".AppearanceActivity" android:orientation="vertical">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -26,7 +26,7 @@
             style="@style/TEXT"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Apperance"
+            android:text="Appearance"
             android:textSize="60px"
             android:textStyle="bold" android:layout_marginLeft="10dp"
             android:paddingTop="20dp"

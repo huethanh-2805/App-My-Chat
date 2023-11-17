@@ -3,33 +3,28 @@ package com.example.mychat;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 
-import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
-import android.widget.Switch;
-import android.widget.Toast;
 
-public class ApperanceActivity extends AppCompatActivity {
+public class AppearanceActivity extends AppCompatActivity {
     ImageView btnBack;
     RadioGroup checkGroup;
     RadioButton btnLight;
     RadioButton btnDark;
     RadioButton btnSystem;
-    public boolean nightMode;
+    boolean nightMode;
     SharedPreferences sharedPreferences;
     SharedPreferences.Editor editor;
-    public String theme;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_apperance);
+        setContentView(R.layout.activity_appearance);
 
         btnBack = (ImageView) findViewById(R.id.iconBackMode);
         checkGroup = (RadioGroup) findViewById(R.id.checkBtnGroup);
@@ -52,7 +47,6 @@ public class ApperanceActivity extends AppCompatActivity {
             btnDark.setChecked(true);
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
         }
-
         checkGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup group, int i) {
@@ -73,6 +67,9 @@ public class ApperanceActivity extends AppCompatActivity {
                 else {
                     AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
                     editor = sharedPreferences.edit();
+                    if (AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM == AppCompatDelegate.MODE_NIGHT_YES){
+                        editor.putBoolean("night", true);
+                    } else editor.putBoolean("night", false);
                 }
 
                 editor.apply();

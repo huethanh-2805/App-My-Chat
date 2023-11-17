@@ -1,13 +1,9 @@
 package com.example.mychat;
 
-import static android.content.ContentValues.TAG;
-
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
@@ -16,28 +12,24 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatDelegate;
 
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-
-import org.w3c.dom.Text;
 
 public class MoreActivity extends Activity {
-    String[] items = new String[]{"Account", "Chats", "Apperance", "Notification", "Privacy", "Data Usage", "Help", "Invite Your Friends"};
+    String[] items = new String[]{"Account", "Chats", "Appearance", "Notification", "Privacy", "Data Usage", "Help", "Invite Your Friends"};
     Integer[] icons = {R.drawable.ic_avt, R.drawable.ic_chats, R.drawable.ic_apperance, R.drawable.ic_noti, R.drawable.ic_privacy, R.drawable.ic_data, R.drawable.ic_help, R.drawable.ic_invite};
     ListView listView;
     TextView txtUserName;
     TextView txtEmail;
     final FirebaseFirestore db = FirebaseFirestore.getInstance();
     final FirebaseUser user=FirebaseAuth.getInstance().getCurrentUser();
+    SharedPreferences sharedPreferences;
+    SharedPreferences.Editor editor;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -86,7 +78,7 @@ public class MoreActivity extends Activity {
 
                         break;
                     case 2:
-                        Intent intent2 = new Intent(MoreActivity.this, ApperanceActivity.class);
+                        Intent intent2 = new Intent(MoreActivity.this, AppearanceActivity.class);
                         startActivity(intent2);
                         break;
                     case 3:
