@@ -18,8 +18,7 @@
             android:textSize="60px"
             android:textStyle="bold"
             android:paddingTop="20dp"
-            android:paddingBottom="20dp"
-            >
+            android:paddingBottom="20dp">
         </TextView>
         <Button
             android:id="@+id/btnSignOut"

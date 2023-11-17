@@ -4,8 +4,6 @@
     <string name="fb_login_protocol_scheme">fb1234</string>
     <string name="facebook_client_token">56789</string>
 
-
-
     <string name="app_name">MyChat</string>
 
     <string name="login_main">Hi, Welcome Back!</string>
@@ -15,7 +13,7 @@
     <string name="remember">Remember Me</string>
     <string name="forgot">Forgot Password</string>
     <string name="login">Login</string>
-    <string name="login_or">Or </string>
+    <string name="login_or">Or Login With </string>
     <string name="facebook">Facebook</string>
     <string name="google">Google</string>
     <string name="login_not_account">Don\'t have an account? </string>
@@ -25,7 +23,9 @@
     <string name="log_in">\ Log In</string>
     <string name="user_name">User Name</string>
     <string name="confirm_otp">Confirm OTP</string>
+
     <string name="default_web_client_id">656313448903-shljgkmk6nuqhrluhks7ie9khvu4333p.apps.googleusercontent.com</string>
+    <string name="forgot_password">Forgot Password</string>
 
 </resources>
 

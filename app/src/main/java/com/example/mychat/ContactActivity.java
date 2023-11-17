@@ -34,6 +34,7 @@ public class ContactActivity extends Activity {
     Integer[] img; //hình ảnh, ảnh đại diện
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_contact);
 

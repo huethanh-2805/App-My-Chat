@@ -85,13 +85,6 @@
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
-            <CheckBox
-                android:id="@+id/checkRemember"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/remember"
-                android:textStyle="bold">
-            </CheckBox>
             <TextView
                 android:id="@+id/btnForgot"
                 android:layout_width="wrap_content"
@@ -141,7 +134,7 @@
             </View>
             <TextView
                 android:layout_width="0dp"
-                android:layout_weight="0.5"
+                android:layout_weight="0.8"
                 android:layout_height="wrap_content"
                 android:textAlignment="center"
                 android:textColor="@color/gray"
@@ -166,39 +159,39 @@
             android:orientation="horizontal"
             android:clickable="true"
             >
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:layout_marginRight="8dp"
-                android:background="@drawable/btn_login_or"
-                android:gravity="center_horizontal"
-                android:id="@+id/btnFacebook">
-                <ImageView
-                    android:layout_width="20dp"
-                    android:layout_height="match_parent"
-                    android:src="@drawable/ic_fb">
-                </ImageView>
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_marginLeft="6dp"
-                    android:layout_marginRight="5dp"
-                    android:gravity="center_vertical"
-                    android:text="@string/facebook"
-                    android:textColor="@color/black">
-                </TextView>
-            </LinearLayout>
+<!--            <LinearLayout-->
+<!--                android:layout_width="0dp"-->
+<!--                android:layout_height="match_parent"-->
+<!--                android:layout_weight="1"-->
+<!--                android:layout_marginRight="8dp"-->
+<!--                android:background="@drawable/btn_login_or"-->
+<!--                android:gravity="center_horizontal"-->
+<!--                android:id="@+id/btnFacebook">-->
+<!--                <ImageView-->
+<!--                    android:layout_width="20dp"-->
+<!--                    android:layout_height="match_parent"-->
+<!--                    android:src="@drawable/ic_fb">-->
+<!--                </ImageView>-->
+<!--                <TextView-->
+<!--                    android:layout_width="wrap_content"-->
+<!--                    android:layout_height="match_parent"-->
+<!--                    android:layout_marginLeft="6dp"-->
+<!--                    android:layout_marginRight="5dp"-->
+<!--                    android:gravity="center_vertical"-->
+<!--                    android:text="@string/facebook"-->
+<!--                    android:textColor="@color/black">-->
+<!--                </TextView>-->
+<!--            </LinearLayout>-->
 
-            <com.facebook.login.widget.LoginButton
-                android:id="@+id/login_button"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginTop="30dp"
-                android:layout_marginBottom="30dp"
-                android:visibility="gone"
-                />
+<!--            <com.facebook.login.widget.LoginButton-->
+<!--                android:id="@+id/login_button"-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="match_parent"-->
+<!--                android:layout_gravity="center_horizontal"-->
+<!--                android:layout_marginTop="30dp"-->
+<!--                android:layout_marginBottom="30dp"-->
+<!--                android:visibility="gone"-->
+<!--                />-->
 
 
             <LinearLayout

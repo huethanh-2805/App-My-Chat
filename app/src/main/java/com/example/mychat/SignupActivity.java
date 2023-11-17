@@ -47,10 +47,9 @@ public class SignupActivity extends Activity implements View.OnClickListener {
     private EditText edtPass;
     private EditText edtUserName;
     private CheckBox checkAgree;
-    private LinearLayout btnFacebook;
-    private LinearLayout btnGoogle;
     private TextView btnLogIn;
     private ProgressBar progressBar;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,11 +63,6 @@ public class SignupActivity extends Activity implements View.OnClickListener {
         btnSignUp=findViewById(R.id.btnSignUp);
         btnSignUp.setOnClickListener(this);
 
-        btnFacebook=findViewById(R.id.btnFacebook);
-        btnFacebook.setOnClickListener(this);
-
-        btnGoogle=findViewById(R.id.btnGoogle);
-        btnGoogle.setOnClickListener(this);
 
         edtEmail=findViewById(R.id.edtEmail);
         edtPass=findViewById(R.id.edtPass);
@@ -111,7 +105,7 @@ public class SignupActivity extends Activity implements View.OnClickListener {
                                         finish();
                                     }
                                     else {
-                                        Toast.makeText(SignupActivity.this,task.getException().getMessage(),Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(SignupActivity.this, task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                                         progressBar.setVisibility(View.INVISIBLE);
 
                                     }

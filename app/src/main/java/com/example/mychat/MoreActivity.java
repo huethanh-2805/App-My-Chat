@@ -37,7 +37,8 @@ public class MoreActivity extends Activity implements View.OnClickListener {
     TextView txtUserName;
     TextView txtEmail;
     final FirebaseFirestore db = FirebaseFirestore.getInstance();
-    final FirebaseUser user=FirebaseAuth.getInstance().getCurrentUser();
+    FirebaseAuth auth = FirebaseAuth.getInstance();
+    final FirebaseUser user=auth.getCurrentUser();
 
     private Button btnSignOut;
     private GoogleSignInClient signInClient;
@@ -109,6 +110,7 @@ public class MoreActivity extends Activity implements View.OnClickListener {
                 .addOnCompleteListener(this, new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
+                        auth.signOut();
                         // ...
 //                        Toast.makeText(getApplicationContext(),"signout",Toast.LENGTH_SHORT).show();
                     }
