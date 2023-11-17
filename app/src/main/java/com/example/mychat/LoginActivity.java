@@ -101,7 +101,6 @@ public class LoginActivity extends Activity implements View.OnClickListener {
         btnForgot = findViewById(R.id.btnForgot);
         btnForgot.setOnClickListener(this);
 
-        checkRemember = findViewById(R.id.checkRemember);
 
         btnLogWithGoogle = findViewById(R.id.btnGoogle);
         btnLogWithGoogle.setOnClickListener(this);

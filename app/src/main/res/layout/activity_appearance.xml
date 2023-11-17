@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_marginRight="20dp"
+    android:layout_marginLeft="20dp"
+    style="@style/SCREEN"
+    tools:context=".AppearanceActivity" android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" android:gravity="center">
+
+        <ImageView
+            android:id="@+id/iconBackMode"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_gravity="end|center_vertical"
+            android:scaleType="centerCrop"
+            android:src="@drawable/ic_back">
+        </ImageView>
+
+        <TextView
+            style="@style/TEXT"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Appearance"
+            android:textSize="60px"
+            android:textStyle="bold" android:layout_marginLeft="10dp"
+            android:paddingTop="20dp"
+            android:paddingLeft="10dp"
+            android:paddingBottom="20dp">
+        </TextView>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <RadioGroup
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/checkBtnGroup">
+            <TextView
+                style="@style/TEXT"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" android:textSize="50px"
+                android:text="Choose Theme">
+            </TextView>
+            <RadioButton
+                style="@style/TEXT"
+                android:id="@+id/light_mode"
+                android:checked="true"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" android:textStyle="bold"
+                android:text="Light" android:paddingLeft="10dp">
+            </RadioButton>
+            <RadioButton
+                style="@style/TEXT"
+                android:id="@+id/dark_mode"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" android:textStyle="bold"
+                android:text="Dark" android:paddingLeft="10dp">
+            </RadioButton>
+            <RadioButton
+                style="@style/TEXT"
+                android:id="@+id/system_mode"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" android:textStyle="bold"
+                android:text="System" android:paddingLeft="10dp">
+            </RadioButton>
+            <TextView
+                style="@style/TEXT"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="If you select system, MyChat will automatically adjust the interface according to the system settings on your device.">
+            </TextView>
+        </RadioGroup>
+    </LinearLayout>
+
+</LinearLayout>
