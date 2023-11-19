@@ -5,14 +5,27 @@ public class Chat {
     private String receiver;
     private String message;
 
+    private String timestamp;
+
+    private boolean isAppeared;
+
     public Chat(String sender, String receiver,String message){
         this.sender=sender;
         this.receiver=receiver;
         this.message=message;
+        this.isAppeared=false;
     }
 
     public Chat(){
+        this.isAppeared=false;
+    }
 
+    public boolean getAppearStatus(){
+        return isAppeared;
+    }
+
+    public void setAppeared(){
+        this.isAppeared=true;
     }
 
     public String getSender(){

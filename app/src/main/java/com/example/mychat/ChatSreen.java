@@ -14,17 +14,16 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
@@ -74,6 +73,7 @@ public class ChatSreen extends AppCompatActivity {
         String userN=intent.getStringExtra("userid");
         username.setText(userN);
         final String userid=(String)"1F9VYzj8BCRi8GiAI0zBoAZIu4u1";
+        final User[] oUser = new User[1];
 
 
         fUser= FirebaseAuth.getInstance().getCurrentUser();
@@ -85,6 +85,8 @@ public class ChatSreen extends AppCompatActivity {
                 String msg=text_send.getText().toString();
                 if (!msg.equals("")){
                     sendMessage(fUser.getUid(),userid,msg);
+                    readMessages(fUser.getUid(), userid, "https://static.vecteezy.com/system/resources/previews/002/002/257/non_2x/beautiful-woman-avatar-character-icon-free-vector.jpg");
+
                 }else{
                     Toast.makeText(ChatSreen.this,"You can't send empty message",Toast.LENGTH_SHORT).show();
                 }
@@ -101,23 +103,26 @@ public class ChatSreen extends AppCompatActivity {
         });
 
 
+
         db.collection("users").document(userid)
                 .get()
                 .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                     @Override
                     public void onSuccess(DocumentSnapshot documentSnapshot) {
                         if (documentSnapshot.exists()) {
+                            oUser[0] = documentSnapshot.toObject(User.class);
                             // Lấy giá trị của trường "username" và "email" từ document
                             String name = documentSnapshot.getString("username");
                             Toast.makeText(ChatSreen.this,name,Toast.LENGTH_SHORT).show();
                             username.setText(name);
-
+                            readMessages(fUser.getUid(), userid, "https://static.vecteezy.com/system/resources/previews/002/002/257/non_2x/beautiful-woman-avatar-character-icon-free-vector.jpg");
                         } else {
                             Toast.makeText(getApplicationContext(),"Document không tồn tại",Toast.LENGTH_SHORT).show();
                         }
-                        //readMessages(fUser.getUid(),userid,"https://static.vecteezy.com/system/resources/previews/002/002/257/non_2x/beautiful-woman-avatar-character-icon-free-vector.jpg");
+
                     }
                 })
+
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
@@ -127,6 +132,8 @@ public class ChatSreen extends AppCompatActivity {
 
     }
 
+
+
     private void sendMessage(String sender, String receiver, String message){
         CollectionReference usersCollection = db.collection("chats");
 
@@ -134,35 +141,49 @@ public class ChatSreen extends AppCompatActivity {
         hashMap.put("sender",sender);
         hashMap.put("receiver",receiver);
         hashMap.put("message",message);
+        hashMap.put("timestamp", FieldValue.serverTimestamp());
 
         usersCollection.add(hashMap);
     }
 
-    private void readMessages(String myid, String userId, String imageUrl){
-        mchat=new ArrayList<>();
-        db.collection("chats")
+    private void readMessages(final String myid, final String userid, final String imageurl) {
+        mchat = new ArrayList<>();
+        CollectionReference chatsCollection = db.collection("chats");
+
+        chatsCollection.orderBy("timestamp", Query.Direction.ASCENDING)
                 .get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                     @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            for (QueryDocumentSnapshot document : task.getResult()) {
-                                Chat chat= (Chat) document.getData();
-                                System.console().printf(chat.getMessage());
-                                if (chat.getReceiver().equals(myid) && chat.getSender().equals(userId) ||
-                                        chat.getReceiver().equals(userId) && chat.getSender().equals(myid)){
-                                    mchat.add(chat);
+                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                        if (!queryDocumentSnapshots.isEmpty()) {
+                            mchat.clear();
+                            List<DocumentSnapshot> list = queryDocumentSnapshots.getDocuments();
+                            for (DocumentSnapshot d : list) {
+                                Chat chat = d.toObject(Chat.class);
+                                Toast.makeText(ChatSreen.this, chat.getMessage(), Toast.LENGTH_SHORT).show();
+                                if ((chat.getReceiver().equals(myid) && chat.getSender().equals(userid))
+                                        || (chat.getReceiver().equals(userid) && chat.getSender().equals(myid))) {
+                                    if (chat.getAppearStatus()==false) {
+                                        mchat.add(chat);
+                                        chat.setAppeared();
+                                    }
                                 }
-
-                                messageAdapter=new MessageAdapter(ChatSreen.this,mchat,imageUrl);
-                                recyclerView.setAdapter(messageAdapter);
                             }
-                        } else {
+                            messageAdapter = new MessageAdapter(ChatSreen.this, mchat, imageurl);
+                            recyclerView.setAdapter(messageAdapter);
 
+                        } else {
+                            // if the snapshot is empty we are displaying a toast message.
+                            Toast.makeText(ChatSreen.this, "No data found in Database", Toast.LENGTH_SHORT).show();
                         }
                     }
-
-
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        // if we do not get any data or any error we are displaying
+                        // a toast message that we do not get any data
+                        Toast.makeText(ChatSreen.this, "Fail to get the data.", Toast.LENGTH_SHORT).show();
+                    }
                 });
 
     }
