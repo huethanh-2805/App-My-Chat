@@ -70,7 +70,6 @@ public class LoginActivity extends Activity implements View.OnClickListener {
     private LinearLayout btnLogWithGoogle;
     private TextView btnToSignUp;
     private ProgressBar progressBar;
-
     private GoogleSignInClient signInClient;
     private final int REQUEST_CODE = 100;
     FirebaseAuth auth;
@@ -116,7 +115,6 @@ public class LoginActivity extends Activity implements View.OnClickListener {
         super.onActivityResult(requestCode, resultCode, data);
 
         // request Google sign in
-
         if (logWithGoogle == true) {
             if (requestCode == REQUEST_CODE) {
                 Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
