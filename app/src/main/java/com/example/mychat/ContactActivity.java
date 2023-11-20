@@ -2,7 +2,9 @@ package com.example.mychat;
 
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 
@@ -15,6 +17,8 @@ import android.widget.SearchView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -30,7 +34,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class ContactActivity extends Activity implements View.OnClickListener, AdapterView.OnItemClickListener {
+public class ContactActivity extends AppCompatActivity implements View.OnClickListener, AdapterView.OnItemClickListener {
     Button btnNewContact, btnMore;
     SearchView searchView;
     ListView listView;
@@ -46,7 +50,7 @@ public class ContactActivity extends Activity implements View.OnClickListener, A
     List<User> user=new ArrayList<>(); //tên người liên hệ
 
     String emailCurrentUser;
-
+    SharedPreferences sharedPreferences;
     private MyArrayAdapter adapter;
 
     @Override
@@ -64,6 +68,8 @@ public class ContactActivity extends Activity implements View.OnClickListener, A
         btnMore = (Button) findViewById(R.id.btnMore);
         btnMore.setOnClickListener(this);
 
+
+        applyNightMode();
         getListUserFromDatabase();
 
         searchUserWithUserName();
@@ -85,8 +91,11 @@ public class ContactActivity extends Activity implements View.OnClickListener, A
             }
             @Override
             public boolean onQueryTextChange(String newText) {
-                adapter.getFilter().filter(newText);
-                return false;
+                if (adapter!=null){
+                    adapter.getFilter().filter(newText);
+
+                }
+                return true;
             }
         });
     }
@@ -160,6 +169,15 @@ public class ContactActivity extends Activity implements View.OnClickListener, A
           Intent intent=new Intent(ContactActivity.this, ChatSreen.class);
           intent.putExtra("receiverID",item.getUid());
           startActivity(intent);
+    }
+    private void applyNightMode() {
+        sharedPreferences=MyChat.getSharedPreferences();
+        boolean nightMode=sharedPreferences.getBoolean("night",false);
+        if (nightMode) {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+        } else {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+        }
     }
 }
 

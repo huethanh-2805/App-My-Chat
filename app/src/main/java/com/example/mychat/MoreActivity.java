@@ -1,6 +1,7 @@
 package com.example.mychat;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 
 import android.content.SharedPreferences;
@@ -15,6 +16,8 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -30,7 +33,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 
-public class MoreActivity extends Activity implements View.OnClickListener {
+public class MoreActivity extends AppCompatActivity implements View.OnClickListener {
     String[] items = new String[]{"Account", "Chats", "Apperance", "Notification", "Privacy", "Data Usage", "Help", "Invite Your Friends"};
 
     Integer[] icons = {R.drawable.ic_avt, R.drawable.ic_chats, R.drawable.ic_apperance, R.drawable.ic_noti, R.drawable.ic_privacy, R.drawable.ic_data, R.drawable.ic_help, R.drawable.ic_invite};
@@ -70,6 +73,10 @@ public class MoreActivity extends Activity implements View.OnClickListener {
         CustomListMore adapter = new CustomListMore(this, R.layout.custom_listview_more, items, icons);
         listView.setAdapter(adapter);
 
+        applyNightMode();
+
+
+
         db.collection("users").document(user.getUid())
                 .get()
                 .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
@@ -103,11 +110,14 @@ public class MoreActivity extends Activity implements View.OnClickListener {
 
                         break;
                     case 1:
-
+                        Intent intent1 = new Intent(MoreActivity.this, ContactActivity.class);
+                        startActivity(intent1);
+                        finish();
                         break;
                     case 2:
                         Intent intent2 = new Intent(MoreActivity.this, AppearanceActivity.class);
                         startActivity(intent2);
+                        finish();
                         break;
                     case 3:
 
@@ -131,6 +141,23 @@ public class MoreActivity extends Activity implements View.OnClickListener {
 
     }
 
+//    @Override
+//    protected void onResume() {
+//        super.onResume();
+//
+//        // Retrieve the night mode preference and apply it
+//
+//    }
+
+    private void applyNightMode() {
+        sharedPreferences=MyChat.getSharedPreferences();
+        boolean nightMode=sharedPreferences.getBoolean("night",false);
+        if (nightMode) {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+        } else {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+        }
+    }
     @Override
     public void onBackPressed() {
 
@@ -156,10 +183,13 @@ public class MoreActivity extends Activity implements View.OnClickListener {
                 .addOnCompleteListener(this, new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
-                        auth.signOut();
+                        if (task.isSuccessful()) {
+                            auth.signOut();
+                        }
 //                        Toast.makeText(getApplicationContext(),"signout",Toast.LENGTH_SHORT).show();
                     }
                 });
+
     }
 
 }

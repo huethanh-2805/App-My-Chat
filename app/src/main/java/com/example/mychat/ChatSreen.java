@@ -1,6 +1,7 @@
 package com.example.mychat;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.telephony.SmsMessage;
 import android.view.View;
@@ -12,6 +13,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -55,12 +57,15 @@ public class ChatSreen extends AppCompatActivity {
     Intent intent;
 
     final FirebaseFirestore db = FirebaseFirestore.getInstance();
+    SharedPreferences sharedPreferences;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat_sreen);
+
+        applyNightMode();
 
         profile_image = findViewById(R.id.profile_image);
         username = findViewById(R.id.username);
@@ -175,5 +180,15 @@ public class ChatSreen extends AppCompatActivity {
                         }
                     }
                 });
+    }
+
+    private void applyNightMode() {
+        sharedPreferences=MyChat.getSharedPreferences();
+        boolean nightMode=sharedPreferences.getBoolean("night",false);
+        if (nightMode) {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+        } else {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+        }
     }
 }

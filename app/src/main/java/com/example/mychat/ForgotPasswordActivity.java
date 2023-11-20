@@ -3,6 +3,7 @@ package com.example.mychat;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.Editable;
@@ -18,6 +19,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatDelegate;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -40,10 +42,12 @@ public class ForgotPasswordActivity extends Activity implements View.OnClickList
     final FirebaseFirestore db = FirebaseFirestore.getInstance();
     CollectionReference collectionReference;
     List<String> listEmail=new ArrayList<String>();
+    SharedPreferences sharedPreferences;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_forgot_password);
+
 
         btnResetPassword=(Button)findViewById(R.id.btnResetPassword);
         btnResetPassword.setOnClickListener(this);
@@ -142,4 +146,6 @@ public class ForgotPasswordActivity extends Activity implements View.OnClickList
                     }
                 });
     }
+
+
 }

@@ -22,6 +22,8 @@ import android.window.OnBackInvokedDispatcher;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
@@ -66,7 +68,6 @@ public class LoginActivity extends Activity implements View.OnClickListener {
 
     SharedPreferences sharedPreferences;
 
-    SharedPreferences.Editor editor;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -268,6 +269,7 @@ public class LoginActivity extends Activity implements View.OnClickListener {
         super.onBackPressed();
         finishAffinity();
     }
+
 }
 
 
