@@ -15,18 +15,20 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
+
 import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.annotations.Nullable;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
@@ -60,32 +62,34 @@ public class ChatSreen extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat_sreen);
 
-        profile_image=findViewById(R.id.profile_image);
-        username=findViewById(R.id.username);
-        btn_send=findViewById(R.id.btn_send);
-        text_send=findViewById(R.id.text_send);
-        btn_back=findViewById(R.id.back);
+        profile_image = findViewById(R.id.profile_image);
+        username = findViewById(R.id.username);
+        btn_send = findViewById(R.id.btn_send);
+        text_send = findViewById(R.id.text_send);
+        btn_back = findViewById(R.id.back);
 
-        recyclerView=findViewById(R.id.recycler_view);
+        recyclerView = findViewById(R.id.recycler_view);
         recyclerView.setHasFixedSize(true);
-        LinearLayoutManager linearLayoutManager=new LinearLayoutManager(getApplicationContext());
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getApplicationContext());
         linearLayoutManager.setStackFromEnd(true);
         recyclerView.setLayoutManager(linearLayoutManager);
 
-        intent=getIntent();
-        String userReceiverID=intent.getStringExtra("receiverID");
-        username.setText(userReceiverID);
+        intent = getIntent();
+        String userReceiverID = intent.getStringExtra("receiverID");
 
-        fUser= FirebaseAuth.getInstance().getCurrentUser();
+//        final User[] oUser = new User[1];
+
+
+        fUser = FirebaseAuth.getInstance().getCurrentUser();
 
         btn_send.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String msg=text_send.getText().toString();
-                if (!msg.equals("")){
-                    sendMessage(fUser.getUid(),userReceiverID,msg);
-                }else{
-                    Toast.makeText(ChatSreen.this,"You can't send empty message",Toast.LENGTH_SHORT).show();
+                String msg = text_send.getText().toString();
+                if (!msg.equals("")) {
+                    sendMessage(fUser.getUid(), userReceiverID, msg);
+                } else {
+                    Toast.makeText(ChatSreen.this, "You can't send empty message", Toast.LENGTH_SHORT).show();
                 }
                 text_send.setText("");
             }
@@ -94,11 +98,10 @@ public class ChatSreen extends AppCompatActivity {
         btn_back.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent=new Intent(ChatSreen.this,ContactActivity.class);
+                Intent intent = new Intent(ChatSreen.this, ContactActivity.class);
                 ChatSreen.this.startActivity(intent);
             }
         });
-
 
         db.collection("users").document(userReceiverID)
                 .get()
@@ -108,64 +111,70 @@ public class ChatSreen extends AppCompatActivity {
                         if (documentSnapshot.exists()) {
                             // Lấy giá trị của trường "username" và "email" từ document
                             String name = documentSnapshot.getString("username");
-                            Toast.makeText(ChatSreen.this,name,Toast.LENGTH_SHORT).show();
                             username.setText(name);
-
+                            readMessages(fUser.getUid(), userReceiverID, "https://static.vecteezy.com/system/resources/previews/002/002/257/non_2x/beautiful-woman-avatar-character-icon-free-vector.jpg");
                         } else {
-                            Toast.makeText(getApplicationContext(),"Document không tồn tại",Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getApplicationContext(), "Document không tồn tại", Toast.LENGTH_SHORT).show();
                         }
-                        //readMessages(fUser.getUid(),userid,"https://static.vecteezy.com/system/resources/previews/002/002/257/non_2x/beautiful-woman-avatar-character-icon-free-vector.jpg");
                     }
                 })
+
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        Toast.makeText(getApplicationContext(),"Fail read field in database",Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getApplicationContext(), "Fail read field in database", Toast.LENGTH_SHORT).show();
                     }
                 });
 
     }
 
-    private void sendMessage(String sender, String receiver, String message){
-        CollectionReference usersCollection = db.collection("messages");
 
-        HashMap<String, Object> messageData=new HashMap<>();
+    private void sendMessage(String sender, String receiver, String message) {
+        CollectionReference usersCollection = db.collection("chats");
+
+
+        HashMap<String, Object> messageData = new HashMap<>();
         Timestamp timestamp = Timestamp.now();
-        messageData.put("senderID",sender);
-        messageData.put("receiverID",receiver);
-        messageData.put("content",message);
-        messageData.put("timestamp",timestamp);
+        messageData.put("sender", sender);
+        messageData.put("receiver", receiver);
+        messageData.put("message", message);
+        messageData.put("timestamp", timestamp);
 
         usersCollection.add(messageData);
-
     }
 
-    private void readMessages(String senderID, String receiverID, String imageUrl){
-        mMessage =new ArrayList<>();
-        db.collection("messages")
-                .get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+    private void readMessages(final String myid, final String userid, final String imageurl) {
+        mMessage = new ArrayList<>();
+        CollectionReference chatsCollection = db.collection("chats");
+
+        chatsCollection.orderBy("timestamp", Query.Direction.ASCENDING)
+                .addSnapshotListener(new EventListener<QuerySnapshot>() {
                     @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            for (QueryDocumentSnapshot document : task.getResult()) {
-                                Message message = (Message) document.getData();
-                                System.console().printf(message.getContent());
-                                if (message.getReceiver().equals(receiverID) && message.getSender().equals(senderID) ||
-                                        message.getReceiver().equals(receiverID) && message.getSender().equals(senderID)){
-                                    mMessage.add(message);
+                    public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
+                        if (e != null) {
+                            // Xử lý lỗi nếu có
+                            return;
+                        }
+                        if (queryDocumentSnapshots != null) {
+                            mMessage.clear();
+                            List<DocumentSnapshot> list = queryDocumentSnapshots.getDocuments();
+                            for (DocumentSnapshot d : list) {
+                                Message message = d.toObject(Message.class);
+                                Toast.makeText(ChatSreen.this, message.getMessage(), Toast.LENGTH_SHORT).show();
+                                if ((message.getReceiver().equals(myid) && message.getSender().equals(userid))
+                                        || (message.getReceiver().equals(userid) && message.getSender().equals(myid))) {
+                                    if (message.getAppearStatus() == false) {
+                                        mMessage.add(message);
+                                        message.setAppeared();
+                                    }
                                 }
-
-                                messageAdapter=new MessageAdapter(ChatSreen.this,mMessage,imageUrl);
-                                recyclerView.setAdapter(messageAdapter);
                             }
+                            messageAdapter = new MessageAdapter(ChatSreen.this, mMessage, imageurl);
+                            recyclerView.setAdapter(messageAdapter);
                         } else {
-
+                            Toast.makeText(ChatSreen.this, "Không tìm thấy dữ liệu trong cơ sở dữ liệu", Toast.LENGTH_SHORT).show();
                         }
                     }
-
-
                 });
-
     }
 }

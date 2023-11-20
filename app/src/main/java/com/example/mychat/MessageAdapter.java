@@ -50,7 +50,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
     @Override
     public void onBindViewHolder(@NonNull MessageAdapter.ViewHolder holder, int position) {
         Message message = mMessage.get(position);
-        holder.show_message.setText(message.getContent());
+        holder.show_message.setText(message.getMessage());
 
         if (imageUrl.equals("default")){
             holder.profile_image.setImageResource(R.drawable.ic_avt);
