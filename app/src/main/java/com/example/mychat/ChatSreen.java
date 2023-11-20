@@ -130,7 +130,7 @@ public class ChatSreen extends AppCompatActivity {
 
 
     private void sendMessage(String sender, String receiver, String message) {
-        CollectionReference usersCollection = db.collection("chats");
+        CollectionReference usersCollection = db.collection("messages");
 
 
         HashMap<String, Object> messageData = new HashMap<>();
@@ -145,7 +145,7 @@ public class ChatSreen extends AppCompatActivity {
 
     private void readMessages(final String myid, final String userid, final String imageurl) {
         mMessage = new ArrayList<>();
-        CollectionReference chatsCollection = db.collection("chats");
+        CollectionReference chatsCollection = db.collection("messages");
 
         chatsCollection.orderBy("timestamp", Query.Direction.ASCENDING)
                 .addSnapshotListener(new EventListener<QuerySnapshot>() {
@@ -160,7 +160,6 @@ public class ChatSreen extends AppCompatActivity {
                             List<DocumentSnapshot> list = queryDocumentSnapshots.getDocuments();
                             for (DocumentSnapshot d : list) {
                                 Message message = d.toObject(Message.class);
-                                Toast.makeText(ChatSreen.this, message.getMessage(), Toast.LENGTH_SHORT).show();
                                 if ((message.getReceiver().equals(myid) && message.getSender().equals(userid))
                                         || (message.getReceiver().equals(userid) && message.getSender().equals(myid))) {
                                     if (message.getAppearStatus() == false) {

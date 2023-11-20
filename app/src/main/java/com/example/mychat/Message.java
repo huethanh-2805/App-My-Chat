@@ -11,11 +11,12 @@ public class Message {
 
     private boolean isAppeared;
 
-    public Message(String sender, String receiver,String message){
+    public Message(String sender, String receiver,String message,Timestamp timestamp){
         this.sender=sender;
         this.receiver=receiver;
         this.message=message;
         this.isAppeared=false;
+        this.timestamp=timestamp;
     }
 
     public Message(){
