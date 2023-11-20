@@ -6,7 +6,6 @@
     android:layout_height="match_parent"
     android:layout_marginRight="20dp"
     android:layout_marginLeft="20dp"
-    style="@style/SCREEN"
     tools:context=".AppearanceActivity" android:orientation="vertical">
 
     <LinearLayout
@@ -15,8 +14,8 @@
 
         <ImageView
             android:id="@+id/iconBackMode"
-            android:layout_width="20dp"
-            android:layout_height="20dp"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
             android:layout_gravity="end|center_vertical"
             android:scaleType="centerCrop"
             android:src="@drawable/ic_back">

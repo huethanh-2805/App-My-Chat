@@ -6,16 +6,14 @@
     </style>
 
     <!-- Dark mode -->
-    <!-- Background của màn hình nếu dark mode bật -->
-    <style name="SCREEN">
-        <item name="android:background">#232323</item>
-    </style>
-
     <!-- Background của text nếu dark mode bật -->
     <style name="TEXT">
         <item name="android:textColor">#FFFFFF</item>
     </style>
-
+    <!-- Background của edit text nếu dark mode bật -->
+    <style name="EDITTEXT">
+        <item name="android:background">@drawable/border_night</item>
+    </style>
     <!-- Background của button nếu dark mode bật -->
     <style name="BUTTON">
         <item name="android:background">@drawable/btn_start</item>

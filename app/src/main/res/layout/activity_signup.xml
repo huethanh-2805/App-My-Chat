@@ -15,11 +15,11 @@
         android:orientation="vertical"
         android:layout_weight="1">
         <TextView
+            style="@style/TEXT"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Create Account"
             android:layout_marginTop="20dp"
-            android:textColor="@color/black"
             android:textStyle="bold"
             android:textSize="30dp" />
 
@@ -39,18 +39,18 @@
             android:orientation="vertical"
             android:layout_marginTop="10dp">
             <TextView
+                style="@style/TEXT"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Email Address"
-                android:textStyle="bold"
-                android:textColor="#070707" />
+                android:textStyle="bold"/>
 
             <EditText
+                style="@style/EDITTEXT"
                 android:id="@+id/edtEmail"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:background="@drawable/edittext_border"
                 android:hint="Enter your email"
                 android:inputType="textEmailAddress"
                 android:minHeight="45dp"
@@ -64,17 +64,17 @@
             android:orientation="vertical"
             android:layout_marginTop="10dp">
             <TextView
+                style="@style/TEXT"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/user_name"
-                android:textStyle="bold"
-                android:textColor="#070707" />
+                android:textStyle="bold"/>
             <EditText
+                style="@style/EDITTEXT"
                 android:id="@+id/edtUserName"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:background="@drawable/edittext_border"
                 android:hint="Enter your user name"
                 android:inputType="text"
                 android:minHeight="45dp"
@@ -88,6 +88,7 @@
             android:orientation="vertical"
             android:layout_marginTop="10dp">
             <TextView
+                style="@style/TEXT"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/password"
@@ -95,6 +96,7 @@
 
             </TextView>
             <EditText
+                style="@style/EDITTEXT"
                 android:id="@+id/edtPass"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -102,7 +104,6 @@
                 android:layout_marginTop="8dp"
                 android:hint="Enter Your Password"
                 android:textSize="16sp"
-                android:background="@drawable/edittext_border"
                 android:paddingLeft="16dp"
                 android:paddingRight="16dp"
                 android:paddingTop="10dp"
@@ -112,6 +113,7 @@
 
 
         <CheckBox
+            style="@style/TEXT"
             android:id="@+id/checkAgree"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

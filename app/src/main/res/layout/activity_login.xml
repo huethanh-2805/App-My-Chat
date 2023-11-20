@@ -12,6 +12,7 @@
         android:orientation="vertical"
         android:layout_weight="1">
         <TextView
+            style="@style/TEXT"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
@@ -33,6 +34,7 @@
             android:orientation="vertical"
             android:layout_marginTop="50dp">
             <TextView
+                style="@style/TEXT"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/email"
@@ -40,13 +42,14 @@
 
             </TextView>
             <EditText
+                style="@style/EDITTEXT"
                 android:id="@+id/edtEmail"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Enter Your Email"
                 android:textSize="16sp"
                 android:inputType="textEmailAddress"
-                android:background="@drawable/border"
+
                 android:paddingLeft="16dp"
                 android:paddingRight="16dp"
                 android:paddingTop="10dp"
@@ -61,6 +64,7 @@
             android:orientation="vertical"
             android:layout_marginTop="40dp">
             <TextView
+                style="@style/TEXT"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/password"
@@ -68,13 +72,13 @@
 
             </TextView>
             <EditText
+                style="@style/EDITTEXT"
                 android:id="@+id/edtPass"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="textPassword"
                 android:hint="Enter Your Password"
                 android:textSize="16sp"
-                android:background="@drawable/border"
                 android:paddingLeft="16dp"
                 android:paddingRight="16dp"
                 android:paddingTop="10dp"
@@ -209,13 +213,13 @@
                     android:src="@drawable/ic_gg">
                 </ImageView>
                 <TextView
+                    style="@style/TEXT"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:layout_marginLeft="6dp"
                     android:layout_marginRight="5dp"
                     android:gravity="center_vertical"
-                    android:text="@string/google"
-                    android:textColor="@color/black">
+                    android:text="@string/google">
                 </TextView>
             </LinearLayout>
         </LinearLayout>

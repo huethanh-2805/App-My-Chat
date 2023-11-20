@@ -8,16 +8,14 @@
     <style name="Theme.MyChat" parent="Base.Theme.MyChat" />
 
     <!-- Light mode -->
-    <!-- Background của màn hình nếu light mode bật -->
-    <style name="SCREEN">
-        <item name="android:background">#FFF</item>
-    </style>
-
     <!-- Background của text nếu light mode bật -->
     <style name="TEXT">
         <item name="android:textColor">#000</item>
     </style>
-
+    <!-- Background của edit text nếu light mode bật -->
+    <style name="EDITTEXT">
+        <item name="android:background">@drawable/border</item>
+    </style>
     <!-- Background của button nếu light mode bật -->
     <style name="BUTTON">
         <item name="android:background">@drawable/btn_start</item>

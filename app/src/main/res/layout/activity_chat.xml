@@ -12,12 +12,12 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal">
         <TextView
+            style="@style/TEXT"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:text="Chat"
             android:textStyle="bold"
-            android:textColor="@color/black"
             android:textSize="24sp"
             android:layout_weight="11"
             />

@@ -20,6 +20,7 @@
         android:layout_margin="10dp"
         android:orientation="vertical">
         <TextView
+            style="@style/TEXT"
             android:id="@+id/txtName"
             android:layout_width="match_parent"
             android:layout_height="40dp"
@@ -31,6 +32,7 @@
         </TextView>
 
         <TextView
+            style="@style/TEXT"
             android:id="@+id/txtString"
             android:layout_width="match_parent"
             android:layout_height="40dp"
