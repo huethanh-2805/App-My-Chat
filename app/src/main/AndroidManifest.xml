@@ -18,6 +18,9 @@
             android:name=".AppearanceActivity"
             android:exported="false" />
         <activity
+            android:name=".ChatSreen"
+            android:exported="true"/>
+        <activity
             android:name=".SignupActivity"
             android:exported="true">
             <intent-filter>
@@ -26,9 +29,11 @@
                     android:scheme="https" />
             </intent-filter>
         </activity>
+
         <activity
             android:name=".GettingStartedActivity"
             android:exported="true" />
+
         <activity
             android:name=".LoginActivity"
             android:exported="true">
@@ -49,6 +54,7 @@
         <activity
             android:name=".ContactActivity"
             android:exported="true" />
+
         <activity
             android:name=".MainActivity"
             android:exported="true">
@@ -58,6 +64,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
 
 <!--        <activity-->
 <!--            android:name="com.facebook.FacebookActivity"-->
@@ -84,5 +91,4 @@
             android:name="com.facebook.sdk.ClientToken"
             android:value="@string/facebook_client_token" />
     </application>
-
 </manifest>

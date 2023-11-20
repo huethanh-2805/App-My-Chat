@@ -6,6 +6,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 
+
+import android.widget.AdapterView;
 import android.widget.Button;
 
 import android.widget.ListView;
@@ -27,7 +29,8 @@ import com.google.firebase.firestore.Query;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ContactActivity extends Activity implements View.OnClickListener {
+
+public class ContactActivity extends Activity implements View.OnClickListener, AdapterView.OnItemClickListener {
     Button btnNewContact, btnMore;
     SearchView searchView;
     ListView listView;
@@ -52,8 +55,11 @@ public class ContactActivity extends Activity implements View.OnClickListener {
         setContentView(R.layout.activity_contact);
 
         searchView=findViewById(R.id.searchView);
+
         listView = (ListView) findViewById(R.id.listView);
         listView.setTextFilterEnabled(true);
+        listView.setOnItemClickListener(this);
+
         btnNewContact = (Button) findViewById(R.id.btnNewContact);
         btnMore = (Button) findViewById(R.id.btnMore);
         btnMore.setOnClickListener(this);
@@ -61,7 +67,6 @@ public class ContactActivity extends Activity implements View.OnClickListener {
         getListUserFromDatabase();
 
         searchUserWithUserName();
-
     }
 
     @Override
@@ -111,7 +116,8 @@ public class ContactActivity extends Activity implements View.OnClickListener {
                                         if (userSnapshot.exists()) {
                                             String username = userSnapshot.getString("username");
                                             String email = userSnapshot.getString("email");
-                                            user.add(new User(username, "...", R.drawable.ic_avt, email));
+                                            String uid=userSnapshot.getId();
+                                            user.add(new User(username, "...", R.drawable.ic_avt, email,uid));
                                         }
                                     }
 
@@ -142,12 +148,18 @@ public class ContactActivity extends Activity implements View.OnClickListener {
         });
     }
 
-
-
     @Override
     public void onBackPressed() {
         super.onBackPressed();
         finishAffinity();
+    }
+
+    @Override
+    public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+          User item=(User)adapterView.getItemAtPosition(i);
+          Intent intent=new Intent(ContactActivity.this, ChatSreen.class);
+          intent.putExtra("receiverID",item.getUid());
+          startActivity(intent);
     }
 }
 

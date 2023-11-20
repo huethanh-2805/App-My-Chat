@@ -2,15 +2,13 @@ package com.example.mychat;
 
 
 
-import static android.content.ContentValues.TAG;
 
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
-import android.preference.PreferenceManager;
-import android.provider.ContactsContract;
+
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -22,20 +20,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.window.OnBackInvokedDispatcher;
 
-import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.facebook.AccessToken;
-import com.facebook.CallbackManager;
-import com.facebook.FacebookCallback;
-import com.facebook.FacebookException;
-import com.facebook.FacebookSdk;
-import com.facebook.GraphRequest;
-import com.facebook.GraphResponse;
-import com.facebook.appevents.AppEventsLogger;
-import com.facebook.login.LoginResult;
-import com.facebook.login.widget.LoginButton;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -75,7 +62,6 @@ public class LoginActivity extends Activity implements View.OnClickListener {
     FirebaseAuth auth;
     FirebaseUser user;
 
-    private boolean logWithFacebook = false;
     private boolean logWithGoogle = false;
 
     SharedPreferences sharedPreferences;

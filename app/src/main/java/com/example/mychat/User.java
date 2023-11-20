@@ -4,13 +4,14 @@ public class User {
     private String name;
     private String string;
     private Integer img;
-
+    private String uid;
     private String email;
-    public User(String name, String string, Integer img,String email) {
+    public User(String name, String string, Integer img,String email, String uid) {
         this.name = name;
         this.string = string;
         this.img = img;
         this.email=email;
+        this.uid=uid;
     }
 
 
@@ -26,5 +27,42 @@ public class User {
     }
 
     public String getEmail() {return  this.email;}
+//    private String uid;
+//    private String username;
+//
+//    private String imageUrl;
+//
+//    public User(String id, String username,String imageUrl){
+//        this.uid=id;
+//        this.username=username;
+//        this.imageUrl=imageUrl;
+//    }
+//
+//    public User(){};
+//
+    public String getUid(){
+        return this.uid;
+    }
+
+    public void setUid(String id){
+        this.uid=id;
+    }
+//
+//    public String getUsername(){
+//        return this.username;
+//    }
+//
+//    public void setUsername(String username){
+//        this.username=username;
+//    }
+//
+//    public String getImageUrl(){
+//        return this.imageUrl;
+//    }
+//
+//    public void setImageUrl(String id){
+//        this.imageUrl=imageUrl;
+//    }
+
 
 }
