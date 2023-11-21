@@ -22,6 +22,9 @@
             android:name=".ChatSreen"
             android:exported="true"/>
         <activity
+            android:name=".MainFragment"
+            android:exported="true"/>
+        <activity
             android:name=".SignupActivity"
             android:exported="true">
             <intent-filter>

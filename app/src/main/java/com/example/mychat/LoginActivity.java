@@ -129,7 +129,7 @@ public class LoginActivity extends Activity implements View.OnClickListener {
 //                    Toast.makeText(getApplicationContext(), "Google signin success", Toast.LENGTH_SHORT).show();
                     user = auth.getCurrentUser();
                     if (user != null) {
-                        startActivity(new Intent(LoginActivity.this, ContactActivity.class));
+                        startActivity(new Intent(LoginActivity.this, MainFragment.class));
                         saveUser(user.getDisplayName(), user.getEmail());
                         progressBar.setVisibility(View.INVISIBLE);
                         finish();
@@ -204,7 +204,7 @@ public class LoginActivity extends Activity implements View.OnClickListener {
                 auth.signInWithEmailAndPassword(email, password).addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         if (auth.getCurrentUser().isEmailVerified()) {
-                            startActivity(new Intent(LoginActivity.this, ContactActivity.class));
+                            startActivity(new Intent(LoginActivity.this, MainFragment.class));
                             progressBar.setVisibility(View.INVISIBLE);
                             finish();
                         } else {

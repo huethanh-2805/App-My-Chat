@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/chat"
+        android:title="CHAT"
+        android:icon="@drawable/ic_chats"/>
+
     <item android:id="@+id/contact"
         android:title="CONTACT"
         android:icon="@drawable/phone"/>
 
     <item android:id="@+id/more"
         android:title="MORE"
-        android:icon="@drawable/icon_more"/>
-
-    <item android:id="@+id/chat"
-        android:title="CHAT"
-        android:icon="@drawable/ic_chats"/>
+        android:icon="@drawable/ic_more"/>
 </menu>
