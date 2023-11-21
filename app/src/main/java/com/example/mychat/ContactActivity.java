@@ -17,8 +17,12 @@ import android.widget.SearchView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -33,25 +37,24 @@ import com.google.firebase.firestore.Query;
 import java.util.ArrayList;
 import java.util.List;
 
+import nl.joery.animatedbottombar.AnimatedBottomBar;
+
 
 public class ContactActivity extends AppCompatActivity implements View.OnClickListener, AdapterView.OnItemClickListener {
-    Button btnNewContact, btnMore;
+    Button btnNewContact;
     SearchView searchView;
     ListView listView;
-
-
     FirebaseAuth auth=FirebaseAuth.getInstance();
-
     //
     FirebaseFirestore db;
     CollectionReference cref;
     Query query;
     //
     List<User> user=new ArrayList<>(); //tên người liên hệ
-
     String emailCurrentUser;
     SharedPreferences sharedPreferences;
     private MyArrayAdapter adapter;
+    AnimatedBottomBar bottomBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,21 +68,41 @@ public class ContactActivity extends AppCompatActivity implements View.OnClickLi
         listView.setOnItemClickListener(this);
 
         btnNewContact = (Button) findViewById(R.id.btnNewContact);
-        btnMore = (Button) findViewById(R.id.btnMore);
-        btnMore.setOnClickListener(this);
-
+        bottomBar = findViewById(R.id.bottom_bar);
 
         applyNightMode();
         getListUserFromDatabase();
 
         searchUserWithUserName();
+
+        bottomBar.selectTabAt(0, true);
+
+        bottomBar.setOnTabSelectListener(new AnimatedBottomBar.OnTabSelectListener() {
+            @Override
+            public void onTabSelected(int i, @Nullable AnimatedBottomBar.Tab tab, int i1, @NonNull AnimatedBottomBar.Tab tab1) {
+                if(tab1.getId() == R.id.contact){
+                    bottomBar.selectTabAt(i1, true);
+                } else if (tab1.getId() == R.id.more) {
+                    bottomBar.selectTabAt(i1, true);
+                    Intent intent=new Intent(ContactActivity.this, MoreActivity.class);
+                    startActivity(intent);
+                } else if (tab1.getId() == R.id.chat) {
+                    bottomBar.selectTabAt(i1, true);
+                    Intent intent=new Intent(ContactActivity.this, ChatActivity.class);
+                    startActivity(intent);
+                }
+            }
+
+            @Override
+            public void onTabReselected(int i, @NonNull AnimatedBottomBar.Tab tab) {
+
+            }
+        });
     }
 
     @Override
     public void onClick(View view) {
-        if (view.getId()==R.id.btnMore) {
-            startActivity(new Intent(ContactActivity.this, MoreActivity.class));
-        }
+
     }
 
     private void searchUserWithUserName() {
@@ -179,6 +202,7 @@ public class ContactActivity extends AppCompatActivity implements View.OnClickLi
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
         }
     }
+
 }
 
 

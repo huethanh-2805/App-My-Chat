@@ -55,5 +55,6 @@ dependencies {
     // Also add the dependency for the Google Play services library and specify its version
     implementation("com.google.android.gms:play-services-auth:20.7.0")
 
-
+    // Import bottom navigation bar
+    implementation ("nl.joery.animatedbottombar:library:1.1.0")
 }

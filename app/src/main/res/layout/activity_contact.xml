@@ -6,10 +6,10 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:padding="3dp"
-    tools:context=".ContactActivity"
-    android:layout_marginRight="20dp"
-    android:layout_marginLeft="20dp">
+    tools:context=".ContactActivity">
     <LinearLayout
+        android:layout_marginRight="20dp"
+        android:layout_marginLeft="20dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
@@ -30,11 +30,13 @@
             android:layout_weight="1"
             android:text="+"
             android:textColor="@color/black"
-            android:background = "@drawable/round_corner_shape"
+            android:background="@drawable/round_corner_shape"
             android:textSize="30sp" />
     </LinearLayout>
 
     <LinearLayout
+        android:layout_marginRight="20dp"
+        android:layout_marginLeft="20dp"
         android:layout_width="match_parent"
         android:layout_height="600dp"
         android:orientation="vertical">
@@ -55,18 +57,25 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="horizontal"
-        android:gravity="right">
-
-        <Button
-            android:id="@+id/btnMore"
-            android:layout_width="200dp"
-            android:layout_height="match_parent"
-            android:color="@color/white"
-            android:text="More"
-            android:textColor="@color/black"
-            android:background = "@drawable/round_corner_shape"
-            android:textSize="20sp" />
+        android:layout_height="match_parent">
+        <nl.joery.animatedbottombar.AnimatedBottomBar
+            android:id="@+id/bottom_bar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:background="#525FE1"
+            app:abb_tabAnimationSelected="slide"
+            app:abb_indicatorAppearance="round"
+            app:abb_indicatorColor="#F86F03"
+            app:abb_indicatorHeight="4dp"
+            app:abb_indicatorLocation="bottom"
+            app:abb_indicatorMargin="16dp"
+            app:abb_selectedIndex="0"
+            app:abb_selectedTabType="icon"
+            app:abb_tabColor="@color/white"
+            app:abb_tabColorSelected="@color/white"
+            app:abb_tabs="@menu/menu"
+            app:layout_constraintBottom_toBottomOf="parent" />
     </LinearLayout>
+
 </LinearLayout>

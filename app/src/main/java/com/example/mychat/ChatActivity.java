@@ -1,8 +1,10 @@
 package com.example.mychat;
 
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
@@ -17,6 +19,8 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 
@@ -26,8 +30,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
-public class ChatActivity extends AppCompatActivity {
-    Button btnMore, btnChat;
+import nl.joery.animatedbottombar.AnimatedBottomBar;
+
+public class ChatActivity extends AppCompatActivity{
     ListView listView;
     //
     String[] id; //get id, không hiện lên, để ánh xạ các thuộc tính còn lại
@@ -37,15 +42,38 @@ public class ChatActivity extends AppCompatActivity {
     // nếu như trong ChatActivity sẽ hiện tin nhắn gần nhất
     Integer[] img; //hình ảnh, ảnh đại diện
     SharedPreferences sharedPreferences;
+    AnimatedBottomBar bottomBar;
+    @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
 
         listView = (ListView) findViewById(R.id.listView);
-        btnMore = (Button) findViewById(R.id.btnMore);
-        btnChat = (Button) findViewById(R.id.btnChat);
+        bottomBar = findViewById(R.id.bottom_bar);
 
+        bottomBar.selectTabAt(2,true);
+        bottomBar.setOnTabSelectListener(new AnimatedBottomBar.OnTabSelectListener() {
+            @Override
+            public void onTabSelected(int i, @Nullable AnimatedBottomBar.Tab tab, int i1, @NonNull AnimatedBottomBar.Tab tab1) {
+                if(tab1.getId() == R.id.contact){
+                    bottomBar.selectTabAt(i1, true);
+                    Intent intent=new Intent(ChatActivity.this, ContactActivity.class);
+                    startActivity(intent);
+                } else if (tab1.getId() == R.id.more) {
+                    bottomBar.selectTabAt(i1, true);
+                    Intent intent=new Intent(ChatActivity.this, MoreActivity.class);
+                    startActivity(intent);
+                } else if (tab1.getId() == R.id.chat) {
+                    bottomBar.selectTabAt(i1, true);
+                }
+            }
+
+            @Override
+            public void onTabReselected(int i, @NonNull AnimatedBottomBar.Tab tab) {
+
+            }
+        });
 
         applyNightMode();
 

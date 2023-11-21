@@ -32,6 +32,8 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import nl.joery.animatedbottombar.AnimatedBottomBar;
+
 
 public class MoreActivity extends AppCompatActivity implements View.OnClickListener {
     String[] items = new String[]{"Account", "Chats", "Apperance", "Notification", "Privacy", "Data Usage", "Help", "Invite Your Friends"};
@@ -41,7 +43,7 @@ public class MoreActivity extends AppCompatActivity implements View.OnClickListe
     TextView txtUserName;
     TextView txtEmail;
     final FirebaseFirestore db = FirebaseFirestore.getInstance();
-
+    AnimatedBottomBar bottomBar;
     FirebaseAuth auth = FirebaseAuth.getInstance();
     final FirebaseUser user=auth.getCurrentUser();
 
@@ -68,6 +70,8 @@ public class MoreActivity extends AppCompatActivity implements View.OnClickListe
 
         txtUserName=findViewById(R.id.txtName);
         txtEmail=findViewById(R.id.txtEmail);
+
+        bottomBar = findViewById(R.id.bottom_bar);
 
         listView = findViewById(R.id.listView);
         CustomListMore adapter = new CustomListMore(this, R.layout.custom_listview_more, items, icons);
@@ -138,7 +142,28 @@ public class MoreActivity extends AppCompatActivity implements View.OnClickListe
             }
         });
 
+        bottomBar.selectTabAt(1,true);
+        bottomBar.setOnTabSelectListener(new AnimatedBottomBar.OnTabSelectListener() {
+            @Override
+            public void onTabSelected(int i, @Nullable AnimatedBottomBar.Tab tab, int i1, @NonNull AnimatedBottomBar.Tab tab1) {
+                if(tab1.getId() == R.id.contact){
+                    bottomBar.selectTabAt(i1, true);
+                    Intent intent=new Intent(MoreActivity.this, ContactActivity.class);
+                    startActivity(intent);
+                } else if (tab1.getId() == R.id.more) {
+                    bottomBar.selectTabAt(i1, true);
+                } else if (tab1.getId() == R.id.chat) {
+                    bottomBar.selectTabAt(i1, true);
+                    Intent intent=new Intent(MoreActivity.this, ChatActivity.class);
+                    startActivity(intent);
+                }
+            }
 
+            @Override
+            public void onTabReselected(int i, @NonNull AnimatedBottomBar.Tab tab) {
+
+            }
+        });
     }
 
 //    @Override
