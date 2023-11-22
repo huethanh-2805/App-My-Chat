@@ -16,14 +16,17 @@
         android:theme="@style/Theme.MyChat"
         tools:targetApi="34">
         <activity
+            android:name=".ConversationInformation"
+            android:exported="false" />
+        <activity
             android:name=".AppearanceActivity"
             android:exported="true" />
         <activity
             android:name=".ChatSreen"
-            android:exported="true"/>
+            android:exported="true" />
         <activity
             android:name=".MainFragment"
-            android:exported="true"/>
+            android:exported="true" />
         <activity
             android:name=".SignupActivity"
             android:exported="true">
@@ -33,32 +36,24 @@
                     android:scheme="https" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".GettingStartedActivity"
             android:exported="true" />
-
         <activity
             android:name=".LoginActivity"
-            android:exported="true">
-
-        </activity>
-
+            android:exported="true"></activity>
         <activity
             android:name=".ForgotPasswordActivity"
-            android:exported="true">
-
-        </activity>
-
-        <activity android:name=".MoreActivity"
-            android:exported="true"/>
+            android:exported="true"></activity>
+        <activity
+            android:name=".MoreActivity"
+            android:exported="true" />
         <activity
             android:name=".ChatActivity"
             android:exported="true" />
         <activity
             android:name=".ContactActivity"
             android:exported="true" />
-
         <activity
             android:name=".MainActivity"
             android:exported="true">
@@ -67,27 +62,20 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity>
-
-
-<!--        <activity-->
-<!--            android:name="com.facebook.FacebookActivity"-->
-<!--            android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation"-->
-<!--            android:label="@string/app_name" />-->
-<!--        <activity-->
-<!--            android:name="com.facebook.CustomTabActivity"-->
-<!--            android:exported="true">-->
-<!--            <intent-filter>-->
-<!--                <action android:name="android.intent.action.VIEW" />-->
-
-<!--                <category android:name="android.intent.category.DEFAULT" />-->
-<!--                <category android:name="android.intent.category.BROWSABLE" />-->
-
-<!--                <data android:scheme="@string/fb_login_protocol_scheme" />-->
-<!--            </intent-filter>-->
-<!--        </activity>-->
-
-
+        </activity> <!-- <activity -->
+        <!-- android:name="com.facebook.FacebookActivity" -->
+        <!-- android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation" -->
+        <!-- android:label="@string/app_name" /> -->
+        <!-- <activity -->
+        <!-- android:name="com.facebook.CustomTabActivity" -->
+        <!-- android:exported="true"> -->
+        <!-- <intent-filter> -->
+        <!-- <action android:name="android.intent.action.VIEW" /> -->
+        <!-- <category android:name="android.intent.category.DEFAULT" /> -->
+        <!-- <category android:name="android.intent.category.BROWSABLE" /> -->
+        <!-- <data android:scheme="@string/fb_login_protocol_scheme" /> -->
+        <!-- </intent-filter> -->
+        <!-- </activity> -->
         <meta-data
             android:name="com.facebook.sdk.ApplicationId"
             android:value="@string/facebook_app_id" />
