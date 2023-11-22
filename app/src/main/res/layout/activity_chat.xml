@@ -9,39 +9,46 @@
     tools:context=".ChatActivity"
     android:animateLayoutChanges="true">
     <LinearLayout
+        android:layout_marginRight="20dp"
+        android:layout_marginLeft="20dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginRight="20dp"
-        android:layout_marginLeft="20dp">
+        android:orientation="horizontal">
         <TextView
             style="@style/TEXT"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:text="Chat"
+            android:layout_gravity="center"
+            android:text="MyChat"
             android:textStyle="bold"
             android:textSize="24sp"
             android:layout_weight="11"
             />
-
+        <Button
+            android:id="@+id/btnNewContact"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="+"
+            android:textColor="@color/black"
+            android:background="@drawable/round_corner_shape"
+            android:textSize="30sp" />
     </LinearLayout>
 
     <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
         android:layout_marginRight="20dp"
-        android:layout_marginLeft="20dp">
-        <EditText
-            android:id="@+id/searchBox"
+        android:layout_marginLeft="20dp"
+        android:layout_width="match_parent"
+        android:layout_height="600dp"
+        android:orientation="vertical">
+        <SearchView
+            android:id="@+id/searchView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:textSize="25dp"
-            android:hint="Find contact"
-            >
-        </EditText>
+            android:queryHint="Search Contacts">
+        </SearchView>
         <ListView
             android:id="@+id/listView"
             android:layout_width="match_parent"

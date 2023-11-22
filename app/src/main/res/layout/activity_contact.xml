@@ -6,7 +6,8 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:padding="3dp"
-    tools:context=".ContactActivity">
+    tools:context=".ContactActivity"
+    android:animateLayoutChanges="true">
     <LinearLayout
         android:layout_marginRight="20dp"
         android:layout_marginLeft="20dp"
