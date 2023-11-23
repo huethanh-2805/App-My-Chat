@@ -181,16 +181,6 @@ public class ContactActivity extends Fragment implements View.OnClickListener, A
           intent.putExtra("receiverID",item.getUid());
           startActivity(intent);
     }
-    private void applyNightMode() {
-        sharedPreferences=MyChat.getSharedPreferences();
-        boolean nightMode=sharedPreferences.getBoolean("night",false);
-        if (nightMode) {
-            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
-        } else {
-            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
-        }
-    }
-
 }
 
 

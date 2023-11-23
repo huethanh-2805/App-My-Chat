@@ -3,6 +3,8 @@ package com.example.mychat;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -11,6 +13,10 @@ import androidx.appcompat.app.AppCompatDelegate;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentTransaction;
+
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.messaging.FirebaseMessaging;
 
 import nl.joery.animatedbottombar.AnimatedBottomBar;
 
@@ -34,6 +40,21 @@ public class MainFragment extends AppCompatActivity {
         ft.commit();
 
         bottomBar=findViewById(R.id.bottom_bar);
+
+        FirebaseMessaging.getInstance().subscribeToTopic("message")
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        String msg = "Subscribed";
+                        if (!task.isSuccessful()) {
+                            msg = "Subscribe failed";
+                        }
+                        String TAG="message";
+                        Log.d(TAG, msg);
+                        Toast.makeText(MainFragment.this, msg, Toast.LENGTH_SHORT).show();
+                    }
+                });
+
 
         initBottomBar();
 
