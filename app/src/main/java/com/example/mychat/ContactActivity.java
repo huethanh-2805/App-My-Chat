@@ -145,8 +145,6 @@ public class ContactActivity extends Fragment implements View.OnClickListener, A
                                             String username = userSnapshot.getString("username");
                                             String email = userSnapshot.getString("email");
                                             String uid=userSnapshot.getId();
-                                            //now get the LATEST message
-
                                             user.add(new User(username, "abc", R.drawable.ic_avt, email,uid));
                                         }
                                     }
