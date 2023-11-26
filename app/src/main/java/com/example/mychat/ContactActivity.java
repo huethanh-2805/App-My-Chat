@@ -5,11 +5,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.SearchView;
@@ -38,7 +40,7 @@ import nl.joery.animatedbottombar.AnimatedBottomBar;
 
 
 public class ContactActivity extends Fragment implements View.OnClickListener, AdapterView.OnItemClickListener {
-    Button btnNewContact;
+    ImageView imgNewContact;
     SearchView searchView;
     ListView listView;
     FirebaseAuth auth=FirebaseAuth.getInstance();
@@ -66,7 +68,6 @@ public class ContactActivity extends Fragment implements View.OnClickListener, A
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-//        setContentView(R.layout.activity_contact);
         try {
             context = getActivity(); // use this reference to invoke main callbacks
             mainFragment = (MainFragment) getActivity();
@@ -86,8 +87,8 @@ public class ContactActivity extends Fragment implements View.OnClickListener, A
         listView.setTextFilterEnabled(true);
         listView.setOnItemClickListener(this);
 
-        btnNewContact = (Button) layout_contact.findViewById(R.id.btnNewContact);
-
+        imgNewContact = (ImageView) layout_contact.findViewById(R.id.imgAdd);
+        imgNewContact.setOnClickListener(this);
         getListUserFromDatabase();
 
         searchUserWithUserName();
@@ -96,7 +97,9 @@ public class ContactActivity extends Fragment implements View.OnClickListener, A
 
     @Override
     public void onClick(View view) {
-
+        if (view.getId()==R.id.imgAdd) {
+            startActivity(new Intent(context,AddContactActivity.class));
+        }
     }
 
     private void searchUserWithUserName() {
@@ -118,12 +121,12 @@ public class ContactActivity extends Fragment implements View.OnClickListener, A
     }
 
     private void getListUserFromDatabase() {
+
         user = new ArrayList<>();
         db = FirebaseFirestore.getInstance();
         //get CONTACT collection
         cref = db.collection("contact");
         DocumentReference doc = cref.document(auth.getCurrentUser().getUid());
-        //Toast.makeText(context,auth.getCurrentUser().getUid().toString(), Toast.LENGTH_SHORT).show();
         doc.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
@@ -183,6 +186,17 @@ public class ContactActivity extends Fragment implements View.OnClickListener, A
           intent.putExtra("receiverID",item.getUid());
           startActivity(intent);
     }
+    @Override
+    public void onResume() {
+        super.onResume();
+        user.clear();
+        if (adapter!=null) {
+            adapter.notifyDataSetChanged();
+            getListUserFromDatabase();
+
+        }
+    }
+
 }
 
 

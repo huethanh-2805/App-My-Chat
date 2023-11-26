@@ -10,6 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.SearchView;
@@ -38,7 +39,7 @@ import nl.joery.animatedbottombar.AnimatedBottomBar;
 
 
 public class ChatActivity extends Fragment implements View.OnClickListener, AdapterView.OnItemClickListener {
-    Button btnNewContact;
+    ImageView imgNewChat;
     SearchView searchView;
     ListView listView;
     FirebaseAuth auth=FirebaseAuth.getInstance();
@@ -81,7 +82,7 @@ public class ChatActivity extends Fragment implements View.OnClickListener, Adap
         listView.setTextFilterEnabled(true);
         listView.setOnItemClickListener(this);
 
-        btnNewContact = (Button) layout_chat.findViewById(R.id.btnNewContact);
+        imgNewChat = (ImageView) layout_chat.findViewById(R.id.imgNewChat);
 
         getListUserFromDatabase();
 

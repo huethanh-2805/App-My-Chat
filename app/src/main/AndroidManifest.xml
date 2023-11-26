@@ -55,6 +55,9 @@
             android:name=".ContactActivity"
             android:exported="true" />
         <activity
+            android:name=".AddContactActivity"
+            android:exported="true" />
+        <activity
             android:name=".MainActivity"
             android:exported="true">
             <intent-filter>

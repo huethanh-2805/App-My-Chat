@@ -41,6 +41,7 @@ public class MainFragment extends AppCompatActivity {
         .addToBackStack("name")
         .commit();
 
+
         bottomBar=findViewById(R.id.bottom_bar);
 
         initBottomBar();
