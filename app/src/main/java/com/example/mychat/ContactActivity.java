@@ -120,20 +120,22 @@ public class ContactActivity extends Fragment implements View.OnClickListener, A
     private void getListUserFromDatabase() {
         user = new ArrayList<>();
         db = FirebaseFirestore.getInstance();
-
+        //get CONTACT collection
         cref = db.collection("contact");
-        DocumentReference doc = cref.document(auth.getCurrentUser().getUid().toString());
+        DocumentReference doc = cref.document(auth.getCurrentUser().getUid());
+        //Toast.makeText(context,auth.getCurrentUser().getUid().toString(), Toast.LENGTH_SHORT).show();
         doc.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful()) {
                     DocumentSnapshot documentSnapshot = task.getResult();
-                    if (documentSnapshot.exists()) {
+                    if (documentSnapshot.exists()) { //get EVERY documents within the collection
+                        //get the userContact array
                         List<DocumentReference> docUser = (List<DocumentReference>) documentSnapshot.get("userContact");
-
+                        //get the total
                         final int totalUsers = docUser.size();
                         final int[] counter = {0};
-                        for (DocumentReference d : docUser) {
+                        for (DocumentReference d : docUser) { //get every user contact from array
                             d.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                                 @Override
                                 public void onComplete(@NonNull Task<DocumentSnapshot> task) {
@@ -143,12 +145,12 @@ public class ContactActivity extends Fragment implements View.OnClickListener, A
                                             String username = userSnapshot.getString("username");
                                             String email = userSnapshot.getString("email");
                                             String uid=userSnapshot.getId();
-                                            user.add(new User(username, "...", R.drawable.ic_avt, email,uid));
+                                            //now get the LATEST message
+
+                                            user.add(new User(username, "abc", R.drawable.ic_avt, email,uid));
                                         }
                                     }
-
                                     counter[0]++;
-
                                     // Kiểm tra nếu tất cả các cuộc gọi đã hoàn thành
                                     if (counter[0] == totalUsers) {
                                         // Tất cả các cuộc gọi đã hoàn thành, cập nhật adapter ở đây

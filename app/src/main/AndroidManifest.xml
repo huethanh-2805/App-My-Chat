@@ -16,14 +16,17 @@
         android:theme="@style/Theme.MyChat"
         tools:targetApi="34">
         <activity
+            android:name=".ConversationInformation"
+            android:exported="false" />
+        <activity
             android:name=".AppearanceActivity"
             android:exported="true" />
         <activity
             android:name=".ChatSreen"
-            android:exported="true"/>
+            android:exported="true" />
         <activity
             android:name=".MainFragment"
-            android:exported="true"/>
+            android:exported="true" />
         <activity
             android:name=".SignupActivity"
             android:exported="true">
@@ -33,32 +36,24 @@
                     android:scheme="https" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".GettingStartedActivity"
             android:exported="true" />
-
         <activity
             android:name=".LoginActivity"
-            android:exported="true">
-
-        </activity>
-
+            android:exported="true"></activity>
         <activity
             android:name=".ForgotPasswordActivity"
-            android:exported="true">
-
-        </activity>
-
-        <activity android:name=".MoreActivity"
-            android:exported="true"/>
+            android:exported="true"></activity>
+        <activity
+            android:name=".MoreActivity"
+            android:exported="true" />
         <activity
             android:name=".ChatActivity"
             android:exported="true" />
         <activity
             android:name=".ContactActivity"
             android:exported="true" />
-
         <activity
             android:name=".MainActivity"
             android:exported="true">

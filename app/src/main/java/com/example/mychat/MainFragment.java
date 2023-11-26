@@ -36,36 +36,33 @@ public class MainFragment extends AppCompatActivity {
 
         ft = getSupportFragmentManager().beginTransaction();
         chatActivity = ChatActivity.newInstance("init");
-        ft.replace(R.id.main_holder, chatActivity);
-        ft.commit();
+        ft.replace(R.id.main_holder, chatActivity)
+        .setReorderingAllowed(true)
+        .addToBackStack("name")
+        .commit();
 
         bottomBar=findViewById(R.id.bottom_bar);
-
-        FirebaseMessaging.getInstance().subscribeToTopic("message")
-                .addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        String msg = "Subscribed";
-                        if (!task.isSuccessful()) {
-                            msg = "Subscribe failed";
-                        }
-                        String TAG="message";
-                        Log.d(TAG, msg);
-                        Toast.makeText(MainFragment.this, msg, Toast.LENGTH_SHORT).show();
-                    }
-                });
-
 
         initBottomBar();
 
         applyNightMode();
     }
 
+    public void changeFragment(Fragment selectedFragment) {
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.main_holder, selectedFragment)
+                .setReorderingAllowed(true)
+                .addToBackStack("name")
+                .commit();
+    }
+
+
     private void initBottomBar(){
         bottomBar.setOnTabSelectListener(new AnimatedBottomBar.OnTabSelectListener() {
             @Override
             public void onTabSelected(int i, @Nullable AnimatedBottomBar.Tab tab, int i1, @NonNull AnimatedBottomBar.Tab tab1) {
                 Fragment selectedFragment = null;
+
 
                 switch (i1) {
                     case 0:
@@ -81,11 +78,16 @@ public class MainFragment extends AppCompatActivity {
 
                 if (selectedFragment != null) {
                     getSupportFragmentManager().beginTransaction()
+                            .setCustomAnimations(
+                                    R.anim.slide_in,  // enter
+                                    R.anim.fade_out,  // exit
+                                    R.anim.fade_in,   // popEnter
+                                    R.anim.slide_out  // popExit
+                            )
                             .replace(R.id.main_holder, selectedFragment)
                             .commit();
                 }
             }
-
             @Override
             public void onTabReselected(int i, @NonNull AnimatedBottomBar.Tab tab) {
 
@@ -93,13 +95,6 @@ public class MainFragment extends AppCompatActivity {
         });
 
     }
-
-    public void changeFragment(Fragment selectedFragment) {
-        getSupportFragmentManager().beginTransaction()
-                .replace(R.id.main_holder, selectedFragment)
-                .commit();
-    }
-
     private void applyNightMode() {
         sharedPreferences=MyChat.getSharedPreferences();
         boolean nightMode=sharedPreferences.getBoolean("night",false);

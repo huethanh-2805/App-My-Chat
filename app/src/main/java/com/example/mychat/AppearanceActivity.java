@@ -59,12 +59,7 @@ public class AppearanceActivity extends AppCompatActivity {
                     editor.putBoolean("night", true);
                 } else {
                     int mode=setNightMode(getApplicationContext(),isSystemInNightMode(getApplicationContext()));
-                    if (mode == AppCompatDelegate.MODE_NIGHT_YES){
-                        editor.putBoolean("night", true);
-                    } else {
-                        editor.putBoolean("night", false);
-
-                    }
+                    editor.putBoolean("night", mode == AppCompatDelegate.MODE_NIGHT_YES);
                 }
                 editor.apply();
             }

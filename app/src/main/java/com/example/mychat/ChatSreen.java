@@ -58,7 +58,7 @@ public class ChatSreen extends AppCompatActivity {
 
     final FirebaseFirestore db = FirebaseFirestore.getInstance();
     SharedPreferences sharedPreferences;
-
+    ImageView btn_more;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,6 +72,7 @@ public class ChatSreen extends AppCompatActivity {
         btn_send = findViewById(R.id.btn_send);
         text_send = findViewById(R.id.text_send);
         btn_back = findViewById(R.id.back);
+        btn_more = findViewById(R.id.more);
 
         recyclerView = findViewById(R.id.recycler_view);
         recyclerView.setHasFixedSize(true);
@@ -103,10 +104,11 @@ public class ChatSreen extends AppCompatActivity {
         btn_back.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(ChatSreen.this, ContactActivity.class);
-                ChatSreen.this.startActivity(intent);
+                finish();
             }
         });
+
+
 
         db.collection("users").document(userReceiverID)
                 .get()
@@ -116,6 +118,14 @@ public class ChatSreen extends AppCompatActivity {
                         if (documentSnapshot.exists()) {
                             // Lấy giá trị của trường "username" và "email" từ document
                             String name = documentSnapshot.getString("username");
+                            btn_more.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    Intent intent = new Intent(ChatSreen.this, ConversationInformation.class);
+                                    intent.putExtra("user_name",name);
+                                    ChatSreen.this.startActivity(intent);
+                                }
+                            });
                             username.setText(name);
                             readMessages(fUser.getUid(), userReceiverID, "https://static.vecteezy.com/system/resources/previews/002/002/257/non_2x/beautiful-woman-avatar-character-icon-free-vector.jpg");
                         } else {
@@ -167,7 +177,7 @@ public class ChatSreen extends AppCompatActivity {
                                 Message message = d.toObject(Message.class);
                                 if ((message.getReceiver().equals(myid) && message.getSender().equals(userid))
                                         || (message.getReceiver().equals(userid) && message.getSender().equals(myid))) {
-                                    if (message.getAppearStatus() == false) {
+                                    if (!message.getAppearStatus()) {
                                         mMessage.add(message);
                                         message.setAppeared();
                                     }

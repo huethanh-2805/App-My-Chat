@@ -102,7 +102,7 @@ public class LoginActivity extends Activity implements View.OnClickListener {
         super.onActivityResult(requestCode, resultCode, data);
 
         // request Google sign in
-        if (logWithGoogle == true) {
+        if (logWithGoogle) {
             if (requestCode == REQUEST_CODE) {
                 Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
                 try {

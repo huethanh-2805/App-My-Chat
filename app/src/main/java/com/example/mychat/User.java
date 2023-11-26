@@ -1,11 +1,11 @@
 package com.example.mychat;
 
 public class User {
-    private String name;
-    private String string;
-    private Integer img;
+    private final String name;
+    private final String string;
+    private final Integer img;
     private String uid;
-    private String email;
+    private final String email;
     public User(String name, String string, Integer img,String email, String uid) {
         this.name = name;
         this.string = string;
