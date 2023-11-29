@@ -6,41 +6,49 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:padding="3dp"
-    tools:context=".ChatActivity">
+    tools:context=".ChatActivity"
+    android:animateLayoutChanges="true">
     <LinearLayout
+        android:layout_marginRight="20dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginTop="20dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginRight="20dp"
-        android:layout_marginLeft="20dp">
+        android:orientation="horizontal">
         <TextView
             style="@style/TEXT"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
+            android:layout_gravity="center"
             android:text="Chat"
             android:textStyle="bold"
             android:textSize="24sp"
             android:layout_weight="11"
             />
-
+        <ImageView
+            android:id="@+id/imgNewChat"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_weight="1"
+            android:src="@drawable/ic_addfriend"
+            />
     </LinearLayout>
 
     <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="600dp"
-        android:orientation="vertical"
         android:layout_marginRight="20dp"
-        android:layout_marginLeft="20dp">
-        <EditText
-            android:id="@+id/searchBox"
+        android:layout_marginLeft="20dp"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+        <SearchView
+            android:id="@+id/searchView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:textSize="25dp"
-            android:hint="Find contact"
-            >
-        </EditText>
+            android:iconifiedByDefault="false"
+            android:queryHint="Search Contacts">
+        </SearchView>
         <ListView
             android:id="@+id/listView"
             android:layout_width="match_parent"
@@ -48,27 +56,6 @@
             ></ListView>
     </LinearLayout>
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-        <nl.joery.animatedbottombar.AnimatedBottomBar
-            android:id="@+id/bottom_bar"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom"
-            android:background="#525FE1"
-            app:abb_tabAnimationSelected="slide"
-            app:abb_indicatorAppearance="round"
-            app:abb_indicatorColor="#F86F03"
-            app:abb_indicatorHeight="4dp"
-            app:abb_indicatorLocation="bottom"
-            app:abb_indicatorMargin="16dp"
-            app:abb_selectedIndex="0"
-            app:abb_selectedTabType="icon"
-            app:abb_tabColor="@color/white"
-            app:abb_tabColorSelected="@color/white"
-            app:abb_tabs="@menu/menu"
-            app:layout_constraintBottom_toBottomOf="parent" />
-    </LinearLayout>
+
 
 </LinearLayout>

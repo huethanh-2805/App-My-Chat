@@ -1,14 +1,11 @@
 package com.example.mychat;
 
 
-
-
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
-
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -22,8 +19,6 @@ import android.window.OnBackInvokedDispatcher;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.app.AppCompatDelegate;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
@@ -42,9 +37,6 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
 
-import org.json.JSONObject;
-
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -102,7 +94,7 @@ public class LoginActivity extends Activity implements View.OnClickListener {
         super.onActivityResult(requestCode, resultCode, data);
 
         // request Google sign in
-        if (logWithGoogle == true) {
+        if (logWithGoogle) {
             if (requestCode == REQUEST_CODE) {
                 Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
                 try {
@@ -129,7 +121,7 @@ public class LoginActivity extends Activity implements View.OnClickListener {
 //                    Toast.makeText(getApplicationContext(), "Google signin success", Toast.LENGTH_SHORT).show();
                     user = auth.getCurrentUser();
                     if (user != null) {
-                        startActivity(new Intent(LoginActivity.this, ContactActivity.class));
+                        startActivity(new Intent(LoginActivity.this, MainFragment.class));
                         saveUser(user.getDisplayName(), user.getEmail());
                         progressBar.setVisibility(View.INVISIBLE);
                         finish();
@@ -204,7 +196,7 @@ public class LoginActivity extends Activity implements View.OnClickListener {
                 auth.signInWithEmailAndPassword(email, password).addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         if (auth.getCurrentUser().isEmailVerified()) {
-                            startActivity(new Intent(LoginActivity.this, ContactActivity.class));
+                            startActivity(new Intent(LoginActivity.this, MainFragment.class));
                             progressBar.setVisibility(View.INVISIBLE);
                             finish();
                         } else {

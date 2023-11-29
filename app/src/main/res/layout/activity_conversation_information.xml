@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ConversationInformation"
+    android:layout_marginRight="20dp" android:orientation="vertical"
+    android:layout_marginLeft="20dp"
+    android:paddingTop="20dp">
+
+    <ImageView
+        android:layout_width="25dp"
+        android:layout_height="25dp"
+        android:scaleType="centerCrop"
+        android:src="@drawable/before"
+        android:id="@+id/back"
+        android:layout_gravity="start|center_vertical"
+        android:layout_marginRight="10dp">
+    </ImageView>
+
+    <ImageView
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_marginTop="20dp"
+        android:layout_gravity="center"
+        android:scaleType="centerCrop"
+        android:id="@+id/profile_image"
+        android:src="@drawable/ic_avt">
+    </ImageView>
+
+    <TextView
+        style="@style/TEXT"
+        android:id="@+id/username"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="5dp"
+        android:gravity="center_vertical"
+        android:paddingLeft="10dp"
+        android:paddingTop="10dp"
+        android:textStyle="bold"
+        android:text=""
+        android:textSize="20dp"></TextView>
+
+    <ListView
+        android:id="@+id/listView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:divider="#00000000"
+        android:paddingTop="30dp"></ListView>
+
+</LinearLayout>

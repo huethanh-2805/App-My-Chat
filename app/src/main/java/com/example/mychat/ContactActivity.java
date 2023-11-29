@@ -1,28 +1,23 @@
 package com.example.mychat;
 
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.View;
-
-
+import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.Button;
-
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.SearchView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.app.AppCompatDelegate;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -40,8 +35,8 @@ import java.util.List;
 import nl.joery.animatedbottombar.AnimatedBottomBar;
 
 
-public class ContactActivity extends AppCompatActivity implements View.OnClickListener, AdapterView.OnItemClickListener {
-    Button btnNewContact;
+public class ContactActivity extends Fragment implements View.OnClickListener, AdapterView.OnItemClickListener {
+    ImageView imgNewContact;
     SearchView searchView;
     ListView listView;
     FirebaseAuth auth=FirebaseAuth.getInstance();
@@ -56,53 +51,51 @@ public class ContactActivity extends AppCompatActivity implements View.OnClickLi
     private MyArrayAdapter adapter;
     AnimatedBottomBar bottomBar;
 
+    Context context;
+    MainFragment mainFragment;
+    public static ContactActivity newInstance(String strArg) {
+        ContactActivity fragment = new ContactActivity();
+        Bundle args = new Bundle();
+        args.putString("ContactActivity", strArg);
+        fragment.setArguments(args);
+        return fragment;
+    }
+
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_contact);
+        try {
+            context = getActivity(); // use this reference to invoke main callbacks
+            mainFragment = (MainFragment) getActivity();
+        } catch (IllegalStateException e) {
+            throw new IllegalStateException("MainFragment must implement callbacks");
+        }
+    }
+    @Nullable
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
-        searchView=findViewById(R.id.searchView);
+        LinearLayout layout_contact = (LinearLayout) inflater.inflate(R.layout.activity_contact, null);
 
-        listView = (ListView) findViewById(R.id.listView);
+        searchView=layout_contact.findViewById(R.id.searchView);
+
+        listView = (ListView)layout_contact.findViewById(R.id.listView);
         listView.setTextFilterEnabled(true);
         listView.setOnItemClickListener(this);
 
-        btnNewContact = (Button) findViewById(R.id.btnNewContact);
-        bottomBar = findViewById(R.id.bottom_bar);
-
-        applyNightMode();
+        imgNewContact = (ImageView) layout_contact.findViewById(R.id.imgAdd);
+        imgNewContact.setOnClickListener(this);
         getListUserFromDatabase();
 
         searchUserWithUserName();
-
-        bottomBar.selectTabAt(0, true);
-
-        bottomBar.setOnTabSelectListener(new AnimatedBottomBar.OnTabSelectListener() {
-            @Override
-            public void onTabSelected(int i, @Nullable AnimatedBottomBar.Tab tab, int i1, @NonNull AnimatedBottomBar.Tab tab1) {
-                if(tab1.getId() == R.id.contact){
-                    bottomBar.selectTabAt(i1, true);
-                } else if (tab1.getId() == R.id.more) {
-                    bottomBar.selectTabAt(i1, true);
-                    Intent intent=new Intent(ContactActivity.this, MoreActivity.class);
-                    startActivity(intent);
-                } else if (tab1.getId() == R.id.chat) {
-                    bottomBar.selectTabAt(i1, true);
-                    Intent intent=new Intent(ContactActivity.this, ChatActivity.class);
-                    startActivity(intent);
-                }
-            }
-
-            @Override
-            public void onTabReselected(int i, @NonNull AnimatedBottomBar.Tab tab) {
-
-            }
-        });
+        return layout_contact;
     }
 
     @Override
     public void onClick(View view) {
-
+        if (view.getId()==R.id.imgAdd) {
+            startActivity(new Intent(context,AddContactActivity.class));
+        }
     }
 
     private void searchUserWithUserName() {
@@ -124,22 +117,24 @@ public class ContactActivity extends AppCompatActivity implements View.OnClickLi
     }
 
     private void getListUserFromDatabase() {
+
         user = new ArrayList<>();
         db = FirebaseFirestore.getInstance();
-
+        //get CONTACT collection
         cref = db.collection("contact");
-        DocumentReference doc = cref.document(auth.getCurrentUser().getUid().toString());
+        DocumentReference doc = cref.document(auth.getCurrentUser().getUid());
         doc.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful()) {
                     DocumentSnapshot documentSnapshot = task.getResult();
-                    if (documentSnapshot.exists()) {
+                    if (documentSnapshot.exists()) { //get EVERY documents within the collection
+                        //get the userContact array
                         List<DocumentReference> docUser = (List<DocumentReference>) documentSnapshot.get("userContact");
-
+                        //get the total
                         final int totalUsers = docUser.size();
                         final int[] counter = {0};
-                        for (DocumentReference d : docUser) {
+                        for (DocumentReference d : docUser) { //get every user contact from array
                             d.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                                 @Override
                                 public void onComplete(@NonNull Task<DocumentSnapshot> task) {
@@ -149,16 +144,14 @@ public class ContactActivity extends AppCompatActivity implements View.OnClickLi
                                             String username = userSnapshot.getString("username");
                                             String email = userSnapshot.getString("email");
                                             String uid=userSnapshot.getId();
-                                            user.add(new User(username, "...", R.drawable.ic_avt, email,uid));
+                                            user.add(new User(username, "abc", R.drawable.ic_avt, email,uid));
                                         }
                                     }
-
                                     counter[0]++;
-
                                     // Kiểm tra nếu tất cả các cuộc gọi đã hoàn thành
                                     if (counter[0] == totalUsers) {
                                         // Tất cả các cuộc gọi đã hoàn thành, cập nhật adapter ở đây
-                                        adapter = new MyArrayAdapter(ContactActivity.this, R.layout.array_adapter, user);
+                                        adapter = new MyArrayAdapter(context, R.layout.array_adapter, user);
                                         listView.setAdapter(adapter);
                                         adapter.notifyDataSetChanged();
                                     }
@@ -166,7 +159,7 @@ public class ContactActivity extends AppCompatActivity implements View.OnClickLi
                             }).addOnFailureListener(new OnFailureListener() {
                                 @Override
                                 public void onFailure(@NonNull Exception e) {
-                                    Toast.makeText(getApplicationContext(), "fail for", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(context, "fail for", Toast.LENGTH_SHORT).show();
                                     counter[0]++;
                                 }
                             });
@@ -174,32 +167,27 @@ public class ContactActivity extends AppCompatActivity implements View.OnClickLi
                     }
 
                 } else {
-                    Toast.makeText(getApplicationContext(), "fail", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, "fail", Toast.LENGTH_SHORT).show();
                 }
             }
         });
     }
 
     @Override
-    public void onBackPressed() {
-        super.onBackPressed();
-        finishAffinity();
-    }
-
-    @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
           User item=(User)adapterView.getItemAtPosition(i);
-          Intent intent=new Intent(ContactActivity.this, ChatSreen.class);
+          Intent intent=new Intent(context, ChatSreen.class);
           intent.putExtra("receiverID",item.getUid());
           startActivity(intent);
     }
-    private void applyNightMode() {
-        sharedPreferences=MyChat.getSharedPreferences();
-        boolean nightMode=sharedPreferences.getBoolean("night",false);
-        if (nightMode) {
-            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
-        } else {
-            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+    @Override
+    public void onResume() {
+        super.onResume();
+        user.clear();
+        if (adapter!=null) {
+            adapter.notifyDataSetChanged();
+            getListUserFromDatabase();
+
         }
     }
 

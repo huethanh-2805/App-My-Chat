@@ -1,5 +1,10 @@
 package com.example.mychat;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
+import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentTransaction;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -12,7 +17,8 @@ import androidx.appcompat.app.AppCompatDelegate;
 import com.google.firebase.auth.FirebaseAuth;
 
 
-public class MainActivity extends Activity {
+public class MainActivity extends FragmentActivity {
+
     Button btnStart;
     FirebaseAuth auth;
     SharedPreferences sharedPreferences;
@@ -23,11 +29,11 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_getting_started);
 
         sharedPreferences=MyChat.getSharedPreferences();
-       applyNightMode(sharedPreferences.getBoolean("night",false));
+        applyNightMode(sharedPreferences.getBoolean("night",false));
 
         auth = FirebaseAuth.getInstance();
         if (auth.getCurrentUser()!=null) {
-            Intent i = new Intent(MainActivity.this, ContactActivity.class);
+            Intent i = new Intent(MainActivity.this, MainFragment.class);
             i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(i);
             finish();
