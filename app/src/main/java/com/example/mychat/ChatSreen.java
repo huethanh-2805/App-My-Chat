@@ -123,6 +123,8 @@ public class ChatSreen extends AppCompatActivity {
                                 public void onClick(View v) {
                                     Intent intent = new Intent(ChatSreen.this, ConversationInformation.class);
                                     intent.putExtra("user_name",name);
+                                    intent.putExtra("my_id", fUser.getUid()); //Gửi id của mình
+                                    intent.putExtra("user_id", userReceiverID); //Gửi id của người chat với mình
                                     ChatSreen.this.startActivity(intent);
                                 }
                             });
