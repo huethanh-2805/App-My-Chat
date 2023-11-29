@@ -131,7 +131,6 @@ public class ConversationInformation extends AppCompatActivity {
                     String receiverID = document.getString("receiver");
 
                     Map<String, Object> data = new HashMap<>();
-                    Toast.makeText(ConversationInformation.this, messageId, Toast.LENGTH_SHORT).show();
 
                     if (senderID.equals(myId)) {
                         data.put("sender", "");
@@ -155,7 +154,6 @@ public class ConversationInformation extends AppCompatActivity {
                     String receiverID = document.getString("receiver");
 
                     Map<String, Object> data = new HashMap<>();
-                    Toast.makeText(ConversationInformation.this, messageId, Toast.LENGTH_SHORT).show();
 
                     if (senderID.equals(myId)) {
                         data.put("sender", "");
