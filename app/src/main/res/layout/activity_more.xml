@@ -46,6 +46,7 @@
         <ImageView
             android:layout_width="40dp"
             android:layout_height="40dp"
+            android:id="@+id/profileAvt"
             android:scaleType="centerCrop"
             android:src="@drawable/ic_avt">
         </ImageView>
@@ -93,6 +94,7 @@
                 android:layout_height="20dp"
                 android:scaleType="centerCrop"
                 android:src="@drawable/ic_arrow_right"
+                android:id="@+id/btn_setProfile"
                 android:layout_gravity="end|center_vertical">
             </ImageView>
         </LinearLayout>

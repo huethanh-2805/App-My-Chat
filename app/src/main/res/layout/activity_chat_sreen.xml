@@ -58,6 +58,7 @@
                 <ImageView
                     android:layout_width="35dp"
                     android:layout_height="35dp"
+                    android:id="@+id/ic_more"
                     android:src="@drawable/ic_more"></ImageView>
 
             </LinearLayout>

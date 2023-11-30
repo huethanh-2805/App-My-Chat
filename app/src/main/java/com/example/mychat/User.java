@@ -3,13 +3,13 @@ package com.example.mychat;
 public class User {
     private final String name;
     private final String string;
-    private final Integer img;
+    private final Integer avatarUrl;
     private String uid;
     private final String email;
     public User(String name, String string, Integer img,String email, String uid) {
         this.name = name;
         this.string = string;
-        this.img = img;
+        this.avatarUrl = img;
         this.email=email;
         this.uid=uid;
     }
@@ -23,7 +23,7 @@ public class User {
         return this.string;
     }
     public Integer getImg(){
-        return this.img;
+        return this.avatarUrl;
     }
 
     public String getEmail() {return  this.email;}
