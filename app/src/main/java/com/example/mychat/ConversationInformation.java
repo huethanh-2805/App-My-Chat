@@ -77,9 +77,10 @@ public class ConversationInformation extends AppCompatActivity {
                     case 1:
                          break;
                     case 2:
-                          break;
+                        break;
                     case 3:
-                          break;
+                        showDeleteConfirmationDialog(myID, userID);
+                        break;
 
                 }
             }
@@ -118,7 +119,7 @@ public class ConversationInformation extends AppCompatActivity {
         dialog.show();
     }
 
-    private void deleteChat(String myId, String userId) {
+    private void deleteChat(String myId, String userId){
         CollectionReference messagesCollection = db.collection("messages");
 
         // Tìm tất cả tin nhắn có sender = myId và receiver = userId
@@ -139,16 +140,9 @@ public class ConversationInformation extends AppCompatActivity {
             if (task.isSuccessful()) {
                 for (QueryDocumentSnapshot document : task1.getResult()) {
                     String messageId = document.getId();
-                    String senderID = document.getString("sender");
-                    String receiverID = document.getString("receiver");
-
                     Map<String, Object> data = new HashMap<>();
-
-                    if (senderID.equals(myId)) {
-                        data.put("sender", "");
-                    } else if (receiverID.equals(myId)) {
-                        data.put("receiver", "");
-                    }
+                    data.put("sender", "");
+                    data.put("sender_delete", myId);
 
                     db.collection("messages").document(messageId)
                             .update(data)
@@ -162,16 +156,9 @@ public class ConversationInformation extends AppCompatActivity {
 
                 for (QueryDocumentSnapshot document : task2.getResult()) {
                     String messageId = document.getId();
-                    String senderID = document.getString("sender");
-                    String receiverID = document.getString("receiver");
-
                     Map<String, Object> data = new HashMap<>();
-
-                    if (senderID.equals(myId)) {
-                        data.put("sender", "");
-                    } else if (receiverID.equals(myId)) {
-                        data.put("receiver", "");
-                    }
+                    data.put("receiver", "");
+                    data.put("receiver_delete", myId);
 
                     db.collection("messages").document(messageId)
                             .update(data)

@@ -198,7 +198,18 @@ public class ChatActivity extends Fragment implements View.OnClickListener, Adap
                     for (DocumentSnapshot document : mergedDocuments) {
                         //get contact
                         String contact = document.getString("receiver");
-                        if (contact.equals(currentUser)) contact = document.getString("sender");
+                        if (contact.equals(currentUser)){
+                            if(document.getString("sender").equals("")){
+                                contact = document.getString("sender_delete");
+                            }
+                            else {
+                                contact = document.getString("sender");
+                            }
+                        }
+
+                        if(document.getString("receiver").equals("")){
+                            contact = document.getString("receiver_delete");
+                        }
                         //
                         Timestamp timestamp = document.getTimestamp("timestamp");
                         //
@@ -210,8 +221,18 @@ public class ChatActivity extends Fragment implements View.OnClickListener, Adap
                         //
                         for (DocumentSnapshot check : result) {
                             contactCheck = check.getString("receiver");
-                            if (contactCheck.equals(currentUser))
-                                contactCheck = check.getString("sender");
+                            if (contactCheck.equals(currentUser)){
+                                if(check.getString("sender").equals("")){
+                                    contactCheck = check.getString("sender_delete");
+                                }
+                                else {
+                                    contactCheck = check.getString("sender");
+                                }
+                            }
+
+                            if(check.getString("receiver").equals("")){
+                                contactCheck = check.getString("receiver_delete");
+                            }
                             timestampCheck = check.getTimestamp("timestamp");
                             //
                             if (contact.equals(contactCheck)) {
@@ -235,7 +256,18 @@ public class ChatActivity extends Fragment implements View.OnClickListener, Adap
                         String latestMessage = d.getString("message");
                         //
                         String contact = d.getString("receiver");
-                        if (contact.equals(currentUser)) contact = d.getString("sender");
+                        if (contact.equals(currentUser)){
+                            if(d.getString("sender").equals("")){
+                                contact = d.getString("sender_delete");
+                            }
+                            else {
+                                contact = d.getString("sender");
+                            }
+                        }
+
+                        if(d.getString("receiver").equals("")){
+                            contact = d.getString("receiver_delete");
+                        }
                         //lấy ref của contact
                         DocumentReference userDoc = userRef.document(contact);
                         //lấy những thông tin cần thiết của contact

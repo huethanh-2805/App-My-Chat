@@ -169,6 +169,8 @@ public class ChatSreen extends AppCompatActivity {
         Timestamp timestamp = Timestamp.now();
         messageData.put("sender", sender);
         messageData.put("receiver", receiver);
+        messageData.put("sender_delete", "");
+        messageData.put("receiver_delete", "");
         messageData.put("message", message);
         messageData.put("timestamp", timestamp);
 
@@ -193,7 +195,9 @@ public class ChatSreen extends AppCompatActivity {
                             for (DocumentSnapshot d : list) {
                                 Message message = d.toObject(Message.class);
                                 if ((message.getReceiver().equals(myid) && message.getSender().equals(userid))
-                                        || (message.getReceiver().equals(userid) && message.getSender().equals(myid))) {
+                                        || (message.getReceiver().equals(userid) && message.getSender().equals(myid))
+                                        || (message.getReceiver().equals(myid) && message.getSender().equals(""))
+                                        || (message.getSender().equals(myid) && message.getReceiver().equals(""))) {
                                     if (!message.getAppearStatus()) {
                                         mMessage.add(message);
                                         message.setAppeared();
