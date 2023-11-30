@@ -194,11 +194,39 @@ public class ChatSreen extends AppCompatActivity {
                             List<DocumentSnapshot> list = queryDocumentSnapshots.getDocuments();
                             for (DocumentSnapshot d : list) {
                                 Message message = d.toObject(Message.class);
-                                if ((message.getReceiver().equals(myid) && message.getSender().equals(userid))
-                                        || (message.getReceiver().equals(userid) && message.getSender().equals(myid))
-                                        || (message.getReceiver().equals(myid) && message.getSender().equals(""))
-                                        || (message.getSender().equals(myid) && message.getReceiver().equals(""))) {
+//                                if ((message.getReceiver().equals(myid) && message.getSender().equals(userid))
+//                                        || (message.getReceiver().equals(userid) && message.getSender().equals(myid))
+//                                        || (message.getReceiver().equals(myid) && message.getSender().equals(""))
+//                                        || (message.getSender().equals(myid) && message.getReceiver().equals(""))) {
+//                                    if (!message.getAppearStatus()) {
+//                                        mMessage.add(message);
+//                                        message.setAppeared();
+//                                    }
+//                                }
+
+                                if ((message.getReceiver().equals(myid) && message.getSender().equals(userid))) {
                                     if (!message.getAppearStatus()) {
+                                        mMessage.add(message);
+                                        message.setAppeared();
+                                    }
+                                }
+
+                                if ((message.getReceiver().equals(userid) && message.getSender().equals(myid))) {
+                                    if (!message.getAppearStatus()) {
+                                        mMessage.add(message);
+                                        message.setAppeared();
+                                    }
+                                }
+
+                                if ((message.getReceiver().equals(myid) && message.getSender().equals(""))) {
+                                    if (!message.getAppearStatus() && d.getString("sender_delete").equals(userid)) {
+                                        mMessage.add(message);
+                                        message.setAppeared();
+                                    }
+                                }
+
+                                if ((message.getSender().equals(myid) && message.getReceiver().equals(""))) {
+                                    if (!message.getAppearStatus() && d.getString("receiver_delete").equals(userid)) {
                                         mMessage.add(message);
                                         message.setAppeared();
                                     }
