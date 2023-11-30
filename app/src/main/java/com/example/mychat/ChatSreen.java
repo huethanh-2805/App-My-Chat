@@ -3,7 +3,6 @@ package com.example.mychat;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.telephony.SmsMessage;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -20,7 +19,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-
 import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -73,7 +71,7 @@ public class ChatSreen extends AppCompatActivity {
         btn_send = findViewById(R.id.btn_send);
         text_send = findViewById(R.id.text_send);
         btn_back = findViewById(R.id.back);
-        btn_more = findViewById(R.id.more);
+        btn_more = findViewById(R.id.ic_more);
 
         recyclerView = findViewById(R.id.recycler_view);
         recyclerView.setHasFixedSize(true);
@@ -123,6 +121,8 @@ public class ChatSreen extends AppCompatActivity {
                                 public void onClick(View v) {
                                     Intent intent = new Intent(ChatSreen.this, ConversationInformation.class);
                                     intent.putExtra("user_name",name);
+                                    intent.putExtra("my_id", fUser.getUid()); //Gửi id của mình
+                                    intent.putExtra("user_id", userReceiverID); //Gửi id của người chat với mình
                                     ChatSreen.this.startActivity(intent);
                                 }
                             });

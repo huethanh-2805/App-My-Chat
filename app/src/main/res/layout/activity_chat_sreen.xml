@@ -11,52 +11,63 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:paddingTop="20dp"
+        android:orientation="vertical"
         android:id="@+id/bar_layout">
-
-        <ImageView
-            android:layout_width="25dp"
-            android:layout_height="25dp"
-            android:scaleType="centerCrop"
-            android:src="@drawable/before"
-            android:id="@+id/back"
-            android:layout_gravity="end|center_vertical"
-            android:layout_marginRight="10dp">
-        </ImageView>
-
-        <ImageView
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:scaleType="centerCrop"
-            android:id="@+id/profile_image"
-            android:src="@drawable/ic_avt">
-        </ImageView>
-
-        <TextView
-            android:id="@+id/username"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            android:text=""
-            android:textSize="20dp"
-            android:paddingTop="10dp"
-            android:paddingLeft="10dp">
-        </TextView>
-
         <LinearLayout
-            android:layout_width="fill_parent"
-            android:layout_height="match_parent"
-            android:gravity="right"
-            android:paddingTop="10dp">
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:paddingTop="20dp">
 
             <ImageView
-                android:id="@+id/more"
-                android:layout_width="35dp"
-                android:layout_height="35dp"
-                android:src="@drawable/ic_more"></ImageView>
 
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:scaleType="centerCrop"
+                android:src="@drawable/before"
+                android:id="@+id/back"
+                android:layout_gravity="end|center_vertical"
+                android:layout_marginRight="10dp">
+            </ImageView>
+
+            <ImageView
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:scaleType="centerCrop"
+                android:id="@+id/profile_image"
+                android:src="@drawable/ic_avt">
+            </ImageView>
+
+            <TextView
+                android:id="@+id/username"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:text=""
+                android:textSize="20dp"
+                android:paddingTop="10dp"
+                android:paddingLeft="10dp">
+            </TextView>
+
+            <LinearLayout
+                android:layout_width="fill_parent"
+                android:layout_height="match_parent"
+                android:gravity="right"
+                android:paddingTop="10dp">
+
+                <ImageView
+                    android:layout_width="35dp"
+                    android:layout_height="35dp"
+                    android:id="@+id/ic_more"
+                    android:src="@drawable/ic_more"></ImageView>
+
+            </LinearLayout>
         </LinearLayout>
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="5.5dp"
+            android:background="@drawable/line_shape"
+            android:layout_marginTop="5dp"/>
     </LinearLayout>
 
     <androidx.recyclerview.widget.RecyclerView
