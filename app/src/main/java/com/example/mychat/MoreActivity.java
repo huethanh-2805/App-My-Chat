@@ -64,7 +64,7 @@ public class MoreActivity extends Fragment implements View.OnClickListener {
 
 
 
-    ImageView btn_setProfile;
+    LinearLayout btn_setProfile;
     Context context;
     MainFragment mainFragment;
     ChatActivity chatActivity;
