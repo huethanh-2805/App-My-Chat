@@ -60,4 +60,7 @@ dependencies {
     implementation ("nl.joery.animatedbottombar:library:1.1.0")
 
     implementation("com.google.firebase:firebase-messaging-directboot:20.2.0")
+    implementation ("com.google.android.material:material:1.4.0")
+
+
 }

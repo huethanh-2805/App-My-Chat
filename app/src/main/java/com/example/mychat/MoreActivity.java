@@ -40,10 +40,10 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import nl.joery.animatedbottombar.AnimatedBottomBar;
 
 
-public class MoreActivity extends Fragment implements View.OnClickListener {
-    String[] items = new String[]{"Account", "Chats", "Appearance", "Notification", "Privacy", "Data Usage", "Help", "Invite Your Friends"};
+public class MoreActivity extends Fragment  {
+    String[] items = new String[]{"Account", "Chats", "Appearance", "Notification", "Privacy", "Data Usage", "Help", "Invite Your Friends", "Sign out"};
 
-    Integer[] icons = {R.drawable.ic_avt, R.drawable.ic_chats, R.drawable.ic_apperance, R.drawable.ic_noti, R.drawable.ic_privacy, R.drawable.ic_data, R.drawable.ic_help, R.drawable.ic_invite};
+    Integer[] icons = {R.drawable.ic_avt, R.drawable.ic_chats, R.drawable.ic_apperance, R.drawable.ic_noti, R.drawable.ic_privacy, R.drawable.ic_data, R.drawable.ic_help, R.drawable.ic_invite, R.drawable.ic_sign_out};
     ListView listView;
     TextView txtUserName;
     TextView txtEmail;
@@ -93,10 +93,6 @@ public class MoreActivity extends Fragment implements View.OnClickListener {
 
         LinearLayout layout_more = (LinearLayout) inflater.inflate(R.layout.activity_more, null);
 
-        btnSignOut = layout_more.findViewById(R.id.btnSignOut);
-        btnSignOut.setOnClickListener(this);
-
-
         txtUserName = layout_more.findViewById(R.id.txtName);
         txtEmail = layout_more.findViewById(R.id.txtEmail);
 
@@ -138,6 +134,11 @@ public class MoreActivity extends Fragment implements View.OnClickListener {
                     case 7:
 
                         break;
+                    case 8:
+                        signOut();
+                        startActivity(new Intent(context, LoginActivity.class));
+                        mainFragment.finish();
+                        break;
                 }
             }
         });
@@ -177,14 +178,7 @@ public class MoreActivity extends Fragment implements View.OnClickListener {
 
 
 
-    @Override
-    public void onClick(View view) {
-        if (view.getId() == R.id.btnSignOut) {
-            signOut();
-            startActivity(new Intent(context, LoginActivity.class));
-            mainFragment.finish();
-        }
-    }
+
 
     private void signOut() {
         GoogleSignInOptions signInOptions = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)

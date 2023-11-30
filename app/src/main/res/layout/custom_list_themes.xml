@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/layout_listview"
+    android:orientation="horizontal">
+    <ImageView
+        android:id="@+id/imgTheme"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginLeft="5dp"
+        android:src ="@drawable/default_profile_pic"
+        android:layout_margin="10dp"
+        android:scaleType="centerCrop"
+
+        >
+    </ImageView>
+
+        <TextView
+            android:id="@+id/txtnameTheme"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Name"
+            android:textSize="18dp"
+            android:layout_margin="20dp"
+            android:gravity="center_vertical">
+        </TextView>
+
+
+</LinearLayout>
