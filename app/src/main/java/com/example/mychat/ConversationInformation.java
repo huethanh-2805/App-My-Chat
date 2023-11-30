@@ -1,15 +1,30 @@
 package com.example.mychat;
 
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
+
+import android.app.AlertDialog;
+
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+
 import android.widget.AdapterView;
+
+import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
-import androidx.appcompat.app.AlertDialog;
+//import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.tasks.Task;
@@ -25,9 +40,11 @@ import java.util.Map;
 
 public class ConversationInformation extends AppCompatActivity {
     String[] items = new String[]{"Change theme", "Media", "Block", "Delete chat"};
-
+    String[] themes = new String[]{"Light Blue", "Nice blue", "Nice green", "Nice Fire", "Nice orange", "Nice pink", "Loso", "Love", "Black heart", "Sweet Chocolate", "Cocacola", "Mochi mochi"};
     Integer[] icons = {R.drawable.ic_theme, R.drawable.ic_picture, R.drawable.ic_block, R.drawable.ic_delete};
+    Integer[] colors = {R.drawable.ic_light1, R.drawable.ic_light2, R.drawable.ic_light3, R.drawable.ic_dark1, R.drawable.ic_dark2, R.drawable.ic_dark3, R.drawable.theme3d1, R.drawable.theme_love3d, R.drawable.theme_blackheart, R.drawable.theme_socola, R.drawable.theme_cocacola, R.drawable.theme_mochi};
     ListView listView;
+    ListView listViewThemes;
     TextView txtUserName;
     ImageView btn_back;
     Intent intent;
@@ -49,22 +66,27 @@ public class ConversationInformation extends AppCompatActivity {
         CustomListMore adapter = new CustomListMore(this, R.layout.custom_listview_more, items, icons);
         listView.setAdapter(adapter);
 
+
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 switch (position) {
                     case 0:
+                        showThemeSelectionDialog();
                         break;
                     case 1:
-                        break;
+                         break;
                     case 2:
-                        break;
+                          break;
                     case 3:
-                        showDeleteConfirmationDialog(myID, userID);
-                        break;
+                          break;
+
                 }
             }
         });
+
+
+
 
         btn_back.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -96,7 +118,7 @@ public class ConversationInformation extends AppCompatActivity {
         dialog.show();
     }
 
-    private void deleteChat(String myId, String userId){
+    private void deleteChat(String myId, String userId) {
         CollectionReference messagesCollection = db.collection("messages");
 
         // Tìm tất cả tin nhắn có sender = myId và receiver = userId
@@ -164,6 +186,40 @@ public class ConversationInformation extends AppCompatActivity {
                 Exception e = task.getException();
             }
         });
+    }
+
+    private void showThemeSelectionDialog() {
+        try {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle("Choose a Theme");
+
+            // Set the adapter directly on the AlertDialog.Builder
+            builder.setAdapter(new CustomListTheme(this, R.layout.custom_list_themes, themes, colors), new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    applyTheme(which);
+                    dialog.dismiss();  // Dismiss the dialog after a theme is
+                    finish();
+                }
+            });
+
+            builder.setPositiveButton("Cancel", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.dismiss();
+                }
+            });
+
+            builder.show();
+        } catch (Exception e) {
+            e.printStackTrace();
+            Toast.makeText(this, "Error showing dialog", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void applyTheme(int themeIndex) {
+        ThemeHelper.saveSelectedTheme(this, themeIndex);
+        recreate(); // Recreate the activity to apply the new theme
     }
 
 }

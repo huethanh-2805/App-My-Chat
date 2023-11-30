@@ -7,10 +7,12 @@
     android:orientation="vertical"
     android:padding="3dp"
     tools:context=".ChatActivity"
+    android:layout_marginRight="20dp"
+    android:layout_marginLeft="20dp"
     android:animateLayoutChanges="true">
     <LinearLayout
-        android:layout_marginRight="20dp"
-        android:layout_marginLeft="20dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginLeft="10dp"
         android:layout_marginTop="20dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -30,32 +32,29 @@
             android:layout_width="30dp"
             android:layout_height="30dp"
             android:layout_weight="1"
-            android:src="@drawable/ic_addfriend"
+            android:src="@drawable/ic_create_group"
             />
     </LinearLayout>
 
-    <LinearLayout
-        android:layout_marginRight="20dp"
-        android:layout_marginLeft="20dp"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
         <SearchView
             android:id="@+id/searchView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
+            android:background="@drawable/boder_searchview"
             android:textSize="25dp"
             android:iconifiedByDefault="false"
-            android:queryHint="Search Contacts">
+            android:queryHint="Search contacts"
+            android:layout_margin="20dp">
         </SearchView>
+
         <ListView
             android:id="@+id/listView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            ></ListView>
-    </LinearLayout>
-
-
+            android:layout_margin="10dp"
+            android:divider="@android:color/transparent"
+            android:dividerHeight="0dp">
+        </ListView>
 
 </LinearLayout>

@@ -101,10 +101,16 @@ public class ChatActivity extends Fragment implements View.OnClickListener, Adap
         imgNewChat = (ImageView) layout_chat.findViewById(R.id.imgNewChat);
 
 //        getListUserFromDatabase();
-        getListUserFromDatabase();
-        searchUserWithUserName();
+
 
         return layout_chat;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        getListUserFromDatabase();
+        searchUserWithUserName();
     }
 
     @Override

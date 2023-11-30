@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources>
+    <!-- Light Themes -->
+    <style name="AppTheme.Light1" parent="Theme.MaterialComponents.Light">
+        <item name="android:textColor">#00FFFF</item>
+<!--        <item name="android:colorBackground">#FFFFFF</item>-->
+        <!-- Add other light theme attributes -->
+    </style>
+    <style name="AppTheme.Light2" parent="Theme.MaterialComponents.Light">
+        <item name="colorPrimaryVariant">#33CCFF</item>
+        <!-- Add other light theme attributes -->
+    </style>
+
+    <style name="AppTheme.Light3" parent="Theme.MaterialComponents.Light">
+        <item name="colorOnPrimary">#66FF99</item>
+        <!-- Add other light theme attributes -->
+    </style>
+
+    <!-- Dark Themes -->
+    <style name="AppTheme.Dark1" parent="Theme.MaterialComponents">
+        <item name="colorPrimary">#B22222</item>
+        <!-- Add other dark theme attributes -->
+    </style>
+
+    <style name="AppTheme.Dark2" parent="Theme.MaterialComponents">
+        <item name="colorPrimaryVariant">#CD7054</item>
+        <!-- Add other dark theme attributes -->
+    </style>
+
+    <style name="AppTheme.Dark3" parent="Theme.MaterialComponents">
+        <item name="colorOnPrimary">#8B008B</item>
+        <!-- Add other dark theme attributes -->
+    </style>
+
+</resources>
