@@ -57,7 +57,7 @@ public class ChatActivity extends Fragment implements View.OnClickListener, Adap
     CollectionReference cref;
     Query query;
     //
-    List<User> user;//new ArrayList<>(); //tên người liên hệ
+    List<User> user=new ArrayList<>();//new ArrayList<>(); //tên người liên hệ
     String emailCurrentUser;
     SharedPreferences sharedPreferences;
     private MyArrayAdapter adapter;
@@ -84,6 +84,8 @@ public class ChatActivity extends Fragment implements View.OnClickListener, Adap
             throw new IllegalStateException("MainFragment must implement callbacks");
         }
     }
+
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -98,9 +100,10 @@ public class ChatActivity extends Fragment implements View.OnClickListener, Adap
 
         imgNewChat = (ImageView) layout_chat.findViewById(R.id.imgNewChat);
 
+//        getListUserFromDatabase();
         getListUserFromDatabase();
-
         searchUserWithUserName();
+
         return layout_chat;
     }
 
@@ -217,6 +220,7 @@ public class ChatActivity extends Fragment implements View.OnClickListener, Adap
                             }
                         } else result.add(document);
                     }
+
                     //SAU KHI CÓ ĐƯỢC RESULT
                     final int totalUsers = result.size();
                     final int[] counter = {0};
@@ -282,5 +286,6 @@ public class ChatActivity extends Fragment implements View.OnClickListener, Adap
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
         }
     }
+
 
 }

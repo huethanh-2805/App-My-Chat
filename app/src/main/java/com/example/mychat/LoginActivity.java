@@ -146,7 +146,6 @@ public class LoginActivity extends Activity implements View.OnClickListener {
         if (view.getId() == R.id.btnLogin) {
             signInNormal();
             progressBar.setVisibility(View.INVISIBLE);
-
         }
 
         if (view.getId() == R.id.btnSignUp) {

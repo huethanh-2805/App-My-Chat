@@ -209,10 +209,48 @@ public class AddContactActivity extends Activity implements View.OnClickListener
     public void onClick(View v) {
         if (v.getId()==R.id.add){
             saveUserContact(userAdd.getEmail(),userAdd.getName());
+//            saveUserChat(userAdd.getUid(),auth.getCurrentUser().getUid(),"");
         }
         if(v.getId()==R.id.back) {
             finish();
         }
+    }
+
+    private void saveUserChat(String user1,String user2,String message) {
+        CollectionReference chatsCollection = db.collection("chats");
+
+        Query query = chatsCollection
+                .whereEqualTo("user1", user1)
+                .whereEqualTo("user2", user2);
+        query.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()) {
+                    if (task.getResult().size() == 0) {
+                                // Nếu không tìm thấy tài liệu thỏa mãn điều kiện user1 = u1 và user2 = u2,
+                                // thực hiện truy vấn ngược lại user1 = u2 và user2 = u1
+                                Query reverseQuery = chatsCollection
+                                        .whereEqualTo("user1", user2)
+                                        .whereEqualTo("user2", user1);
+
+                                reverseQuery.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                    @Override
+                            public void onComplete(@NonNull Task<QuerySnapshot> reverseTask) {
+                                if (reverseTask.isSuccessful() && reverseTask.getResult().size() == 0) {
+                                    HashMap<String, Object> chatData = new HashMap<>();
+                                    chatData.put("user1", user1);
+                                    chatData.put("user2", user2);
+                                    chatData.put("lastMessage", message);
+                                    chatsCollection.add(chatData);
+                                }
+                            }
+                        });
+                    }
+                } else {
+                    // Xử lý khi truy vấn không thành công
+                }
+            }
+        });
     }
 
     public void showNiceDialogBox(boolean check){

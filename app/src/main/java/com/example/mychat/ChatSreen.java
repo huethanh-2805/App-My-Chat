@@ -14,6 +14,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
+import androidx.fragment.app.FragmentActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -83,7 +84,6 @@ public class ChatSreen extends AppCompatActivity {
         intent = getIntent();
         String userReceiverID = intent.getStringExtra("receiverID");
 
-//        final User[] oUser = new User[1];
 
 
         fUser = FirebaseAuth.getInstance().getCurrentUser();
@@ -201,4 +201,6 @@ public class ChatSreen extends AppCompatActivity {
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
         }
     }
+
+
 }

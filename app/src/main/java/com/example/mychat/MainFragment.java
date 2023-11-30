@@ -36,7 +36,8 @@ public class MainFragment extends AppCompatActivity {
 
         ft = getSupportFragmentManager().beginTransaction();
         chatActivity = ChatActivity.newInstance("init");
-        ft.replace(R.id.main_holder, chatActivity)
+        ft.replace(R.id.main_holder, chatActivity,"Chat")
+
         .setReorderingAllowed(true)
         .addToBackStack("name")
         .commit();
