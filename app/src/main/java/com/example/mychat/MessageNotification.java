@@ -74,7 +74,10 @@ public class MessageNotification extends Service {
                         DocumentSnapshot documentSnapshot = newMessage.getDocument();
                         String receiver = documentSnapshot.getString("receiver");
                         if (receiver.equals(currentUser)) { //lấy những bộ mà người dùng là receiver
+                            String idNotification = documentSnapshot.getId();
                             String sender = documentSnapshot.getString("sender");
+                            DocumentReference notifyDoc = db.collection("notification").document(idNotification);
+                            notifyDoc.delete();
                             DocumentReference userDoc = db.collection("users").document(sender);
                             userDoc.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>(){
                                 @Override
@@ -88,7 +91,6 @@ public class MessageNotification extends Service {
                                     }
                                 }
                             });
-                            userDoc.delete();
                         }
                     }
                 }
