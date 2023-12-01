@@ -11,12 +11,15 @@ public class Message {
 
     private boolean isAppeared;
 
-    public Message(String sender, String receiver,String message,Timestamp timestamp){
+    private String type;
+
+    public Message(String sender, String receiver,String message,Timestamp timestamp,String type){
         this.sender=sender;
         this.receiver=receiver;
         this.message=message;
         this.isAppeared=false;
         this.timestamp=timestamp;
+        this.type=type;
     }
 
     public Message(){
@@ -29,6 +32,14 @@ public class Message {
 
     public void setAppeared(){
         this.isAppeared=true;
+    }
+
+    public void setType(String type){
+        this.type=type;
+    }
+
+    public String getType(){
+        return this.type;
     }
 
     public String getSender(){

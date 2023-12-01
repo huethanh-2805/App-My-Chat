@@ -1,7 +1,9 @@
 package com.example.mychat;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
@@ -30,12 +32,20 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
 public class ChatSreen extends AppCompatActivity {
+
+    private static final int PICK_IMAGE_REQUEST = 1;
+    private Uri filePath;
+    private FirebaseStorage storage;
+    private StorageReference storageReference;
+
 
     ImageView profile_image;
 
@@ -51,12 +61,14 @@ public class ChatSreen extends AppCompatActivity {
     DatabaseReference reference;
 
     ImageButton btn_send;
+    ImageButton btn_chooseImage;
     EditText text_send;
     Intent intent;
 
     final FirebaseFirestore db = FirebaseFirestore.getInstance();
     SharedPreferences sharedPreferences;
     ImageView btn_more;
+    String userReceiverID;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,6 +84,10 @@ public class ChatSreen extends AppCompatActivity {
         btn_back = findViewById(R.id.back);
         btn_more = findViewById(R.id.ic_more);
 
+        btn_chooseImage=findViewById(R.id.image_btn);
+        storage = FirebaseStorage.getInstance();
+        storageReference = storage.getReference();
+
         recyclerView = findViewById(R.id.recycler_view);
         recyclerView.setHasFixedSize(true);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getApplicationContext());
@@ -79,12 +95,19 @@ public class ChatSreen extends AppCompatActivity {
         recyclerView.setLayoutManager(linearLayoutManager);
 
         intent = getIntent();
-        String userReceiverID = intent.getStringExtra("receiverID");
+        userReceiverID = intent.getStringExtra("receiverID");
 
 //        final User[] oUser = new User[1];
 
 
         fUser = FirebaseAuth.getInstance().getCurrentUser();
+
+        btn_chooseImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                chooseImage();
+            }
+        });
 
         btn_send.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -143,6 +166,65 @@ public class ChatSreen extends AppCompatActivity {
 
     }
 
+    private void chooseImage() {
+        Intent intent = new Intent();
+        intent.setType("image/*");
+        intent.setAction(Intent.ACTION_GET_CONTENT);
+        startActivityForResult(Intent.createChooser(intent, "Select Image"), PICK_IMAGE_REQUEST);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @androidx.annotation.Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null) {
+            filePath = data.getData();
+            uploadImage();
+
+//            try {
+//                imageView.setImageBitmap(MediaStore.Images.Media.getBitmap(getContentResolver(), filePath));
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+        }
+    }
+
+    private void uploadImage() {
+        if (filePath != null) {
+            final ProgressDialog progressDialog = new ProgressDialog(this);
+            progressDialog.setTitle("Uploading...");
+            progressDialog.show();
+
+            // Lưu hình ảnh vào Firebase Storage
+            StorageReference ref = storageReference.child("images/" + System.currentTimeMillis() + ".jpg");
+
+            ref.putFile(filePath)
+                    .addOnSuccessListener(taskSnapshot -> {
+                        progressDialog.dismiss();
+                        ref.getDownloadUrl().addOnSuccessListener(uri -> {
+                            String imageUrl = uri.toString();
+                            sendImage(fUser.getUid(), userReceiverID, imageUrl);
+                        });
+                    })
+                    .addOnFailureListener(e -> Toast.makeText(ChatSreen.this, "Upload failed", Toast.LENGTH_SHORT).show());
+        } else {
+            Toast.makeText(this, "No image selected", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void sendImage(String sender, String receiver, String message) {
+        CollectionReference usersCollection = db.collection("messages");
+
+        HashMap<String, Object> messageData = new HashMap<>();
+        Timestamp timestamp = Timestamp.now();
+        messageData.put("sender", sender);
+        messageData.put("receiver", receiver);
+        messageData.put("message", message);
+        messageData.put("timestamp", timestamp);
+        messageData.put("type", "image");
+
+        usersCollection.add(messageData);
+    }
+
 
     private void sendMessage(String sender, String receiver, String message) {
         CollectionReference usersCollection = db.collection("messages");
@@ -154,6 +236,7 @@ public class ChatSreen extends AppCompatActivity {
         messageData.put("receiver", receiver);
         messageData.put("message", message);
         messageData.put("timestamp", timestamp);
+        messageData.put("type", "text");
 
         usersCollection.add(messageData);
     }
