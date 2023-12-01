@@ -11,6 +11,7 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 
 import android.widget.AdapterView;
@@ -27,15 +28,23 @@ import android.widget.Toast;
 //import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.SetOptions;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class ConversationInformation extends AppCompatActivity {
@@ -49,6 +58,7 @@ public class ConversationInformation extends AppCompatActivity {
     ImageView btn_back;
     Intent intent;
     final FirebaseFirestore db = FirebaseFirestore.getInstance();
+    private boolean isUserBlocked; //Biến để kiểm tra user có bị lock hay không
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -63,8 +73,7 @@ public class ConversationInformation extends AppCompatActivity {
         txtUserName.setText(name);
 
         listView = findViewById(R.id.listView);
-        CustomListMore adapter = new CustomListMore(this, R.layout.custom_listview_more, items, icons);
-        listView.setAdapter(adapter);
+        checkUserBlocked(myID, userID);
 
 
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -75,8 +84,9 @@ public class ConversationInformation extends AppCompatActivity {
                         showThemeSelectionDialog();
                         break;
                     case 1:
-                         break;
+                        break;
                     case 2:
+                        showBlockConfirmationDialog(myID, userID, name);
                         break;
                     case 3:
                         showDeleteConfirmationDialog(myID, userID);
@@ -97,6 +107,199 @@ public class ConversationInformation extends AppCompatActivity {
             }
         });
 
+    }
+
+    private void checkUserBlocked(String myID, String userID){
+        CollectionReference contactCollection = db.collection("contact");
+        DocumentReference contactDocument = contactCollection.document(myID);
+        contactDocument.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot documentSnapshot = task.getResult();
+                    if (documentSnapshot.exists()) {
+                        List<DocumentReference> blockList = (List<DocumentReference>) documentSnapshot.get("block");
+                        if (blockList != null) {
+                            DocumentReference userToCheck = db.collection("users").document(userID);
+                            isUserBlocked = blockList.contains(userToCheck);
+                        } else {
+                            isUserBlocked = false;
+                        }
+
+                        if(isUserBlocked){
+                            //Toast.makeText(getApplicationContext(), "isBlock", Toast.LENGTH_SHORT).show();
+                            items[2] = "Unblock";
+                        }
+                        else {
+                            //Toast.makeText(getApplicationContext(), "isNotBlock", Toast.LENGTH_SHORT).show();
+                            items[2] = "Block";
+                        }
+                        CustomListMore adapter = new CustomListMore(ConversationInformation.this, R.layout.custom_listview_more, items, icons);
+                        listView.setAdapter(adapter);
+
+                    }
+                } else {
+                    Log.d("TAG", "Lỗi khi lấy dữ liệu: ", task.getException());
+                }
+            }
+        });
+    }
+
+    //Hiển thị thông báo hỏi lại có chắc chắn muốn block hay không
+    private void showBlockConfirmationDialog(String myId, String userId, String name){
+        AlertDialog.Builder builder = new AlertDialog.Builder(ConversationInformation.this);
+
+        String title;
+        String message;
+        String positiveButtonLabel;
+
+        if (isUserBlocked) {
+            title = "Unblock " + name + "?";
+            message = "You will start receiving messages from " + name + "'s MyChat account.";
+            positiveButtonLabel = "UNBLOCK";
+        } else {
+            title = "Block " + name + "?";
+            message = "Your MyChat account won't receive messages from " + name + "'s MyChat account.";
+            positiveButtonLabel = "BLOCK";
+        }
+
+        builder.setMessage(message)
+                .setTitle(title)
+                .setPositiveButton(positiveButtonLabel, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        if (isUserBlocked) {
+                            unblockUser(myId, userId);
+                        } else {
+                            blockUser(myId, userId);
+                        }
+                    }
+                })
+                .setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        dialog.dismiss();
+                    }
+                });
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
+    private void blockUser(String myId, String userId){
+        CollectionReference contactCollection = db.collection("contact");
+        // Truy vấn tài liệu contact có id bằng myId
+        DocumentReference contactDocument = contactCollection.document(myId);
+
+        // Lấy danh sách người liên hệ từ tài liệu contact
+        contactDocument.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot documentSnapshot = task.getResult();
+                    if (documentSnapshot.exists()) {
+                        List<DocumentReference> blockAdds = (List<DocumentReference>) documentSnapshot.get("block");
+                        // Kiểm tra xem danh sách block có tồn tại không
+                        if (blockAdds == null) {
+                            blockAdds = new ArrayList<>(); // Nếu không tồn tại, tạo mới danh sách
+                        }
+
+                        // Tạo một DocumentReference mới dựa trên userId
+                        DocumentReference userBlock = db.collection("users").document(userId);
+
+                        if (!blockAdds.contains(userBlock)) {
+                            blockAdds.add(userBlock);
+                            Map<String, Object> data = new HashMap<>();
+                            data.put("block", blockAdds);
+
+                            contactDocument.set(data, SetOptions.merge())
+                                    .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<Void> task) {
+                                            showNiceDialogBox(true);
+                                            checkUserBlocked(myId, userId);
+                                        }
+                                    });
+                        }
+                        else {
+                            showNiceDialogBox(false);
+                        }
+                    }
+                } else {
+                    Log.d("TAG", "Lỗi khi lấy dữ liệu: ", task.getException());
+                }
+            }
+        });
+    }
+
+
+    public void showNiceDialogBox(boolean check){
+        String message;
+        if(check) {
+            message="Block successfully!";
+        }
+        else {
+            message="User is already in the block list!";
+        }
+        AlertDialog.Builder myBuilder = new AlertDialog.Builder(this);
+        myBuilder.setIcon(R.drawable.ic_noti)
+                .setTitle("Block user")
+                .setMessage(message)
+                .setPositiveButton("Close", null)
+                .show();
+    }
+
+    private void unblockUser(String myId, String userId){
+        CollectionReference contactCollection = db.collection("contact");
+        DocumentReference contactDocument = contactCollection.document(myId); // Truy vấn tài liệu contact có id bằng myId
+
+        contactDocument.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot documentSnapshot = task.getResult();
+                    if (documentSnapshot.exists()) {
+                        List<DocumentReference> blockLists = (List<DocumentReference>) documentSnapshot.get("block");
+                        DocumentReference userBlock = db.collection("users").document(userId);
+
+                        if (blockLists != null && blockLists.contains(userBlock)) {
+                            blockLists.remove(userBlock);
+                            Map<String, Object> data = new HashMap<>();
+                            data.put("block", blockLists);
+
+                            contactDocument.set(data, SetOptions.merge())
+                                    .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<Void> task) {
+                                            // Handle completion if needed
+                                            showNiceDialogBoxUnblock(true);
+                                            checkUserBlocked(myId, userId);
+                                        }
+                                    });
+                        }
+                        else {
+                            showNiceDialogBoxUnblock(false);
+                        }
+                    }
+                } else {
+                    Log.d("TAG", "Lỗi khi lấy dữ liệu: ", task.getException());
+                }
+            }
+        });
+    }
+
+    public void showNiceDialogBoxUnblock(boolean check){
+        String message;
+        if(check) {
+            message="Unlock successfully!";
+        }
+        else {
+            message="User is not already in the block list!";
+        }
+        AlertDialog.Builder myBuilder = new AlertDialog.Builder(this);
+        myBuilder.setIcon(R.drawable.ic_noti)
+                .setTitle("Unblock user")
+                .setMessage(message)
+                .setPositiveButton("Close", null)
+                .show();
     }
 
     //Hiển thị thông báo hỏi lại có chắc chắn muốn xóa hội thoại hay không
