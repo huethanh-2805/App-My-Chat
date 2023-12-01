@@ -282,5 +282,4 @@ public class ChatActivity extends Fragment implements View.OnClickListener, Adap
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
         }
     }
-
 }

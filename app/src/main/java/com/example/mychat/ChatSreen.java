@@ -166,12 +166,17 @@ public class ChatSreen extends AppCompatActivity {
 
         HashMap<String, Object> messageData = new HashMap<>();
         Timestamp timestamp = Timestamp.now();
+        //
         messageData.put("sender", sender);
         messageData.put("receiver", receiver);
         messageData.put("message", message);
         messageData.put("timestamp", timestamp);
 
         usersCollection.add(messageData);
+
+        //add notification
+        CollectionReference notifyCollection = db.collection("notification");
+        notifyCollection.add(messageData);
     }
 
     private void readMessages(final String myid, final String userid, final String imageurl) {
