@@ -55,7 +55,7 @@
             android:id="@+id/changeUsername"
             style="@style/EDITTEXT"
             android:layout_width="match_parent"
-            android:layout_height="32dp"
+            android:layout_height="40dp"
             android:hint="Enter your new profile name"
             android:inputType="text"
             android:paddingLeft="16dp"

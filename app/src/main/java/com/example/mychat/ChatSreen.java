@@ -1,6 +1,10 @@
 package com.example.mychat;
 
+
 import android.app.ProgressDialog;
+
+import android.annotation.SuppressLint;
+
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
@@ -9,12 +13,15 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
+import androidx.fragment.app.FragmentActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -41,11 +48,17 @@ import java.util.List;
 
 public class ChatSreen extends AppCompatActivity {
 
+
     private static final int PICK_IMAGE_REQUEST = 1;
     private Uri filePath;
     private FirebaseStorage storage;
     private StorageReference storageReference;
 
+
+
+    LinearLayout barLayout;
+    RelativeLayout bottomBar;
+    RelativeLayout layoutChatScreen;
 
     ImageView profile_image;
 
@@ -72,17 +85,21 @@ public class ChatSreen extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        // Đặt theme trước khi gọi setContentView
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat_sreen);
 
         applyNightMode();
-
+        bottomBar=findViewById(R.id.bottom_bar);
+        layoutChatScreen=findViewById(R.id.layoutChatScreen);
         profile_image = findViewById(R.id.profile_image);
         username = findViewById(R.id.username);
         btn_send = findViewById(R.id.btn_send);
         text_send = findViewById(R.id.text_send);
         btn_back = findViewById(R.id.back);
-        btn_more = findViewById(R.id.ic_more);
+
+        btn_more = findViewById(R.id.more);
+        barLayout=findViewById(R.id.bar_layout);
 
         btn_chooseImage=findViewById(R.id.image_btn);
         storage = FirebaseStorage.getInstance();
@@ -97,7 +114,6 @@ public class ChatSreen extends AppCompatActivity {
         intent = getIntent();
         userReceiverID = intent.getStringExtra("receiverID");
 
-//        final User[] oUser = new User[1];
 
 
         fUser = FirebaseAuth.getInstance().getCurrentUser();
@@ -164,7 +180,11 @@ public class ChatSreen extends AppCompatActivity {
                     }
                 });
 
+
+        setThemeBasedOnSelectedTheme();
+
     }
+
 
     private void chooseImage() {
         Intent intent = new Intent();
@@ -226,6 +246,13 @@ public class ChatSreen extends AppCompatActivity {
     }
 
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        setThemeBasedOnSelectedTheme();
+    }
+
+
     private void sendMessage(String sender, String receiver, String message) {
         CollectionReference usersCollection = db.collection("messages");
 
@@ -234,6 +261,8 @@ public class ChatSreen extends AppCompatActivity {
         Timestamp timestamp = Timestamp.now();
         messageData.put("sender", sender);
         messageData.put("receiver", receiver);
+        messageData.put("sender_delete", "");
+        messageData.put("receiver_delete", "");
         messageData.put("message", message);
         messageData.put("timestamp", timestamp);
         messageData.put("type", "text");
@@ -258,9 +287,39 @@ public class ChatSreen extends AppCompatActivity {
                             List<DocumentSnapshot> list = queryDocumentSnapshots.getDocuments();
                             for (DocumentSnapshot d : list) {
                                 Message message = d.toObject(Message.class);
-                                if ((message.getReceiver().equals(myid) && message.getSender().equals(userid))
-                                        || (message.getReceiver().equals(userid) && message.getSender().equals(myid))) {
+//                                if ((message.getReceiver().equals(myid) && message.getSender().equals(userid))
+//                                        || (message.getReceiver().equals(userid) && message.getSender().equals(myid))
+//                                        || (message.getReceiver().equals(myid) && message.getSender().equals(""))
+//                                        || (message.getSender().equals(myid) && message.getReceiver().equals(""))) {
+//                                    if (!message.getAppearStatus()) {
+//                                        mMessage.add(message);
+//                                        message.setAppeared();
+//                                    }
+//                                }
+
+                                if ((message.getReceiver().equals(myid) && message.getSender().equals(userid))) {
                                     if (!message.getAppearStatus()) {
+                                        mMessage.add(message);
+                                        message.setAppeared();
+                                    }
+                                }
+
+                                if ((message.getReceiver().equals(userid) && message.getSender().equals(myid))) {
+                                    if (!message.getAppearStatus()) {
+                                        mMessage.add(message);
+                                        message.setAppeared();
+                                    }
+                                }
+
+                                if ((message.getReceiver().equals(myid) && message.getSender().equals(""))) {
+                                    if (!message.getAppearStatus() && d.getString("sender_delete").equals(userid)) {
+                                        mMessage.add(message);
+                                        message.setAppeared();
+                                    }
+                                }
+
+                                if ((message.getSender().equals(myid) && message.getReceiver().equals(""))) {
+                                    if (!message.getAppearStatus() && d.getString("receiver_delete").equals(userid)) {
                                         mMessage.add(message);
                                         message.setAppeared();
                                     }
@@ -282,6 +341,78 @@ public class ChatSreen extends AppCompatActivity {
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
         } else {
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+        }
+    }
+
+
+    @SuppressLint("ResourceAsColor")
+    private void setThemeBasedOnSelectedTheme() {
+        int selectedTheme = ThemeHelper.getSelectedTheme(this);
+        switch (selectedTheme) {
+            case 0:
+                setTheme(R.style.AppTheme_Dark1);
+                layoutChatScreen.setBackgroundResource(R.color.Light1);
+                barLayout.setBackgroundResource(R.color.lightblue);
+                break;
+            case 1:
+//                setTheme(R.style.AppTheme_Dark2);
+                layoutChatScreen.setBackgroundResource(R.color.lightblue);
+                barLayout.setBackgroundResource(R.color.Light2);
+                break;
+            case 2:
+//                setTheme(R.style.AppTheme_Dark3);
+                layoutChatScreen.setBackgroundResource(R.color.green);
+                barLayout.setBackgroundResource(R.color.Light3);
+                break;
+            case 3:
+                layoutChatScreen.setBackgroundResource(R.color.Dark1);
+                barLayout.setBackgroundResource(R.color.red);
+
+                break;
+            case 4:
+                layoutChatScreen.setBackgroundResource(R.color.Dark2);
+                barLayout.setBackgroundResource(R.color.Dark1);
+
+                break;
+            case 5:
+                layoutChatScreen.setBackgroundResource(R.color.Dark3);
+                barLayout.setBackgroundResource(R.color.pink);
+
+                break;
+            case 6:
+                layoutChatScreen.setBackgroundResource(R.drawable.theme3d1);
+                barLayout.setBackgroundResource(R.color.pink);
+
+                break;
+            case 7:
+                layoutChatScreen.setBackgroundResource(R.drawable.theme_love3d);
+                barLayout.setBackgroundResource(R.color.pink);
+
+                break;
+            case 8:
+                layoutChatScreen.setBackgroundResource(R.drawable.theme_blackheart);
+                barLayout.setBackgroundResource(R.color.lightblack);
+
+                break;
+            case 9:
+                layoutChatScreen.setBackgroundResource(R.drawable.theme_socola);
+                barLayout.setBackgroundResource(R.color.brown);
+
+                break;
+            case 10:
+                layoutChatScreen.setBackgroundResource(R.drawable.theme_cocacola);
+                barLayout.setBackgroundResource(R.color.lightblack);
+
+                break;
+            case 11:
+                layoutChatScreen.setBackgroundResource(R.drawable.theme_mochi);
+                barLayout.setBackgroundResource(R.color.brown);
+
+                break;
+            default:
+                // Nếu giá trị không hợp lệ, sử dụng theme mặc định
+                setTheme(R.style.Base_Theme_MyChat);
+                break;
         }
     }
 }
