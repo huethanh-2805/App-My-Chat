@@ -293,7 +293,6 @@ public class ChatActivity extends Fragment implements View.OnClickListener, Adap
                                         email[0] = userSnapshot.getString("email");
                                         Timestamp timestamp = (Timestamp) userSnapshot.get("timestamp");
                                         user.add(new User(username[0], latestMessage, R.drawable.ic_avt, latestMessage, uid[0],timestamp));
-
 //                                        if (user.size()>1){
 //                                            Collections.sort(user,Comparator.comparing(User::getTimestamp,Comparator.reverseOrder()));
 //
