@@ -4,6 +4,8 @@
     android:layout_height="wrap_content"
     android:orientation="vertical">
     <LinearLayout
+        android:padding="10dp"
+        android:background="@color/lightblue"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center_vertical">
@@ -19,6 +21,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="Add contact"
+            android:textColor="@color/blue"
             android:textStyle="bold"
             android:textSize="25dp"
             android:paddingLeft="25dp">
@@ -50,6 +53,7 @@
         android:id="@+id/listView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:divider="@android:color/transparent"
         android:choiceMode="singleChoice">
     </ListView>
 

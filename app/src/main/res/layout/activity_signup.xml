@@ -21,6 +21,7 @@
             android:text="Create Account"
             android:layout_marginTop="20dp"
             android:textStyle="bold"
+            android:textColor="@color/blue"
             android:textSize="30dp" />
 
         <TextView
@@ -37,7 +38,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:layout_marginTop="10dp">
+            android:layout_marginTop="30dp">
             <TextView
                 style="@style/TEXT"
                 android:layout_width="wrap_content"
@@ -62,7 +63,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:layout_marginTop="10dp">
+            android:layout_marginTop="20dp">
             <TextView
                 style="@style/TEXT"
                 android:layout_width="wrap_content"
@@ -86,7 +87,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:layout_marginTop="10dp">
+            android:layout_marginTop="20dp">
             <TextView
                 style="@style/TEXT"
                 android:layout_width="match_parent"
@@ -114,6 +115,7 @@
 
         <CheckBox
             style="@style/TEXT"
+            android:layout_marginTop="10dp"
             android:id="@+id/checkAgree"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -126,7 +128,7 @@
             android:id="@+id/btnSignUp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="30dp"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
             android:text="Sign Up"

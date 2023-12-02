@@ -5,26 +5,26 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="3dp"
     tools:context=".ChatActivity"
     android:layout_marginRight="20dp"
     android:layout_marginLeft="20dp"
     android:animateLayoutChanges="true">
     <LinearLayout
-        android:layout_marginRight="10dp"
-        android:layout_marginLeft="10dp"
-        android:layout_marginTop="20dp"
+
+        android:padding="10dp"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:layout_height="70dp"
+        android:orientation="horizontal"
+        android:background="#1E90FF">
         <TextView
             style="@style/TEXT"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:text="Chat"
+            android:textColor="@color/white"
             android:textStyle="bold"
-            android:textSize="24sp"
+            android:textSize="28sp"
             android:layout_weight="11"
             />
         <ImageView
@@ -32,6 +32,7 @@
             android:layout_width="30dp"
             android:layout_height="30dp"
             android:layout_weight="1"
+            android:layout_gravity="center_vertical"
             android:src="@drawable/ic_create_group"
             />
     </LinearLayout>

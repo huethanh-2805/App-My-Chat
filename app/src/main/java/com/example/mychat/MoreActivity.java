@@ -116,7 +116,6 @@ public class MoreActivity extends Fragment  {
             public void onClick(View v) {
                 Intent intent=new Intent(context, ChangeProfileActivity.class);
                 startActivity(intent);
-                Toast.makeText(context, "ImageView Clicked", Toast.LENGTH_SHORT).show();
             }
 
         });
