@@ -1,9 +1,16 @@
 package com.example.mychat;
 
+
+import android.app.AlertDialog;
+import android.app.ProgressDialog;
+
 import android.annotation.SuppressLint;
+
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -20,29 +27,46 @@ import androidx.fragment.app.FragmentActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.annotations.Nullable;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.SetOptions;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ChatSreen extends AppCompatActivity {
+
+
+    private static final int PICK_IMAGE_REQUEST = 1;
+    private Uri filePath;
+    private FirebaseStorage storage;
+    private StorageReference storageReference;
+
+
+
     LinearLayout barLayout;
     RelativeLayout bottomBar;
     RelativeLayout layoutChatScreen;
+
     ImageView profile_image;
 
     ImageView btn_back;
@@ -57,12 +81,16 @@ public class ChatSreen extends AppCompatActivity {
     DatabaseReference reference;
 
     ImageButton btn_send;
+    ImageButton btn_chooseImage;
     EditText text_send;
     Intent intent;
 
     final FirebaseFirestore db = FirebaseFirestore.getInstance();
     SharedPreferences sharedPreferences;
     ImageView btn_more;
+    String userReceiverID;
+    private boolean check1;
+    private boolean check2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,6 +110,10 @@ public class ChatSreen extends AppCompatActivity {
         btn_more = findViewById(R.id.more);
         barLayout=findViewById(R.id.bar_layout);
 
+        btn_chooseImage=findViewById(R.id.image_btn);
+        storage = FirebaseStorage.getInstance();
+        storageReference = storage.getReference();
+
         recyclerView = findViewById(R.id.recycler_view);
         recyclerView.setHasFixedSize(true);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getApplicationContext());
@@ -89,22 +121,23 @@ public class ChatSreen extends AppCompatActivity {
         recyclerView.setLayoutManager(linearLayoutManager);
 
         intent = getIntent();
-        String userReceiverID = intent.getStringExtra("receiverID");
+        userReceiverID = intent.getStringExtra("receiverID");
 
 
 
         fUser = FirebaseAuth.getInstance().getCurrentUser();
 
+        btn_chooseImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                chooseImage();
+            }
+        });
+
         btn_send.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String msg = text_send.getText().toString();
-                if (!msg.equals("")) {
-                    sendMessage(fUser.getUid(), userReceiverID, msg);
-                } else {
-                    Toast.makeText(ChatSreen.this, "You can't send empty message", Toast.LENGTH_SHORT).show();
-                }
-                text_send.setText("");
+                checkSenderIsBlock(fUser.getUid(), userReceiverID);
             }
         });
 
@@ -155,15 +188,54 @@ public class ChatSreen extends AppCompatActivity {
 
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        setThemeBasedOnSelectedTheme();
+
+    private void chooseImage() {
+        Intent intent = new Intent();
+        intent.setType("image/*");
+        intent.setAction(Intent.ACTION_GET_CONTENT);
+        startActivityForResult(Intent.createChooser(intent, "Select Image"), PICK_IMAGE_REQUEST);
     }
 
-    private void sendMessage(String sender, String receiver, String message) {
-        CollectionReference usersCollection = db.collection("messages");
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @androidx.annotation.Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null) {
+            filePath = data.getData();
+            uploadImage();
 
+//            try {
+//                imageView.setImageBitmap(MediaStore.Images.Media.getBitmap(getContentResolver(), filePath));
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+        }
+    }
+
+    private void uploadImage() {
+        if (filePath != null) {
+            final ProgressDialog progressDialog = new ProgressDialog(this);
+            progressDialog.setTitle("Uploading...");
+            progressDialog.show();
+
+            // Lưu hình ảnh vào Firebase Storage
+            StorageReference ref = storageReference.child("images/" + System.currentTimeMillis() + ".jpg");
+
+            ref.putFile(filePath)
+                    .addOnSuccessListener(taskSnapshot -> {
+                        progressDialog.dismiss();
+                        ref.getDownloadUrl().addOnSuccessListener(uri -> {
+                            String imageUrl = uri.toString();
+                            sendImage(fUser.getUid(), userReceiverID, imageUrl);
+                        });
+                    })
+                    .addOnFailureListener(e -> Toast.makeText(ChatSreen.this, "Upload failed", Toast.LENGTH_SHORT).show());
+        } else {
+            Toast.makeText(this, "No image selected", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void sendImage(String sender, String receiver, String message) {
+        CollectionReference usersCollection = db.collection("messages");
 
         HashMap<String, Object> messageData = new HashMap<>();
         Timestamp timestamp = Timestamp.now();
@@ -171,8 +243,139 @@ public class ChatSreen extends AppCompatActivity {
         messageData.put("receiver", receiver);
         messageData.put("message", message);
         messageData.put("timestamp", timestamp);
+        messageData.put("type", "image");
 
         usersCollection.add(messageData);
+    }
+
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        setThemeBasedOnSelectedTheme();
+    }
+
+
+    private void sendMessage(String sender, String receiver, String message) {
+        CollectionReference usersCollection = db.collection("messages");
+
+        HashMap<String, Object> messageData = new HashMap<>();
+        Timestamp timestamp = Timestamp.now();
+        messageData.put("sender", sender);
+        messageData.put("receiver", receiver);
+        messageData.put("sender_delete", "");
+        messageData.put("receiver_delete", "");
+        messageData.put("message", message);
+        messageData.put("timestamp", timestamp);
+        messageData.put("type", "text");
+
+        usersCollection.add(messageData);
+    }
+
+    private void handleSendMessage() {
+        if (check1) {
+            showSenderIsBlockDialogBox();
+            text_send.setText("");
+        } else if (check2) {
+            showReceiverIsBlockDialogBox();
+            text_send.setText("");
+        } else if (!check1 && !check2){
+            String msg = text_send.getText().toString();
+            if (!msg.equals("")) {
+                sendMessage(fUser.getUid(), userReceiverID, msg);
+            } else {
+                Toast.makeText(ChatSreen.this, "You can't send empty message", Toast.LENGTH_SHORT).show();
+            }
+            text_send.setText("");
+        }
+    }
+
+    //Kiểm tra coi sender có bị receiver block hay không
+    private void checkSenderIsBlock(String sender, String receiver){
+        CollectionReference contactCollection = db.collection("contact");
+        DocumentReference contactDocument = contactCollection.document(receiver);  // Truy vấn tài liệu contact có id bằng sender
+
+        contactDocument.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot documentSnapshot = task.getResult();
+                    if (documentSnapshot.exists()) {
+                        List<DocumentReference> block = (List<DocumentReference>) documentSnapshot.get("block");
+                        if (block == null) {
+                            check1 = false;
+                        }
+
+                        DocumentReference userBlock = db.collection("users").document(sender);
+                        if (!block.contains(userBlock)) {
+                            check1 = false;
+                        }
+                        else check1 = true;
+
+                        checkSenderIsBlockReceiver(sender, receiver);
+                    }
+                } else {
+                    Log.d("TAG", "Lỗi khi lấy dữ liệu: ", task.getException());
+                }
+            }
+        });
+    }
+
+    //Kiểm tra sender đã chặn receiver thì 2 người không thể nhắn tin cho nhau được
+    private void checkSenderIsBlockReceiver(String sender, String receiver){
+        CollectionReference contactCollection = db.collection("contact");
+        DocumentReference contactDocument = contactCollection.document(sender);  // Truy vấn tài liệu contact có id bằng sender
+
+        contactDocument.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot documentSnapshot = task.getResult();
+                    if (documentSnapshot.exists()) {
+                        List<DocumentReference> block = (List<DocumentReference>) documentSnapshot.get("block");
+                        if (block == null) {
+                            check2 = false;
+                        }
+
+                        DocumentReference userBlock = db.collection("users").document(receiver);
+                        if (!block.contains(userBlock)) {
+                            check2 = false;
+                        }
+                        else {
+                            check2 = true;
+                        }
+
+                        handleSendMessage();
+                    }
+                } else {
+                    Log.d("TAG", "Lỗi khi lấy dữ liệu: ", task.getException());
+                }
+            }
+        });
+    }
+
+    //Hiển thị thông báo sender có bị receiver block
+    public void showSenderIsBlockDialogBox(){
+        String message;
+        message="You cannot send the message because it has been blocked.";
+
+        AlertDialog.Builder myBuilder = new AlertDialog.Builder(this);
+        myBuilder.setIcon(R.drawable.ic_noti)
+                .setMessage(message)
+                .setPositiveButton("Close", null)
+                .show();
+    }
+
+    //Hiển thị thông báo sender đã chặn receiver
+    public void showReceiverIsBlockDialogBox(){
+        String message;
+        message="You've blocked this contact so you can't send them a message.";
+
+        AlertDialog.Builder myBuilder = new AlertDialog.Builder(this);
+        myBuilder.setIcon(R.drawable.ic_noti)
+                .setMessage(message)
+                .setPositiveButton("Close", null)
+                .show();
     }
 
     private void readMessages(final String myid, final String userid, final String imageurl) {
@@ -192,9 +395,30 @@ public class ChatSreen extends AppCompatActivity {
                             List<DocumentSnapshot> list = queryDocumentSnapshots.getDocuments();
                             for (DocumentSnapshot d : list) {
                                 Message message = d.toObject(Message.class);
-                                if ((message.getReceiver().equals(myid) && message.getSender().equals(userid))
-                                        || (message.getReceiver().equals(userid) && message.getSender().equals(myid))) {
+
+                                if ((message.getReceiver().equals(myid) && message.getSender().equals(userid))) {
                                     if (!message.getAppearStatus()) {
+                                        mMessage.add(message);
+                                        message.setAppeared();
+                                    }
+                                }
+
+                                if ((message.getReceiver().equals(userid) && message.getSender().equals(myid))) {
+                                    if (!message.getAppearStatus()) {
+                                        mMessage.add(message);
+                                        message.setAppeared();
+                                    }
+                                }
+
+                                if ((message.getReceiver().equals(myid) && message.getSender().equals(""))) {
+                                    if (!message.getAppearStatus() && d.getString("sender_delete").equals(userid)) {
+                                        mMessage.add(message);
+                                        message.setAppeared();
+                                    }
+                                }
+
+                                if ((message.getSender().equals(myid) && message.getReceiver().equals(""))) {
+                                    if (!message.getAppearStatus() && d.getString("receiver_delete").equals(userid)) {
                                         mMessage.add(message);
                                         message.setAppeared();
                                     }

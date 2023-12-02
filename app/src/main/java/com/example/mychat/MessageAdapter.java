@@ -50,7 +50,24 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
     @Override
     public void onBindViewHolder(@NonNull MessageAdapter.ViewHolder holder, int position) {
         Message message = mMessage.get(position);
-        holder.show_message.setText(message.getMessage());
+        if (message.getType()!=null){
+            if (message.getType().equals("image")){
+                //Toast.makeText(mContext, "Image", Toast.LENGTH_SHORT).show();
+                //holder.show_message.setText(message.getMessage());
+                holder.show_image.setVisibility(View.VISIBLE);
+                Glide.with(mContext).load(message.getMessage()).into(holder.show_image);
+            } else{
+                holder.show_image.setVisibility(View.GONE);
+                holder.show_message.setText(message.getMessage());
+            }
+
+        }
+        else{
+            holder.show_message.setText(message.getMessage());
+        }
+
+
+
 
         if (imageUrl.equals("default")){
             holder.profile_image.setImageResource(R.drawable.ic_avt);
@@ -68,10 +85,12 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
 
 
         public TextView show_message;
+
+        public ImageView show_image;
         public ImageView profile_image;
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
-
+            show_image=itemView.findViewById(R.id.show_image);
             show_message=itemView.findViewById(R.id.show_message);
             profile_image=itemView.findViewById(R.id.profile_image);
         }
