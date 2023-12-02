@@ -1,6 +1,8 @@
 package com.example.mychat;
 
 
+import static android.content.ContentValues.TAG;
+
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 
@@ -52,8 +54,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
-public class ChatSreen extends AppCompatActivity {
+public class  ChatSreen extends BaseActivity {
 
 
     private static final int PICK_IMAGE_REQUEST = 1;
@@ -92,6 +95,8 @@ public class ChatSreen extends AppCompatActivity {
     private boolean check1;
     private boolean check2;
 
+    TextView txtStatus;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         // Đặt theme trước khi gọi setContentView
@@ -106,6 +111,8 @@ public class ChatSreen extends AppCompatActivity {
         btn_send = findViewById(R.id.btn_send);
         text_send = findViewById(R.id.text_send);
         btn_back = findViewById(R.id.back);
+
+        txtStatus=findViewById(R.id.txtStatus);
 
         btn_more = findViewById(R.id.more);
         barLayout=findViewById(R.id.bar_layout);
@@ -185,7 +192,32 @@ public class ChatSreen extends AppCompatActivity {
 
 
         setThemeBasedOnSelectedTheme();
+        DocumentReference docRef = FirebaseFirestore.getInstance().collection("users").document(userReceiverID);
 
+        docRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
+            @Override
+            public void onEvent(@androidx.annotation.Nullable DocumentSnapshot value, @androidx.annotation.Nullable FirebaseFirestoreException error) {
+                if(error!=null){
+                    Log.w(TAG, "Listen failed.", error);
+                    return;
+                }
+                if(value!=null&&value.exists()){
+                    String data=value.getString("status");
+                    if(Objects.equals(data, "1")){
+                        txtStatus.setText("Online");
+                        txtStatus.setVisibility(View.VISIBLE);
+                    }
+                    else{
+                        txtStatus.setText("Offline");
+                        txtStatus.setVisibility(View.VISIBLE);
+                    }
+
+                }
+                else{
+                    Log.d(TAG, "Current data: null");
+                }
+            }
+        });
     }
 
 
@@ -514,4 +546,6 @@ public class ChatSreen extends AppCompatActivity {
                 break;
         }
     }
+
+
 }

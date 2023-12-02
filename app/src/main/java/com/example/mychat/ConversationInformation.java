@@ -47,7 +47,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class ConversationInformation extends AppCompatActivity {
+public class ConversationInformation extends BaseActivity {
     String[] items = new String[]{"Change theme", "Media", "Block", "Delete chat"};
     String[] themes = new String[]{"Light Blue", "Nice blue", "Nice green", "Nice Fire", "Nice orange", "Nice pink", "Loso", "Love", "Black heart", "Sweet Chocolate", "Cocacola", "Mochi mochi"};
     Integer[] icons = {R.drawable.ic_theme, R.drawable.ic_picture, R.drawable.ic_block, R.drawable.ic_delete};

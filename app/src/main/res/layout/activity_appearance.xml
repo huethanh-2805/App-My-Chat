@@ -4,13 +4,13 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_marginRight="20dp"
-    android:layout_marginLeft="20dp"
     tools:context=".AppearanceActivity" android:orientation="vertical">
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" android:gravity="center">
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:background="@color/lightblue">
 
         <ImageView
             android:id="@+id/iconBackMode"
@@ -26,6 +26,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Appearance"
+            android:textColor="@color/blue"
             android:textSize="60px"
             android:textStyle="bold" android:layout_marginLeft="10dp"
             android:paddingTop="20dp"
@@ -36,7 +37,8 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:layout_margin="15dp">
         <RadioGroup
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -44,8 +46,10 @@
             <TextView
                 style="@style/TEXT"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" android:textSize="50px"
-                android:text="Choose Theme">
+                android:layout_height="wrap_content"
+                android:textSize="50px"
+                android:padding="5dp"
+                android:text="Choose theme">
             </TextView>
             <RadioButton
                 style="@style/TEXT"
