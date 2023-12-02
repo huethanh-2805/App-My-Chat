@@ -22,6 +22,7 @@ import androidx.annotation.NonNull;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
@@ -176,7 +177,7 @@ public class AddContactActivity extends Activity implements View.OnClickListener
                         String email = d.getString("email");
                         if (!emailToCheck.isEmpty() && email.contains(emailToCheck)) {
                             String username = d.getString("username");
-                            user.add(new User(username, "...", R.drawable.ic_avt, email,d.getId()));
+                            user.add(new User(username, "...", R.drawable.ic_avt, email,d.getId(),Timestamp.now()));
                         }
                         adapter = new MyArrayAdapter(AddContactActivity.this, R.layout.array_adapter, user);
                         listView.setAdapter(adapter);

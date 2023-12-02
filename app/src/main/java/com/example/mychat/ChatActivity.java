@@ -41,8 +41,12 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 import java.sql.Time;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 import nl.joery.animatedbottombar.AnimatedBottomBar;
 
@@ -137,7 +141,8 @@ public class ChatActivity extends Fragment implements View.OnClickListener, Adap
     }
 
     private void getListUserFromDatabase() {
-        user = new ArrayList<>();
+        user.clear();
+//        user = new ArrayList<>();
         db = FirebaseFirestore.getInstance();
         //get MESSAGE collection
         cref = db.collection("messages");
@@ -229,6 +234,9 @@ public class ChatActivity extends Fragment implements View.OnClickListener, Adap
 
                     //SAU KHI CÓ ĐƯỢC RESULT
                     final int totalUsers = result.size();
+                    sortDescendingDocument(result);
+
+
                     final int[] counter = {0};
                     CollectionReference userRef = db.collection("users");
                     for (DocumentSnapshot d : result) {
@@ -251,8 +259,13 @@ public class ChatActivity extends Fragment implements View.OnClickListener, Adap
                                         uid[0] = userSnapshot.getId();
                                         username[0] = userSnapshot.getString("username");
                                         email[0] = userSnapshot.getString("email");
+                                        Timestamp timestamp = (Timestamp) userSnapshot.get("timestamp");
+                                        user.add(new User(username[0], latestMessage, R.drawable.ic_avt, latestMessage, uid[0],timestamp));
 
-                                        user.add(new User(username[0], latestMessage, R.drawable.ic_avt, latestMessage, uid[0]));
+//                                        if (user.size()>1){
+//                                            Collections.sort(user,Comparator.comparing(User::getTimestamp,Comparator.reverseOrder()));
+//
+//                                        }
 
                                         adapter = new MyArrayAdapter(context, R.layout.array_adapter, user);
                                         listView.setAdapter(adapter);
@@ -265,7 +278,9 @@ public class ChatActivity extends Fragment implements View.OnClickListener, Adap
                         counter[0]++;
                         // Kiểm tra nếu tất cả các cuộc gọi đã hoàn thành
                         if (counter[0] == totalUsers) {
+//                            sortDescendingTime(user);
                             // Tất cả các cuộc gọi đã hoàn thành, cập nhật adapter ở đây
+//                            sortDescendingUser(user);
                             adapter = new MyArrayAdapter(context, R.layout.array_adapter, user);
                             listView.setAdapter(adapter);
                             adapter.notifyDataSetChanged();
@@ -276,6 +291,39 @@ public class ChatActivity extends Fragment implements View.OnClickListener, Adap
         });
 
     }
+
+    private static void sortDescendingDocument(List<DocumentSnapshot> result) {
+        Collections.sort(result, new Comparator<DocumentSnapshot>() {
+            @Override
+            public int compare(DocumentSnapshot doc1, DocumentSnapshot doc2) {
+                // Replace "timestampField" with the actual field name in your DocumentSnapshot
+                Timestamp timestamp1 = (Timestamp) doc1.get("timestamp");
+                Timestamp timestamp2 = (Timestamp) doc2.get("timestamp");
+
+                // Sort in descending order
+                return timestamp2.compareTo(timestamp1);
+
+            }
+        });
+    }
+    private static void sortDescendingUser(List<User> result) {
+        result.sort(new Comparator<User>() {
+            @Override
+            public int compare(User user, User t1) {
+
+                Timestamp timestamp1 = (Timestamp) user.getTimestamp();
+                Timestamp timestamp2 = (Timestamp) t1.getTimestamp();
+
+                // Sort in descending order
+                return timestamp1.compareTo(timestamp2);
+            }
+        });
+    }
+
+    private void sortDescendingTime(List<User> user) {
+
+    }
+
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
         User item=(User)adapterView.getItemAtPosition(i);

@@ -22,6 +22,7 @@ import androidx.fragment.app.Fragment;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
@@ -144,7 +145,7 @@ public class ContactActivity extends Fragment implements View.OnClickListener, A
                                             String username = userSnapshot.getString("username");
                                             String email = userSnapshot.getString("email");
                                             String uid=userSnapshot.getId();
-                                            user.add(new User(username, "abc", R.drawable.ic_avt, email,uid));
+                                            user.add(new User(username, "abc", R.drawable.ic_avt, email,uid, Timestamp.now()));
                                         }
                                     }
                                     counter[0]++;

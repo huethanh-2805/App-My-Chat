@@ -1,17 +1,22 @@
 package com.example.mychat;
 
+
+import com.google.firebase.Timestamp;
+
 public class User {
     private final String name;
     private final String string;
     private final Integer avatarUrl;
     private String uid;
     private final String email;
-    public User(String name, String string, Integer img,String email, String uid) {
+    Timestamp timestamp;
+    public User(String name, String string, Integer img, String email, String uid, Timestamp timestamp) {
         this.name = name;
         this.string = string;
         this.avatarUrl = img;
         this.email=email;
         this.uid=uid;
+        this.timestamp=timestamp;
     }
 
 
@@ -47,7 +52,12 @@ public class User {
     public void setUid(String id){
         this.uid=id;
     }
-//
+
+    public Timestamp getTimestamp() {
+        return timestamp;
+    }
+
+    //
 //    public String getUsername(){
 //        return this.username;
 //    }
