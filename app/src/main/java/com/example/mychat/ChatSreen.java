@@ -222,6 +222,10 @@ public class  ChatSreen extends BaseActivity {
                 }
             }
         });
+        //
+        Intent serviceIntent = new Intent(this, MessageNotification.class);
+        serviceIntent.putExtra("otherUser", userReceiverID);
+        startService(serviceIntent);
     }
 
 
@@ -282,6 +286,9 @@ public class  ChatSreen extends BaseActivity {
         messageData.put("type", "image");
 
         usersCollection.add(messageData);
+        //add to notification
+        CollectionReference notifyCollection = db.collection("notification");
+        notifyCollection.add(messageData);
     }
 
 
@@ -289,6 +296,10 @@ public class  ChatSreen extends BaseActivity {
     protected void onResume() {
         super.onResume();
         setThemeBasedOnSelectedTheme();
+        //
+        Intent serviceIntent = new Intent(this, MessageNotification.class);
+        serviceIntent.putExtra("otherUser", userReceiverID);
+        startService(serviceIntent);
     }
 
 
@@ -309,8 +320,8 @@ public class  ChatSreen extends BaseActivity {
         usersCollection.add(messageData);
 
         //add notification
-//        CollectionReference notifyCollection = db.collection("notification");
-//        notifyCollection.add(messageData);
+        CollectionReference notifyCollection = db.collection("notification");
+        notifyCollection.add(messageData);
     }
 
     private void handleSendMessage() {
@@ -440,7 +451,6 @@ public class  ChatSreen extends BaseActivity {
                                 if ((message.getReceiver().equals(myid) && message.getSender().equals(userid))) {
                                     if (!message.getAppearStatus()) {
                                         if (!message.getMessage().equals(" ")) {
-
                                             mMessage.add(message);
                                             message.setAppeared();
                                         }
@@ -568,6 +578,11 @@ public class  ChatSreen extends BaseActivity {
                 break;
         }
     }
-
-
+    @Override
+    protected void onPause() {
+        super.onPause();
+        Intent serviceIntent = new Intent(this, MessageNotification.class);
+        serviceIntent.putExtra("otherUser", "");
+        startService(serviceIntent);
+    }
 }

@@ -2,6 +2,9 @@ package com.example.mychat;
 
 import static com.google.firebase.firestore.DocumentChange.Type.ADDED;
 
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
@@ -33,6 +36,8 @@ public class MessageNotification extends Service {
     FirebaseFirestore db;
     FirebaseAuth auth;
     CollectionReference ref;
+    //
+    String otherUser;
     private NotificationManagerCompat notificationManager;
     public MessageNotification() {
     }
@@ -43,20 +48,17 @@ public class MessageNotification extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-        notificationManager = NotificationManagerCompat.from(this);
     }
     @Override
     public void onDestroy() {
         super.onDestroy();
-        Toast.makeText(this, "Message Notification Service Destroyed", Toast.LENGTH_LONG).show();
-        //
-        Intent serviceIntent = new Intent(this, MessageNotification.class);
-        startService(serviceIntent);
+        //Toast.makeText(this, "Message Notification Service Destroyed", Toast.LENGTH_LONG).show();
     }
     //
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Toast.makeText(getApplicationContext(),"SERVICE STARTED", Toast.LENGTH_LONG).show();
+        //Toast.makeText(getApplicationContext(),"SERVICE STARTED", Toast.LENGTH_LONG).show();
+        otherUser = intent.getStringExtra("otherUser");
         auth = FirebaseAuth.getInstance();
         String currentUser = auth.getCurrentUser().getUid().toString();
         db = FirebaseFirestore.getInstance();
@@ -69,15 +71,14 @@ public class MessageNotification extends Service {
                 }
                 for (DocumentChange newMessage : querySnapshot.getDocumentChanges()) {
                     if (newMessage.getType() == ADDED) {
-                        Toast.makeText(getApplicationContext(),"CHANGE CAUGHT", Toast.LENGTH_SHORT).show();
+                        //Toast.makeText(getApplicationContext(),"CHANGE CAUGHT", Toast.LENGTH_SHORT).show();
                         //chỉ xử lý những bộ được thêm vào
-                        DocumentSnapshot documentSnapshot = newMessage.getDocument();
-                        String receiver = documentSnapshot.getString("receiver");
+                        DocumentSnapshot docSnap = newMessage.getDocument();
+                        String receiver = docSnap.getString("receiver");
                         if (receiver.equals(currentUser)) { //lấy những bộ mà người dùng là receiver
-                            String idNotification = documentSnapshot.getId();
-                            String sender = documentSnapshot.getString("sender");
+                            String idNotification = docSnap.getId();
+                            String sender = docSnap.getString("sender");
                             DocumentReference notifyDoc = db.collection("notification").document(idNotification);
-                            notifyDoc.delete();
                             DocumentReference userDoc = db.collection("users").document(sender);
                             userDoc.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>(){
                                 @Override
@@ -86,16 +87,47 @@ public class MessageNotification extends Service {
                                         DocumentSnapshot userSnapshot = task.getResult();
                                         if (userSnapshot.exists()) {
                                             String sendername = userSnapshot.getString("username");
-                                            Toast.makeText(getApplicationContext(),"TIN NHẮN MỚI TỪ " + sendername, Toast.LENGTH_SHORT).show();
+                                            if (sender.equals(otherUser)) return;
+                                            Notify(sendername, sender);
+                                            //Toast.makeText(getApplicationContext(),"TIN NHẮN MỚI TỪ " + sendername, Toast.LENGTH_SHORT).show();
                                         }
                                     }
                                 }
                             });
+                            notifyDoc.delete();
                         }
                     }
                 }
             }
         });
-        return super.onStartCommand(intent, flags, startId);
+        return START_STICKY;
+    }
+    //
+    private void Notify(String noti, String sender) {
+        String channelId = "channel_id";
+        String channelName = "MyChat_Channel";
+        NotificationChannel notificationChannel = new NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_HIGH);
+        notificationChannel.enableVibration(true);
+        notificationChannel.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);
+        NotificationManager notificationManager = getSystemService(NotificationManager.class);
+        //
+        notificationManager.createNotificationChannel(notificationChannel);
+        // intent dưới dạng chờ để launch khi được tap vào
+        Intent intent = new Intent(this, ChatSreen.class);
+        intent.putExtra("receiverID", sender);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        PendingIntent pendingIntent = PendingIntent
+                .getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        //build thông báo
+        //Toast.makeText(getApplicationContext(),"TIN NHẮN MỚI TỪ " + noti, Toast.LENGTH_SHORT).show();
+        //
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, "channel_id")
+                .setSmallIcon(R.drawable.ic_noti)
+                .setContentTitle("MyChat")
+                .setContentText("Tin nhắn mới từ " + noti)
+                .setContentIntent(pendingIntent)
+                .setAutoCancel(true);
+        // Hiện thông báo
+        notificationManager.notify(0, builder.build());
     }
 }

@@ -40,6 +40,10 @@ public class MainFragment extends BaseActivity {
         initBottomBar();
 
         applyNightMode();
+        //
+        Intent serviceIntent = new Intent(this, MessageNotification.class);
+        stopService(serviceIntent);
+        //
     }
 
     public void changeFragment(Fragment selectedFragment) {
@@ -99,15 +103,20 @@ public class MainFragment extends BaseActivity {
         }
     }
     @Override
+    protected void onResume() {
+        super.onResume();
+        Intent serviceIntent = new Intent(this, MessageNotification.class);
+        stopService(serviceIntent);
+    }
+    @Override
     protected void onPause() {
         super.onPause();
-//        Intent serviceIntent = new Intent(this, MessageNotification.class);
-//        startService(serviceIntent);
+        Intent serviceIntent = new Intent(this, MessageNotification.class);
+        serviceIntent.putExtra("otherUser", "");
+        startService(serviceIntent);
     }
     @Override
     protected void onDestroy() {
         super.onDestroy();
-//        Intent serviceIntent = new Intent(this, MessageNotification.class);
-//        startService(serviceIntent);
     }
 }
