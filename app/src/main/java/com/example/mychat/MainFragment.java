@@ -1,5 +1,6 @@
 package com.example.mychat;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 
@@ -97,5 +98,17 @@ public class MainFragment extends AppCompatActivity {
         } else {
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
         }
+    }
+    @Override
+    protected void onPause() {
+        super.onPause();
+//        Intent serviceIntent = new Intent(this, MessageNotification.class);
+//        startService(serviceIntent);
+    }
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+//        Intent serviceIntent = new Intent(this, MessageNotification.class);
+//        startService(serviceIntent);
     }
 }

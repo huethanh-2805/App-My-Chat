@@ -99,32 +99,6 @@ public class AddContactActivity extends Activity implements View.OnClickListener
                 view.setBackgroundResource(R.color.lightblue);
                 userAdd=(User)parent.getItemAtPosition(position);
                 showDialogUserInfo(view);
-
-                // Hủy chọn màu nền của item trước đó (nếu có)
-//                if (selectedPosition != -1) {
-//                    View previousView = parent.getChildAt(selectedPosition);
-//                    if (previousView != null) {
-//                        previousView.setBackgroundColor(Color.TRANSPARENT);
-//                    }
-//                }
-
-                // Lưu vị trí của item được chọn
-//                if (selectedPosition==position) {
-//                    selectedPosition=-1;
-//                    imgAdd.setEnabled(false);
-//                    imgAdd.setVisibility(View.INVISIBLE);
-//                    view.setBackgroundColor(Color.TRANSPARENT);
-//                }
-//                else {
-//                    view.setBackgroundColor(Color.GREEN);
-
-//                    selectedPosition = position;
-////                    userAdd=(User)parent.getItemAtPosition(position);
-//                    // Đặt màu nền của item hiện tại
-//                    // Kích hoạt trạng thái nhấn được cho Button
-//                    imgAdd.setEnabled(true);
-//                    imgAdd.setVisibility(View.VISIBLE);
-//                }
             }
 
         });
@@ -160,6 +134,7 @@ public class AddContactActivity extends Activity implements View.OnClickListener
                         view.setBackgroundResource(R.color.transparent);
 
                         saveUserContact(userAdd.getEmail(),userAdd.getName());
+                        sendMessage(auth.getUid(),userAdd.getUid()," ");
                     }});
         AlertDialog alertDialog = myBuilder.create();
         alertDialog.show();
@@ -177,7 +152,7 @@ public class AddContactActivity extends Activity implements View.OnClickListener
                         String email = d.getString("email");
                         if (!emailToCheck.isEmpty() && email.contains(emailToCheck)) {
                             String username = d.getString("username");
-                            user.add(new User(username, "...", R.drawable.ic_avt, email,d.getId(),Timestamp.now()));
+                            user.add(new User(username, "...", d.getString("avatarUrl"), email,d.getId(),Timestamp.now()));
                         }
                         adapter = new MyArrayAdapter(AddContactActivity.this, R.layout.array_adapter, user);
                         listView.setAdapter(adapter);
@@ -195,15 +170,33 @@ public class AddContactActivity extends Activity implements View.OnClickListener
 
     @Override
     public void onClick(View v) {
-        if (v.getId()==R.id.add){
-            saveUserContact(userAdd.getEmail(),userAdd.getName());
-//            saveUserChat(userAdd.getUid(),auth.getCurrentUser().getUid(),"");
-        }
+//        if (v.getId()==R.id.add){
+//            saveUserContact(userAdd.getEmail(),userAdd.getName());
+////            saveUserChat(userAdd.getUid(),auth.getCurrentUser().getUid(),"");
+//            sendMessage(auth.getCurrentUser().getUid(),userAdd.getUid(),"123");
+//        }
         if(v.getId()==R.id.back) {
             finish();
         }
     }
 
+    private void sendMessage(String sender, String receiver, String message) {
+        CollectionReference usersCollection = db.collection("messages");
+
+        HashMap<String, Object> messageData = new HashMap<>();
+        Timestamp timestamp = Timestamp.now();
+        //
+        messageData.put("sender", sender);
+        messageData.put("receiver", receiver);
+        messageData.put("sender_delete", "");
+        messageData.put("receiver_delete", "");
+        messageData.put("message", message);
+        messageData.put("timestamp", timestamp);
+        messageData.put("type", "text");
+
+        usersCollection.add(messageData);
+        //add notification
+    }
     private void saveUserChat(String user1,String user2,String message) {
         CollectionReference chatsCollection = db.collection("chats");
 
@@ -257,6 +250,80 @@ public class AddContactActivity extends Activity implements View.OnClickListener
                 .show();
     }
 
+    private void saveUser(String userUid) {
+        FirebaseFirestore ff=FirebaseFirestore.getInstance();
+
+        CollectionReference contactCollection = ff.collection("contact");
+        DocumentReference userDocument = contactCollection.document(userUid);
+
+        // Đọc mảng hiện tại từ tài liệu
+        userDocument.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot documentSnapshot = task.getResult();
+                    if (!documentSnapshot.exists()) {
+                        // Đọc danh sách hiện tại từ tài liệu
+//                        contactCollection.add(new HashMap<>());
+                        Map<String, Object> emptyData = new HashMap<>();
+                        userDocument.set(emptyData)
+                                .addOnSuccessListener(aVoid -> {
+                                    List<DocumentReference> emptyArray = new ArrayList<>();
+                                    userDocument.update("block",emptyArray)
+                                            .addOnSuccessListener(aVoid1 -> {
+                                                // Mảng đã được tạo thành công
+                                            })
+                                            .addOnFailureListener(e -> {
+                                                // Xử lý khi không thể tạo mảng
+                                            });
+                                })
+                                .addOnFailureListener(e -> {
+                                    // Xử lý khi không thể tạo document
+                                });
+
+
+                    }
+
+                    List<DocumentReference> userAdds = (List<DocumentReference>) documentSnapshot.get("userContact");
+
+                    if (userAdds==null) {
+                        userAdds= new ArrayList<>();
+                        userAdds.add(ff.collection("users").document(auth.getCurrentUser().getUid().toString()));
+
+                        // Cập nhật tài liệu với danh sách mới
+                        Map<String, Object> data = new HashMap<>();
+                        data.put("userContact", userAdds);
+
+                        userDocument.update(data)
+                                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<Void> task) {
+                                        // Xử lý khi hoàn thành (nếu cần)
+//                                                            showNiceDialogBox(true);
+                                    }
+                                });
+                    }
+                    // Thêm mới DocumentReference vào danh sách nếu chưa có
+                    if (!userAdds.contains(ff.collection("users").document(auth.getCurrentUser().getUid().toString()))) {
+                        userAdds.add(ff.collection("users").document(auth.getCurrentUser().getUid().toString()));
+
+                        // Cập nhật tài liệu với danh sách mới
+                        Map<String, Object> data = new HashMap<>();
+                        data.put("userContact", userAdds);
+
+                        userDocument.set(data, SetOptions.merge())
+                                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<Void> task) {
+                                        // Xử lý khi hoàn thành (nếu cần)
+//                                                            showNiceDialogBox(true);
+                                    }
+                                });
+                    }
+                }
+            }
+        });
+    }
     private void saveUserContact(String email, String name) {
         final String[] uid=new String[1];
         FirebaseFirestore ff=FirebaseFirestore.getInstance();
@@ -299,6 +366,8 @@ public class AddContactActivity extends Activity implements View.OnClickListener
                                                         public void onComplete(@NonNull Task<Void> task) {
                                                             // Xử lý khi hoàn thành (nếu cần)
                                                             showNiceDialogBox(true);
+                                                            saveUser(userAdd.getUid());
+
                                                         }
                                                     });
                                         }

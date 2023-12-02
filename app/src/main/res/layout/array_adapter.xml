@@ -4,7 +4,8 @@
     android:layout_height="match_parent"
     android:id="@+id/layout_listview"
     android:orientation="horizontal">
-    <ImageView
+
+    <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/imgView"
         android:layout_width="50dp"
         android:layout_height="50dp"
@@ -12,9 +13,7 @@
         android:src ="@drawable/default_profile_pic"
         android:layout_margin="10dp"
         android:scaleType="centerCrop"
-        android:background="@drawable/round_corner_shape"
-        >
-    </ImageView>
+        />
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

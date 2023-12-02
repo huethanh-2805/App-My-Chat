@@ -33,6 +33,8 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.squareup.picasso.Picasso;
 
+import de.hdodenhof.circleimageview.CircleImageView;
+
 
 public class MoreActivity extends Fragment  {
     String[] items = new String[]{"Account", "Chats", "Appearance", "Notification", "Privacy", "Data Usage", "Help", "Invite Your Friends", "Sign out"};
@@ -46,7 +48,7 @@ public class MoreActivity extends Fragment  {
     final FirebaseUser user = auth.getCurrentUser();
 
 
-     ImageView profileAvt;
+     CircleImageView profileAvt;
 
 
     private Button btnSignOut;

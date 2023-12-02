@@ -47,6 +47,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -124,7 +125,6 @@ public class ChatSreen extends AppCompatActivity {
         userReceiverID = intent.getStringExtra("receiverID");
 
 
-
         fUser = FirebaseAuth.getInstance().getCurrentUser();
 
         btn_chooseImage.setOnClickListener(new View.OnClickListener() {
@@ -158,6 +158,7 @@ public class ChatSreen extends AppCompatActivity {
                         if (documentSnapshot.exists()) {
                             // Lấy giá trị của trường "username" và "email" từ document
                             String name = documentSnapshot.getString("username");
+                            String avatar=documentSnapshot.getString("avatarUrl");
                             btn_more.setOnClickListener(new View.OnClickListener() {
                                 @Override
                                 public void onClick(View v) {
@@ -169,7 +170,10 @@ public class ChatSreen extends AppCompatActivity {
                                 }
                             });
                             username.setText(name);
-                            readMessages(fUser.getUid(), userReceiverID, "https://static.vecteezy.com/system/resources/previews/002/002/257/non_2x/beautiful-woman-avatar-character-icon-free-vector.jpg");
+                            if (avatar!=null) {
+                                Picasso.get().load(avatar).into(profile_image);
+                            }
+                            readMessages(fUser.getUid(), userReceiverID, avatar);
                         } else {
                             Toast.makeText(getApplicationContext(), "Document không tồn tại", Toast.LENGTH_SHORT).show();
                         }
@@ -261,6 +265,7 @@ public class ChatSreen extends AppCompatActivity {
 
         HashMap<String, Object> messageData = new HashMap<>();
         Timestamp timestamp = Timestamp.now();
+        //
         messageData.put("sender", sender);
         messageData.put("receiver", receiver);
         messageData.put("sender_delete", "");
@@ -270,6 +275,10 @@ public class ChatSreen extends AppCompatActivity {
         messageData.put("type", "text");
 
         usersCollection.add(messageData);
+
+        //add notification
+//        CollectionReference notifyCollection = db.collection("notification");
+//        notifyCollection.add(messageData);
     }
 
     private void handleSendMessage() {
@@ -398,29 +407,41 @@ public class ChatSreen extends AppCompatActivity {
 
                                 if ((message.getReceiver().equals(myid) && message.getSender().equals(userid))) {
                                     if (!message.getAppearStatus()) {
-                                        mMessage.add(message);
-                                        message.setAppeared();
+                                        if (!message.getMessage().equals(" ")) {
+
+                                            mMessage.add(message);
+                                            message.setAppeared();
+                                        }
                                     }
                                 }
 
                                 if ((message.getReceiver().equals(userid) && message.getSender().equals(myid))) {
                                     if (!message.getAppearStatus()) {
-                                        mMessage.add(message);
-                                        message.setAppeared();
+                                        if (!message.getMessage().equals(" ")) {
+
+                                            mMessage.add(message);
+                                            message.setAppeared();
+                                        }
                                     }
                                 }
 
                                 if ((message.getReceiver().equals(myid) && message.getSender().equals(""))) {
                                     if (!message.getAppearStatus() && d.getString("sender_delete").equals(userid)) {
-                                        mMessage.add(message);
-                                        message.setAppeared();
+                                        if (!message.getMessage().equals(" ")) {
+
+                                            mMessage.add(message);
+                                            message.setAppeared();
+                                        }
                                     }
                                 }
 
                                 if ((message.getSender().equals(myid) && message.getReceiver().equals(""))) {
                                     if (!message.getAppearStatus() && d.getString("receiver_delete").equals(userid)) {
-                                        mMessage.add(message);
-                                        message.setAppeared();
+                                        if (!message.getMessage().equals(" ")) {
+
+                                            mMessage.add(message);
+                                            message.setAppeared();
+                                        }
                                     }
                                 }
                             }

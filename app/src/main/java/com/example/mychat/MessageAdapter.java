@@ -5,16 +5,24 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
+import org.w3c.dom.Text;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
+import java.util.TimeZone;
 
 public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHolder> {
     public static final int MSG_TYPE_LEFT=0;
@@ -44,36 +52,59 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
             View view= LayoutInflater.from(mContext).inflate(R.layout.chat_item_left,parent,false);
             return new MessageAdapter.ViewHolder(view);
         }
-
     }
 
     @Override
     public void onBindViewHolder(@NonNull MessageAdapter.ViewHolder holder, int position) {
         Message message = mMessage.get(position);
+        // Chuyển đổi timestamp sang định dạng ngày giờ
+        Timestamp firebaseTimestamp = message.getTimestamp(); // Lấy timestamp từ message
+
+        long seconds = firebaseTimestamp.getSeconds(); // Lấy giá trị giây
+        long nanoseconds = firebaseTimestamp.getNanoseconds(); // Lấy giá trị nanogisecond
+
+        long timestampInMillis = seconds * 1000 + nanoseconds / 1000000; // Chuyển đổi thành mili giây
+
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
+        sdf.setTimeZone(TimeZone.getDefault());
+        String dateString = sdf.format(new Date(timestampInMillis));
+
+// Hiển thị ngày giờ vào TextView
+
         if (message.getType()!=null){
             if (message.getType().equals("image")){
                 //Toast.makeText(mContext, "Image", Toast.LENGTH_SHORT).show();
                 //holder.show_message.setText(message.getMessage());
                 holder.show_image.setVisibility(View.VISIBLE);
+                RelativeLayout.LayoutParams txtShowTime = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+                txtShowTime.addRule(RelativeLayout.BELOW, holder.show_image.getId());
+                txtShowTime.addRule(RelativeLayout.ALIGN_RIGHT, holder.show_image.getId());
+
+                holder.show_time.setLayoutParams(txtShowTime);
+                holder.show_time.setLayoutParams(txtShowTime);
+                holder.show_time.setText(dateString);
                 Glide.with(mContext).load(message.getMessage()).into(holder.show_image);
             } else{
                 holder.show_image.setVisibility(View.GONE);
                 holder.show_message.setText(message.getMessage());
-            }
+                holder.show_time.setText(dateString);
 
+            }
         }
         else{
             holder.show_message.setText(message.getMessage());
+            holder.show_time.setText(dateString);
+
         }
 
+        Glide.with(mContext).load(imageUrl).into(holder.profile_image);
 
 
-
-        if (imageUrl.equals("default")){
-            holder.profile_image.setImageResource(R.drawable.ic_avt);
-        }else{
-            Glide.with(mContext).load(imageUrl).into(holder.profile_image);
-        }
+//        if (imageUrl.equals("default")){
+//            holder.profile_image.setImageResource(R.drawable.ic_avt);
+//        }else{
+//            Glide.with(mContext).load(imageUrl).into(holder.profile_image);
+//        }
     }
 
     @Override
@@ -87,12 +118,14 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
         public TextView show_message;
 
         public ImageView show_image;
+        public TextView show_time;
         public ImageView profile_image;
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             show_image=itemView.findViewById(R.id.show_image);
             show_message=itemView.findViewById(R.id.show_message);
             profile_image=itemView.findViewById(R.id.profile_image);
+            show_time=itemView.findViewById(R.id.show_time);
         }
     }
 

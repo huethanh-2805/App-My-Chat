@@ -12,10 +12,14 @@ import android.widget.ImageView;
 import android.widget.SearchView;
 import android.widget.TextView;
 
+import com.squareup.picasso.Picasso;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+
+import de.hdodenhof.circleimageview.CircleImageView;
 
 public class MyArrayAdapter extends ArrayAdapter<User> implements Filterable {
     Context context;
@@ -37,10 +41,13 @@ public class MyArrayAdapter extends ArrayAdapter<User> implements Filterable {
         View row=inflater.inflate(R.layout.array_adapter,null);
         TextView txtName=(TextView)row.findViewById(R.id.txtName);
         TextView txtString=(TextView)row.findViewById(R.id.txtString);
-        ImageView imgView =(ImageView)row.findViewById(R.id.imgView);
+        CircleImageView imgView =(CircleImageView) row.findViewById(R.id.imgView);
         txtName.setText(user.get(position).getName());
         txtString.setText(user.get(position).getEmail());
-        imgView.setImageResource(user.get(position).getImg());
+//        imgView.setImageResource(user.get(position).getImg());
+        if (user.get(position).getImg()!=null){
+            Picasso.get().load(user.get(position).getImg()).into(imgView);
+        }
         return(row);
     }
 

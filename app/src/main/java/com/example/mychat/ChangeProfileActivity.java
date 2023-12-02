@@ -1,6 +1,7 @@
 package com.example.mychat;
 
 import android.app.Activity;
+import android.app.Application;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.net.Uri;
@@ -26,14 +27,17 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.squareup.picasso.Picasso;
 
 import java.io.IOException;
+
+import de.hdodenhof.circleimageview.CircleImageView;
 
 public class ChangeProfileActivity extends Activity {
 
     private static final int PICK_IMAGE_REQUEST = 1;
 
-    private ImageView imageView;
+    private CircleImageView imageView;
     private ImageView btn_back;
     private EditText displayNameEditText;
     private Uri filePath;
@@ -72,6 +76,9 @@ public class ChangeProfileActivity extends Activity {
                     // Lấy giá trị của trường cụ thể từ tài liệu
                     currentDisplayName = documentSnapshot.getString("username");
                     displayNameEditText.setText(currentDisplayName);
+                    Picasso.get().load(documentSnapshot.getString("avatarUrl")).into(imageView);
+
+
                 } else {
                     // Tài liệu không tồn tại
                     Toast.makeText(ChangeProfileActivity.this, "Not existed", Toast.LENGTH_SHORT).show();

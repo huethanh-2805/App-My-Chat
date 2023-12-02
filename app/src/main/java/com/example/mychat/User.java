@@ -6,11 +6,12 @@ import com.google.firebase.Timestamp;
 public class User {
     private final String name;
     private final String string;
-    private final Integer avatarUrl;
+    private final String avatarUrl;
     private String uid;
     private final String email;
     Timestamp timestamp;
-    public User(String name, String string, Integer img, String email, String uid, Timestamp timestamp) {
+
+    public User(String name, String string, String img, String email, String uid, Timestamp timestamp) {
         this.name = name;
         this.string = string;
         this.avatarUrl = img;
@@ -27,7 +28,7 @@ public class User {
     public String getString(){
         return this.string;
     }
-    public Integer getImg(){
+    public String getImg(){
         return this.avatarUrl;
     }
 

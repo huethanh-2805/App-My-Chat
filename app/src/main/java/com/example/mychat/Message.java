@@ -3,6 +3,8 @@ package com.example.mychat;
 
 import com.google.firebase.Timestamp;
 
+import java.sql.Time;
+
 public class Message {
     private String sender;
     private String receiver;
@@ -30,6 +32,12 @@ public class Message {
         this.type=type;
     }
 
+    public Timestamp getTimestamp(){
+        return  this.timestamp;
+    }
+    public void setTimestamp(Timestamp x){
+        this.timestamp=x;
+    }
     public Message(){
         this.isAppeared=false;
     }

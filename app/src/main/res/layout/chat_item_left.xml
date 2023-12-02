@@ -7,7 +7,7 @@
         android:layout_width="40dp"
         android:layout_height="40dp"
         android:id="@+id/profile_image"
-        android:src="@mipmap/ic_launcher_foreground"/>
+        />
 
     <TextView
         android:layout_width="wrap_content"
@@ -20,6 +20,22 @@
         android:textSize="18sp"
 
         android:background="@drawable/background_left"/>
+
+    <TextView
+        android:id="@+id/show_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/show_message"
+        android:layout_marginStart="4dp"
+        android:layout_marginLeft="5dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginEnd="4dp"
+
+        android:layout_marginBottom="4dp"
+        android:background="@color/transparent"
+        android:padding="8dp"
+
+        android:textSize="8sp" />
     <ImageView
         android:layout_width="200dp"
         android:layout_height="200dp"
