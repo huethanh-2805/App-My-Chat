@@ -1,19 +1,27 @@
 package com.example.mychat;
 
 
+
 import static android.content.ContentValues.TAG;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 
-import android.annotation.SuppressLint;
 
+import android.annotation.SuppressLint;
+import android.app.ProgressDialog;
+import android.content.ContentResolver;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+
+import android.provider.OpenableColumns;
+
 import android.util.Log;
 import android.view.View;
+import android.webkit.MimeTypeMap;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -25,7 +33,6 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
-import androidx.fragment.app.FragmentActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -51,6 +58,8 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.squareup.picasso.Picasso;
 
+import com.google.firebase.storage.UploadTask;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -61,6 +70,8 @@ public class  ChatSreen extends BaseActivity {
 
 
     private static final int PICK_IMAGE_REQUEST = 1;
+
+    private static final int PICK_FILE_REQUEST_CODE = 1;
     private Uri filePath;
     private FirebaseStorage storage;
     private StorageReference storageReference;
@@ -86,6 +97,8 @@ public class  ChatSreen extends BaseActivity {
 
     ImageButton btn_send;
     ImageButton btn_chooseImage;
+
+    ImageButton btn_file;
     EditText text_send;
     Intent intent;
 
@@ -118,6 +131,7 @@ public class  ChatSreen extends BaseActivity {
         btn_more = findViewById(R.id.more);
         barLayout=findViewById(R.id.bar_layout);
 
+        btn_file=findViewById(R.id.btn_file);
         btn_chooseImage=findViewById(R.id.image_btn);
         storage = FirebaseStorage.getInstance();
         storageReference = storage.getReference();
@@ -140,6 +154,15 @@ public class  ChatSreen extends BaseActivity {
                 chooseImage();
             }
         });
+
+        btn_file.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                chooseFile();
+            }
+        });
+
+
 
         btn_send.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -236,19 +259,58 @@ public class  ChatSreen extends BaseActivity {
         startActivityForResult(Intent.createChooser(intent, "Select Image"), PICK_IMAGE_REQUEST);
     }
 
+    private void chooseFile() {
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        intent.setType("*/*");
+        startActivityForResult(intent, PICK_FILE_REQUEST_CODE);
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @androidx.annotation.Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null) {
             filePath = data.getData();
-            uploadImage();
+            String fileExtension = getFileExtension(filePath);
 
-//            try {
-//                imageView.setImageBitmap(MediaStore.Images.Media.getBitmap(getContentResolver(), filePath));
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            }
+            if (fileExtension.equals("png") || fileExtension.equals("jpg") ){
+                uploadImage();
+            }
+            else if (fileExtension.equals("pdf") || fileExtension.equals("txt") ){
+                uploadFile();
+            }
         }
+    }
+
+    @SuppressLint("Range")
+    private String getFileNameFromUri(Uri uri) {
+        String result = null;
+        if (uri.getScheme().equals("content")) {
+            Cursor cursor = getContentResolver().query(uri, null, null, null, null);
+            try {
+                if (cursor != null && cursor.moveToFirst()) {
+                    result = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
+                }
+            } finally {
+                cursor.close();
+            }
+        }
+        if (result == null) {
+            result = uri.getPath();
+            int cut = result.lastIndexOf('/');
+            if (cut != -1) {
+                result = result.substring(cut + 1);
+            }
+        }
+        return result;
+    }
+
+    private String getFileExtension(Uri uri) {
+        // Lấy đuôi file từ URI
+        ContentResolver contentResolver = getContentResolver();
+        MimeTypeMap mimeTypeMap = MimeTypeMap.getSingleton();
+        String fileExtension = mimeTypeMap.getExtensionFromMimeType(contentResolver.getType(uri));
+        Toast.makeText(this, fileExtension, Toast.LENGTH_SHORT).show();
+        return fileExtension;
     }
 
     private void uploadImage() {
@@ -274,6 +336,49 @@ public class  ChatSreen extends BaseActivity {
         }
     }
 
+    private void uploadFile() {
+        if (filePath != null) {
+            final ProgressDialog progressDialog = new ProgressDialog(this);
+            progressDialog.setTitle("Uploading...");
+            progressDialog.show();
+            // Tạo tên duy nhất cho tập tin
+            String fileName = System.currentTimeMillis() + "_" + fUser.getUid();
+
+            // Tạo đường dẫn lưu trữ trên Firebase Storage
+            StorageReference fileRef = storage.getReference().child("files/" + fileName);
+
+            // Upload tập tin lên Firebase Storage
+            UploadTask uploadTask = fileRef.putFile(filePath);
+            uploadTask.addOnSuccessListener(taskSnapshot -> {
+                        // Lấy đường dẫn của tập tin đã upload
+                        progressDialog.dismiss();
+                        fileRef.getDownloadUrl().addOnSuccessListener(uri -> {
+                            String fileUrl = uri.toString();
+                            sendFile(fUser.getUid(), userReceiverID, fileUrl);
+
+//                            // Lưu đường dẫn vào Firestore
+//                            Map<String, Object> dataToSave = new HashMap<>();
+//                            dataToSave.put("file_url", fileUrl);
+//
+//                            firestore.collection("files")
+//                                    .add(dataToSave)
+//                                    .addOnSuccessListener(documentReference -> {
+//                                        // Thành công
+//                                        Toast.makeText(this, "Upload thành công", Toast.LENGTH_SHORT).show();
+//                                    })
+//                                    .addOnFailureListener(e -> {
+//                                        // Lỗi khi lưu vào Firestore
+//                                        Toast.makeText(this, "Lỗi khi lưu vào Firestore", Toast.LENGTH_SHORT).show();
+//                                    });
+                        });
+                    })
+                    .addOnFailureListener(e -> {
+                        // Lỗi khi upload tập tin lên Firebase Storage
+                        Toast.makeText(this, "Lỗi khi upload tập tin", Toast.LENGTH_SHORT).show();
+                    });
+        }
+    }
+
     private void sendImage(String sender, String receiver, String message) {
         CollectionReference usersCollection = db.collection("messages");
 
@@ -289,6 +394,21 @@ public class  ChatSreen extends BaseActivity {
         //add to notification
         CollectionReference notifyCollection = db.collection("notification");
         notifyCollection.add(messageData);
+    }
+
+    private void sendFile(String sender, String receiver, String message) {
+        CollectionReference usersCollection = db.collection("messages");
+
+        HashMap<String, Object> messageData = new HashMap<>();
+        Timestamp timestamp = Timestamp.now();
+        messageData.put("sender", sender);
+        messageData.put("receiver", receiver);
+        messageData.put("message", message);
+        messageData.put("timestamp", timestamp);
+        messageData.put("title", getFileNameFromUri(filePath));
+        messageData.put("type", getFileExtension(filePath));
+
+        usersCollection.add(messageData);
     }
 
 

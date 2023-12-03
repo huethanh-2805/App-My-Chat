@@ -57,7 +57,7 @@ public class MessageNotification extends Service {
     //
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Toast.makeText(getApplicationContext(),"SERVICE STARTED", Toast.LENGTH_LONG).show();
+//        Toast.makeText(getApplicationContext(),"SERVICE STARTED", Toast.LENGTH_LONG).show();
         otherUser = intent.getStringExtra("otherUser");
         auth = FirebaseAuth.getInstance();
         String currentUser = auth.getCurrentUser().getUid().toString();
@@ -104,7 +104,7 @@ public class MessageNotification extends Service {
     }
     //
     private void Notify(String noti, String sender) {
-        Toast.makeText(getApplicationContext(),"AOOOO " + noti, Toast.LENGTH_SHORT).show();
+//        Toast.makeText(getApplicationContext(),"AOOOO " + noti, Toast.LENGTH_SHORT).show();
 
         String channelId = "channel_id";
         String channelName = "MyChat_Channel";
@@ -121,7 +121,7 @@ public class MessageNotification extends Service {
         PendingIntent pendingIntent = PendingIntent
                 .getActivity(this, 0, intent, PendingIntent.FLAG_MUTABLE);
         //build thông báo
-        Toast.makeText(getApplicationContext(),"TIN NHẮN MỚI TỪ " + noti, Toast.LENGTH_SHORT).show();
+//        Toast.makeText(getApplicationContext(),"TIN NHẮN MỚI TỪ " + noti, Toast.LENGTH_SHORT).show();
         //
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, "channel_id")
                 .setSmallIcon(R.drawable.ic_noti)
