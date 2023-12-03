@@ -1,10 +1,16 @@
 package com.example.mychat;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.WebView;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -52,17 +58,60 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
         Message message = mMessage.get(position);
         if (message.getType()!=null){
             if (message.getType().equals("image")){
-                //Toast.makeText(mContext, "Image", Toast.LENGTH_SHORT).show();
-                //holder.show_message.setText(message.getMessage());
+                holder.show_file.setVisibility(View.GONE);
                 holder.show_image.setVisibility(View.VISIBLE);
                 Glide.with(mContext).load(message.getMessage()).into(holder.show_image);
-            } else{
+            }
+            else if (message.getType().equals("file") || message.getType().equals("pdf") || message.getType().equals("txt")){
+                holder.show_image.setVisibility(View.GONE);
+                holder.show_file.setVisibility(View.VISIBLE);
+                if (message.getTitle()!=null){
+                    holder.title_file.setText(message.getTitle());
+                }
+                holder.show_file.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        CharSequence options[] = new CharSequence[]{
+                                "View",
+                                "Cancel"
+                        };
+                        AlertDialog.Builder builder = new AlertDialog.Builder(v.getContext());
+                        builder.setTitle("Choose One");
+                        builder.setItems(options, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                // we will be downloading the pdf
+                                if (which == 0) {
+                                    if (message.getType().equals("txt")){
+                                        Intent intent1 = new Intent(Intent.ACTION_VIEW);
+                                        intent1.setDataAndType(Uri.parse(message.getMessage()), "text/plain");
+                                        mContext.startActivity(intent1);
+                                    }
+                                    else {
+                                        Intent intent1 = new Intent(Intent.ACTION_VIEW);
+                                        intent1.setDataAndType(Uri.parse(message.getMessage()), "application/pdf");
+                                        mContext.startActivity(intent1);
+                                    }
+                                }
+
+                                if (which == 1) {
+                                        dialog.dismiss();
+                                }
+                            }
+                        });
+                        builder.show();
+                    }
+                });
+            }
+            else{
+                holder.show_file.setVisibility(View.GONE);
                 holder.show_image.setVisibility(View.GONE);
                 holder.show_message.setText(message.getMessage());
             }
-
         }
         else{
+
+            holder.show_image.setVisibility(View.GONE);
             holder.show_message.setText(message.getMessage());
         }
 
@@ -76,6 +125,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
         }
     }
 
+
     @Override
     public int getItemCount() {
         return mMessage.size();
@@ -88,11 +138,19 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
 
         public ImageView show_image;
         public ImageView profile_image;
+
+        public TextView title_file;
+
+        public LinearLayout show_file;
+
+        public WebView webView;
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             show_image=itemView.findViewById(R.id.show_image);
             show_message=itemView.findViewById(R.id.show_message);
             profile_image=itemView.findViewById(R.id.profile_image);
+            show_file=itemView.findViewById(R.id.show_file);
+            title_file=itemView.findViewById(R.id.title_file);
         }
     }
 

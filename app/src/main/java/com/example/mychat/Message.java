@@ -15,10 +15,11 @@ public class Message {
 
 
     private String type;
+    private String title;
 
 
 
-    public Message(String sender, String receiver,String sender_delete, String receiver_delete, String message,Timestamp timestamp, String type){
+    public Message(String sender, String receiver,String sender_delete, String receiver_delete, String message,Timestamp timestamp,String title, String type){
 
         this.sender=sender;
         this.receiver=receiver;
@@ -28,6 +29,7 @@ public class Message {
         this.isAppeared=false;
         this.timestamp=timestamp;
         this.type=type;
+        this.title=title;
     }
 
     public Message(){
@@ -48,6 +50,14 @@ public class Message {
 
     public String getType(){
         return this.type;
+    }
+
+    public void setTitle(String type){
+        this.title=type;
+    }
+
+    public String getTitle(){
+        return this.title;
     }
 
     public String getSender(){
