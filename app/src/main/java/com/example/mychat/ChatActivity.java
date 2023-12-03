@@ -262,6 +262,10 @@ public class ChatActivity extends Fragment implements View.OnClickListener, Adap
                     CollectionReference userRef = db.collection("users");
                     for (DocumentSnapshot d : result) {
                         String latestMessage = d.getString("message");
+                        String type = d.getString("type");
+                        if (!type.equals("text")) latestMessage = "[FILE ĐÍNH KÈM]";
+                        if (type.equals("image")) latestMessage = "[ẢNH]";
+                        if (type.equals("video")) latestMessage = "[VIDEO]";
                         //
                         String contact = d.getString("receiver");
                         if (contact.equals(currentUser)){
@@ -272,6 +276,7 @@ public class ChatActivity extends Fragment implements View.OnClickListener, Adap
                                 contact = d.getString("sender");
                             }
                         }
+                        else latestMessage = "Bạn: " + latestMessage;
 
                         if(d.getString("receiver").equals("")){
                             contact = d.getString("receiver_delete");
@@ -282,6 +287,11 @@ public class ChatActivity extends Fragment implements View.OnClickListener, Adap
                         String[] uid = new String[1];
                         String[] email = new String[1];
                         String[] username = new String[1];
+                        //cắt chuỗi nếu quá dài
+                        if (latestMessage.length() > 48) {
+                            latestMessage = latestMessage.substring(0,45) + "...";
+                        }
+                        String[] latest = {latestMessage};
 
                         userDoc.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                             @Override
@@ -293,12 +303,11 @@ public class ChatActivity extends Fragment implements View.OnClickListener, Adap
                                         username[0] = userSnapshot.getString("username");
                                         email[0] = userSnapshot.getString("email");
                                         Timestamp timestamp = (Timestamp) userSnapshot.get("timestamp");
-                                        user.add(new User(username[0], latestMessage, userSnapshot.getString("avatarUrl"), latestMessage, uid[0],timestamp));
+                                        user.add(new User(username[0], latest[0], userSnapshot.getString("avatarUrl"), latest[0], uid[0],timestamp));
 //                                        if (user.size()>1){
 //                                            Collections.sort(user,Comparator.comparing(User::getTimestamp,Comparator.reverseOrder()));
 //
 //                                        }
-
                                         adapter = new MyArrayAdapter(context, R.layout.array_adapter, user);
                                         listView.setAdapter(adapter);
                                         adapter.notifyDataSetChanged();
