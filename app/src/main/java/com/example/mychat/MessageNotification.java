@@ -57,7 +57,7 @@ public class MessageNotification extends Service {
     //
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        //Toast.makeText(getApplicationContext(),"SERVICE STARTED", Toast.LENGTH_LONG).show();
+        Toast.makeText(getApplicationContext(),"SERVICE STARTED", Toast.LENGTH_LONG).show();
         otherUser = intent.getStringExtra("otherUser");
         auth = FirebaseAuth.getInstance();
         String currentUser = auth.getCurrentUser().getUid().toString();
@@ -69,11 +69,11 @@ public class MessageNotification extends Service {
                 if (error != null) {
                     return;
                 }
-                for (DocumentChange newMessage : querySnapshot.getDocumentChanges()) {
-                    if (newMessage.getType() == ADDED) {
+                for (DocumentSnapshot newMessage : querySnapshot.getDocuments()) {
+                    if (newMessage.exists()){
                         //Toast.makeText(getApplicationContext(),"CHANGE CAUGHT", Toast.LENGTH_SHORT).show();
                         //chỉ xử lý những bộ được thêm vào
-                        DocumentSnapshot docSnap = newMessage.getDocument();
+                        DocumentSnapshot docSnap = newMessage;
                         String receiver = docSnap.getString("receiver");
                         if (receiver.equals(currentUser)) { //lấy những bộ mà người dùng là receiver
                             String idNotification = docSnap.getId();
@@ -104,6 +104,8 @@ public class MessageNotification extends Service {
     }
     //
     private void Notify(String noti, String sender) {
+        Toast.makeText(getApplicationContext(),"AOOOO " + noti, Toast.LENGTH_SHORT).show();
+
         String channelId = "channel_id";
         String channelName = "MyChat_Channel";
         NotificationChannel notificationChannel = new NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_HIGH);
@@ -117,9 +119,9 @@ public class MessageNotification extends Service {
         intent.putExtra("receiverID", sender);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         PendingIntent pendingIntent = PendingIntent
-                .getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+                .getActivity(this, 0, intent, PendingIntent.FLAG_MUTABLE);
         //build thông báo
-        //Toast.makeText(getApplicationContext(),"TIN NHẮN MỚI TỪ " + noti, Toast.LENGTH_SHORT).show();
+        Toast.makeText(getApplicationContext(),"TIN NHẮN MỚI TỪ " + noti, Toast.LENGTH_SHORT).show();
         //
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, "channel_id")
                 .setSmallIcon(R.drawable.ic_noti)
