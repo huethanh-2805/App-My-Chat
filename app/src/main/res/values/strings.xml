@@ -22,6 +22,8 @@
     <string name="sign_up">\ Sign Up</string>
     <string name="log_in">\ Log In</string>
     <string name="user_name">New user name (Option)</string>
+    <string name="user_email">New user email (Option)</string>
+    <string name="user_password">New user password (Option)</string>
     <string name="confirm_otp">Confirm OTP</string>
 
 

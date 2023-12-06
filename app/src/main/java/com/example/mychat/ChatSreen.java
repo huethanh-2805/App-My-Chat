@@ -196,6 +196,7 @@ public class  ChatSreen extends BaseActivity {
                                     intent.putExtra("user_name",name);
                                     intent.putExtra("my_id", fUser.getUid()); //Gửi id của mình
                                     intent.putExtra("user_id", userReceiverID); //Gửi id của người chat với mình
+                                    intent.putExtra("avatarUrl", avatar); //Gửi avatar
                                     ChatSreen.this.startActivity(intent);
                                 }
                             });

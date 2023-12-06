@@ -66,7 +66,7 @@ public class MoreActivity extends Fragment  {
 
 
 
-    LinearLayout btn_setProfile;
+    //LinearLayout btn_setProfile;
     Context context;
     MainFragment mainFragment;
     ChatActivity chatActivity;
@@ -101,7 +101,7 @@ public class MoreActivity extends Fragment  {
         txtEmail = layout_more.findViewById(R.id.txtEmail);
         profileAvt=layout_more.findViewById(R.id.profileAvt);
 
-        btn_setProfile=layout_more.findViewById(R.id.btn_setProfile);
+        //btn_setProfile=layout_more.findViewById(R.id.btn_setProfile);
 
 
         listView = layout_more.findViewById(R.id.listView);
@@ -111,14 +111,14 @@ public class MoreActivity extends Fragment  {
         // lấy thông tin user hiện thị
         getInfoUser();
 
-        btn_setProfile.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View v) {
-                Intent intent=new Intent(context, ChangeProfileActivity.class);
-                startActivity(intent);
-            }
-
-        });
+//        btn_setProfile.setOnClickListener(new View.OnClickListener(){
+//            @Override
+//            public void onClick(View v) {
+//                Intent intent=new Intent(context, ChangeProfileActivity.class);
+//                startActivity(intent);
+//            }
+//
+//        });
 
 
         //Click on Item
@@ -127,6 +127,8 @@ public class MoreActivity extends Fragment  {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 switch (position) {
                     case 0:
+                        Intent intent= new Intent(context, ChangeProfileActivity.class);
+                        startActivity(intent);
                         break;
                     case 1:
                         mainFragment.changeFragment(new ChatActivity());

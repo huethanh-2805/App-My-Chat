@@ -41,6 +41,7 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -56,6 +57,7 @@ public class ConversationInformation extends BaseActivity {
     ListView listViewThemes;
     TextView txtUserName;
     ImageView btn_back;
+    ImageView profile_image;
     Intent intent;
     final FirebaseFirestore db = FirebaseFirestore.getInstance();
     private boolean isUserBlocked; //Biến để kiểm tra user có bị lock hay không
@@ -70,6 +72,14 @@ public class ConversationInformation extends BaseActivity {
         String name = intent.getStringExtra("user_name");
         String myID = intent.getStringExtra("my_id");    //Nhận id của mình
         String userID = intent.getStringExtra("user_id");//Nhận id của người chat với mình
+
+        //Set avatar của receiver
+        profile_image = findViewById(R.id.profile_image);
+        String avatar = intent.getStringExtra("avatarUrl");
+        if (avatar!=null) {
+            Picasso.get().load(avatar).into(profile_image);
+        }
+
         txtUserName.setText(name);
 
         listView = findViewById(R.id.listView);
@@ -102,8 +112,7 @@ public class ConversationInformation extends BaseActivity {
         btn_back.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(ConversationInformation.this, ChatSreen.class);
-                ConversationInformation.this.startActivity(intent);
+                finish();
             }
         });
 
