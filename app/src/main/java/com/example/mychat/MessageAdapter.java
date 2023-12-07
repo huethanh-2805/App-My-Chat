@@ -88,6 +88,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
                 holder.show_time.setLayoutParams(txtShowTime);
                 holder.show_time.setText(dateString);
                 Glide.with(mContext).load(message.getMessage()).into(holder.show_image);
+
             } else if (message.getType().equals("file") || message.getType().equals("pdf") || message.getType().equals("txt")) {
                 holder.show_image.setVisibility(View.GONE);
                 holder.show_file.setVisibility(View.VISIBLE);
@@ -183,13 +184,15 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
             title_file = itemView.findViewById(R.id.title_file);
         }
 
-        public int getItemViewType(int position) {
-            fUser = FirebaseAuth.getInstance().getCurrentUser();
-            if (mMessage.get(position).getSender().equals(fUser.getUid())) {
-                return MSG_TYPE_RIGHT;
-            } else {
-                return MSG_TYPE_LEFT;
-            }
+
+
+    }
+    public int getItemViewType(int position) {
+        fUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (mMessage.get(position).getSender().equals(fUser.getUid())) {
+            return MSG_TYPE_RIGHT;
+        } else {
+            return MSG_TYPE_LEFT;
         }
     }
 }

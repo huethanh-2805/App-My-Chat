@@ -100,7 +100,7 @@ public class SignupActivity extends Activity implements View.OnClickListener {
                                         finish();
                                     }
                                     else {
-                                        Toast.makeText(SignupActivity.this, task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+//                                        Toast.makeText(SignupActivity.this, task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                                         progressBar.setVisibility(View.INVISIBLE);
 
                                     }
@@ -133,7 +133,7 @@ public class SignupActivity extends Activity implements View.OnClickListener {
         final FirebaseUser user=FirebaseAuth.getInstance().getCurrentUser();
         if (user!=null){
             String uid = user.getUid();
-            Toast.makeText(getApplicationContext(),uid,Toast.LENGTH_SHORT).show();
+//            Toast.makeText(getApplicationContext(),uid,Toast.LENGTH_SHORT).show();
             FirebaseFirestore db = FirebaseFirestore.getInstance();
 
             CollectionReference usersCollection = db.collection("users");

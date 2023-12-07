@@ -31,12 +31,15 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+
+import de.hdodenhof.circleimageview.CircleImageView;
 
 public class AddContactActivity extends Activity implements View.OnClickListener {
     ImageView imgAdd;
@@ -111,6 +114,7 @@ public class AddContactActivity extends Activity implements View.OnClickListener
         myBuilder.setView(dialogView);
 
         ImageView avt = dialogView.findViewById(R.id.avt);
+//        Picasso.get().load(userAdd.getImg()).into(avt);
         avt.setImageResource(R.drawable.ic_avt);
         TextView username = dialogView.findViewById(R.id.username);
         username.setText(userAdd.getName());
@@ -333,7 +337,7 @@ public class AddContactActivity extends Activity implements View.OnClickListener
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if (task.isSuccessful()) {
                     for (DocumentSnapshot document : task.getResult()) {
-                        if(Objects.equals(document.getString("email"), email) && document.getString("username").equals(name)){
+                        if(Objects.equals(document.getString("email"), email) && Objects.equals(document.getString("username"), name)){
                             uid[0] =document.getId();
                             break;
                         }
