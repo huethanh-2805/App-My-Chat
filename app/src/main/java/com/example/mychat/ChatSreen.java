@@ -8,10 +8,14 @@ import android.app.ProgressDialog;
 
 import android.annotation.SuppressLint;
 
+import android.content.ContentResolver;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.ContentObserver;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
@@ -59,7 +63,6 @@ import java.util.Objects;
 
 public class  ChatSreen extends BaseActivity {
 
-
     private static final int PICK_IMAGE_REQUEST = 1;
     private Uri filePath;
     private FirebaseStorage storage;
@@ -97,6 +100,9 @@ public class  ChatSreen extends BaseActivity {
     private boolean check2;
 
     TextView txtStatus;
+
+    private ScreenshotDetector screenshotDetector;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -226,6 +232,8 @@ public class  ChatSreen extends BaseActivity {
         Intent serviceIntent = new Intent(this, MessageNotification.class);
         serviceIntent.putExtra("otherUser", userReceiverID);
         startService(serviceIntent);
+        //
+        screenshotDetector = new ScreenshotDetector(this, fUser.getUid(), userReceiverID);
     }
 
 
@@ -300,6 +308,8 @@ public class  ChatSreen extends BaseActivity {
         Intent serviceIntent = new Intent(this, MessageNotification.class);
         serviceIntent.putExtra("otherUser", userReceiverID);
         startService(serviceIntent);
+        //
+        screenshotDetector.start();
     }
 
 
@@ -584,5 +594,7 @@ public class  ChatSreen extends BaseActivity {
         Intent serviceIntent = new Intent(this, MessageNotification.class);
         serviceIntent.putExtra("otherUser", "");
         startService(serviceIntent);
+        //
+        screenshotDetector.stop();
     }
 }

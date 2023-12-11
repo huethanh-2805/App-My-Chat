@@ -129,5 +129,6 @@ public class MessageNotification extends Service {
                 .setAutoCancel(true);
         // Hiện thông báo
         notificationManager.notify(0, builder.build());
+        //
     }
 }
