@@ -11,6 +11,7 @@ import android.app.ProgressDialog;
 import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.content.ContentResolver;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
@@ -52,6 +53,7 @@ import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.storage.FirebaseStorage;
@@ -60,6 +62,7 @@ import com.squareup.picasso.Picasso;
 
 import com.google.firebase.storage.UploadTask;
 
+import java.sql.Time;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -110,6 +113,10 @@ public class  ChatSreen extends BaseActivity {
     private boolean check2;
 
     TextView txtStatus;
+
+    TextView show_message;
+
+    CollectionReference cref;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -247,9 +254,9 @@ public class  ChatSreen extends BaseActivity {
             }
         });
         //
-        Intent serviceIntent = new Intent(this, MessageNotification.class);
-        serviceIntent.putExtra("otherUser", userReceiverID);
-        startService(serviceIntent);
+//        Intent serviceIntent = new Intent(this, MessageNotification.class);
+//        serviceIntent.putExtra("otherUser", userReceiverID);
+//        startService(serviceIntent);
     }
 
 
@@ -418,9 +425,9 @@ public class  ChatSreen extends BaseActivity {
         super.onResume();
         setThemeBasedOnSelectedTheme();
         //
-        Intent serviceIntent = new Intent(this, MessageNotification.class);
-        serviceIntent.putExtra("otherUser", userReceiverID);
-        startService(serviceIntent);
+//        Intent serviceIntent = new Intent(this, MessageNotification.class);
+//        serviceIntent.putExtra("otherUser", userReceiverID);
+//        startService(serviceIntent);
     }
 
 
@@ -609,14 +616,116 @@ public class  ChatSreen extends BaseActivity {
                                 }
                             }
                             messageAdapter = new MessageAdapter(ChatSreen.this, mMessage, imageurl);
+                            messageAdapter.setOnItemClickListener(new OnItemClickListener() {
+                                @Override
+                                public void onItemClick(Message mess) {
+                                    showDeleteDialog(mess);
+                                }
+                            });
                             recyclerView.setAdapter(messageAdapter);
+
                         } else {
                             Toast.makeText(ChatSreen.this, "Không tìm thấy dữ liệu trong cơ sở dữ liệu", Toast.LENGTH_SHORT).show();
                         }
                     }
                 });
     }
+    private String messageID;
 
+    private void findDocumentMessageId(Message mess) {
+        FirebaseFirestore firestore=FirebaseFirestore.getInstance();
+        CollectionReference cre = firestore.collection("messages");
+
+        cre.whereEqualTo("message", mess.getMessage())
+                .whereEqualTo("receiver", mess.getReceiver())
+                .whereEqualTo("sender", mess.getSender())
+                .whereEqualTo("timestamp", (Timestamp)mess.getTimestamp())
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            for (QueryDocumentSnapshot d : task.getResult()) {
+                                // Xử lý tài liệu ở đây
+                                 messageID = d.getId();
+                                if (messageID!=null) {
+                                    Toast.makeText(getApplicationContext(), messageID, Toast.LENGTH_SHORT).show();
+                                    deleteMessage(messageID);
+
+                                }
+                                else {
+                                    Toast.makeText(getApplicationContext(), "null", Toast.LENGTH_SHORT).show();
+
+                                }
+                                // Bạn có thể sử dụng messageID theo cách cần thiết
+                            }
+                        } else {
+                            // Xử lý lỗi
+                            Log.w(TAG, "Lỗi khi lấy tài liệu.", task.getException());
+                        }
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Toast.makeText(getApplicationContext(),"fail",Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+    private void deleteMessage(String messageId) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        CollectionReference messagesRef = db.collection("messages");
+        Map<String, Object> updates = new HashMap<>();
+        updates.put("message", "Nội dung đã bị gỡ");
+        updates.put("type","text");
+
+
+        // Gọi hàm để xóa tin nhắn
+        messagesRef.document(messageId)
+                .update(updates)
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+//                        Toast.makeText(ChatSreen.this, "Tin nhắn đã được xóa", Toast.LENGTH_SHORT).show();
+
+                    }
+
+
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        // Xóa tin nhắn thất bại
+                        Toast.makeText(ChatSreen.this, "Không thể gỡ tin nhắn", Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+
+    private void showDeleteDialog(final Message message) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Xác nhận gỡ tin nhắn");
+        builder.setMessage("Bạn có chắc chắn muốn gỡ tin nhắn này?");
+        builder.setPositiveButton("Gỡ", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                // Gọi hàm để xóa tin nhắn
+                findDocumentMessageId(message);
+
+//                Timestamp timestamp=findDocumentMessageId(message);
+            }
+        });
+        builder.setNegativeButton("Hủy", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                // Đóng Dialog nếu người dùng chọn Hủy
+                dialog.dismiss();
+            }
+        });
+
+        // Hiển thị Dialog
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
     private void applyNightMode() {
         sharedPreferences=MyChat.getSharedPreferences();
         boolean nightMode=sharedPreferences.getBoolean("night",false);
@@ -626,6 +735,10 @@ public class  ChatSreen extends BaseActivity {
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
         }
     }
+
+    // Hàm để xóa tin nhắn từ Firestore và cập nhật RecyclerView
+
+
 
 
     @SuppressLint("ResourceAsColor")
@@ -699,11 +812,11 @@ public class  ChatSreen extends BaseActivity {
                 break;
         }
     }
-    @Override
-    protected void onPause() {
-        super.onPause();
-        Intent serviceIntent = new Intent(this, MessageNotification.class);
-        serviceIntent.putExtra("otherUser", "");
-        startService(serviceIntent);
-    }
+//    @Override
+//    protected void onPause() {
+//        super.onPause();
+//        Intent serviceIntent = new Intent(this, MessageNotification.class);
+//        serviceIntent.putExtra("otherUser", "");
+//        startService(serviceIntent);
+//    }
 }

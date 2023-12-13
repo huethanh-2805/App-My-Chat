@@ -35,7 +35,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
     public static final int MSG_TYPE_RIGHT = 1;
     private final Context mContext;
     private final List<Message> mMessage;
-
+    private OnItemClickListener onItemClickListener;
     FirebaseUser fUser;
 
     public String imageUrl;
@@ -46,7 +46,9 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
         this.mContext = mContext;
         this.imageUrl = imageUrl;
     }
-
+    public void setOnItemClickListener(OnItemClickListener listener){
+        this.onItemClickListener=listener;
+    }
     @NonNull
     @Override
     public MessageAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -74,6 +76,30 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
         sdf.setTimeZone(TimeZone.getDefault());
         String dateString = sdf.format(new Date(timestampInMillis));
 
+        holder.show_message.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (onItemClickListener!=null){
+                    onItemClickListener.onItemClick(message);
+                }
+            }
+        });
+
+        holder.show_image.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (onItemClickListener!=null){
+                    onItemClickListener.onItemClick(message);
+                }
+            }
+        });
+
+        if(message.getMessage().equals("Nội dung đã bị gỡ"))
+        {
+            holder.show_message.setText("Nội dung đã bị gỡ");
+            holder.show_message.setBackgroundResource(R.drawable.background_remove);
+        }
+
 // Hiển thị ngày giờ vào TextView
 
         if (message.getType() != null) {
@@ -100,6 +126,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
                     public void onClick(View v) {
                         CharSequence options[] = new CharSequence[]{
                                 "View",
+                                "Gỡ tin nhắn",
                                 "Cancel"
                         };
                         AlertDialog.Builder builder = new AlertDialog.Builder(v.getContext());
@@ -121,6 +148,10 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
                                 }
 
                                 if (which == 1) {
+                                    onItemClickListener.onItemClick(message);
+                                }
+                                if(which == 2)
+                                {
                                     dialog.dismiss();
                                 }
                             }
@@ -152,6 +183,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
 //            Glide.with(mContext).load(imageUrl).into(holder.profile_image);
 //        }
     }
+
 
 
     @Override

@@ -16,6 +16,8 @@
         android:layout_marginLeft="5dp"
         android:id="@+id/show_message"
         android:padding="8dp"
+
+
         android:layout_marginBottom="4dp"
         android:textSize="18sp"
         android:background="@drawable/background_left"/>
@@ -64,7 +66,8 @@
             android:layout_marginLeft="10dp"
             android:layout_marginTop="10dp"
             android:background="@drawable/ic_showfile"
-            android:scaleType="centerCrop">
+            android:scaleType="centerCrop"
+            android:visibility="gone">
         </ImageView>
         <TextView
             android:layout_width="match_parent"

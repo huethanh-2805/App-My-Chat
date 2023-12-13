@@ -228,7 +228,8 @@ public class AddContactActivity extends Activity implements View.OnClickListener
                                     chatData.put("lastMessage", message);
                                     chatsCollection.add(chatData);
                                 }
-                            }
+
+                                    }
                         });
                     }
                 } else {
@@ -321,6 +322,7 @@ public class AddContactActivity extends Activity implements View.OnClickListener
                                     public void onComplete(@NonNull Task<Void> task) {
                                         // Xử lý khi hoàn thành (nếu cần)
 //                                                            showNiceDialogBox(true);
+
                                     }
                                 });
                     }

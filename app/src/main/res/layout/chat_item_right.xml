@@ -68,7 +68,8 @@
                 android:layout_marginLeft="10dp"
                 android:layout_marginTop="10dp"
                 android:background="@drawable/ic_showfile"
-                android:scaleType="centerCrop">
+                android:scaleType="centerCrop"
+                android:visibility="gone">
             </ImageView>
             <TextView
                 android:layout_width="match_parent"

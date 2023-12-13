@@ -87,7 +87,7 @@ public class MessageNotification extends Service {
                                         DocumentSnapshot userSnapshot = task.getResult();
                                         if (userSnapshot.exists()) {
                                             String sendername = userSnapshot.getString("username");
-                                            if (sender.equals(otherUser)) return;
+                                            if (sender.equals(otherUser))
                                             Notify(sendername, sender);
                                             //Toast.makeText(getApplicationContext(),"TIN NHẮN MỚI TỪ " + sendername, Toast.LENGTH_SHORT).show();
                                         }
