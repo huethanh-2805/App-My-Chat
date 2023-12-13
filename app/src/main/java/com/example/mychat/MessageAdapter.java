@@ -79,8 +79,30 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
         holder.show_message.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (onItemClickListener!=null){
-                    onItemClickListener.onItemClick(message);
+                if (onItemClickListener != null) {
+                    CharSequence options[] = new CharSequence[]{
+                            "Gỡ tin nhắn",
+                            "Chuyển tiếp",
+                            "Cancel"
+                    };
+                    AlertDialog.Builder builder = new AlertDialog.Builder(v.getContext());
+                    builder.setTitle("Choose One");
+                    builder.setItems(options, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                                                                   // we will be downloading the pdf
+                            if (which == 0) {
+                                onItemClickListener.onItemClick(message);
+                            }
+                            if (which == 1) {
+                                dialog.dismiss();
+                            }
+                            if (which == 2) {
+                                dialog.dismiss();
+                            }
+                        }
+                    });
+                    builder.show();
                 }
             }
         });
@@ -88,11 +110,34 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
         holder.show_image.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (onItemClickListener!=null){
-                    onItemClickListener.onItemClick(message);
+                if (onItemClickListener != null) {
+                    CharSequence options[] = new CharSequence[]{
+                            "Gỡ tin nhắn",
+                            "Chuyển tiếp",
+                            "Cancel"
+                    };
+                    AlertDialog.Builder builder = new AlertDialog.Builder(v.getContext());
+                    builder.setTitle("Choose One");
+                    builder.setItems(options, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            // we will be downloading the pdf
+                            if (which == 0) {
+                                onItemClickListener.onItemClick(message);
+                            }
+                            if (which == 1) {
+                                dialog.dismiss();
+                            }
+                            if (which == 2) {
+                                dialog.dismiss();
+                            }
+                        }
+                    });
+                    builder.show();
                 }
             }
         });
+
 
         if(message.getMessage().equals("Nội dung đã bị gỡ"))
         {
