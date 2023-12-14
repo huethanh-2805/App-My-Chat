@@ -3,13 +3,11 @@ package com.example.mychat;
 
 
 import static android.content.ContentValues.TAG;
-
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 
 
 import android.annotation.SuppressLint;
-import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -80,6 +78,7 @@ public class  ChatSreen extends BaseActivity {
     private static final int PICK_IMAGE_REQUEST = 1;
 
     private static final int PICK_FILE_REQUEST_CODE = 1;
+    private static final int PICK_VIDEO_REQUEST = 1;
     private Uri filePath;
     private FirebaseStorage storage;
     private StorageReference storageReference;
@@ -106,6 +105,7 @@ public class  ChatSreen extends BaseActivity {
     ImageButton btn_send;
     ImageButton btn_chooseImage;
 
+    ImageButton btn_chooseVideo;
     ImageButton btn_file;
     EditText text_send;
     Intent intent;
@@ -147,6 +147,7 @@ public class  ChatSreen extends BaseActivity {
 
         btn_file=findViewById(R.id.btn_file);
         btn_chooseImage=findViewById(R.id.image_btn);
+        btn_chooseVideo=findViewById(R.id.btn_video);
         storage = FirebaseStorage.getInstance();
         storageReference = storage.getReference();
 
@@ -168,7 +169,12 @@ public class  ChatSreen extends BaseActivity {
                 chooseImage();
             }
         });
-
+        btn_chooseVideo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                openVideoChooser();
+            }
+        });
         btn_file.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -293,6 +299,12 @@ public class  ChatSreen extends BaseActivity {
         return networkInfo != null && networkInfo.isConnected();
     }
 
+    private void openVideoChooser() {
+        Intent intent = new Intent();
+        intent.setType("video/*");
+        intent.setAction(Intent.ACTION_GET_CONTENT);
+        startActivityForResult(Intent.createChooser(intent, "Select Video"), PICK_VIDEO_REQUEST);
+    }
 
     private void chooseImage() {
         checkSenderIsBlock(fUser.getUid(), userReceiverID);
@@ -344,8 +356,11 @@ public class  ChatSreen extends BaseActivity {
                 if (fileExtension.equals("png") || fileExtension.equals("jpg") ){
                     uploadImage();
                 }
-                else if (fileExtension.equals("pdf") || fileExtension.equals("txt") ){
+                else if (fileExtension.equals("pdf") || fileExtension.equals("txt") || fileExtension.equals("docx")){
                     uploadFile();
+                }
+                else if (fileExtension.equals("mp4")){
+                    uploadVideoToStorage();
                 }
             }
         }
@@ -381,6 +396,32 @@ public class  ChatSreen extends BaseActivity {
         String fileExtension = mimeTypeMap.getExtensionFromMimeType(contentResolver.getType(uri));
         Toast.makeText(this, fileExtension, Toast.LENGTH_SHORT).show();
         return fileExtension;
+    }
+
+    private void uploadVideoToStorage() {
+        if (filePath != null) {
+            final ProgressDialog progressDialog = new ProgressDialog(this);
+            progressDialog.setTitle("Uploading...");
+            progressDialog.show();
+
+            StorageReference storageRef = storage.getReference().child("videos/" + System.currentTimeMillis() + ".mp4");
+            storageRef.putFile(filePath)
+                    .addOnSuccessListener(taskSnapshot -> {
+                        // Video uploaded successfully
+                        progressDialog.dismiss();
+                        storageRef.getDownloadUrl().addOnSuccessListener(uri -> {
+                            String videoUrl = uri.toString();
+                            sendVideo(fUser.getUid(), userReceiverID, videoUrl);
+                        });
+                    })
+                    .addOnFailureListener(e -> {
+                        // Handle unsuccessful uploads
+                        Toast.makeText(ChatSreen.this, "Upload failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    });
+        }
+        else {
+            Toast.makeText(this, "No video selected", Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void uploadImage() {
@@ -447,6 +488,23 @@ public class  ChatSreen extends BaseActivity {
                         Toast.makeText(this, "Lỗi khi upload tập tin", Toast.LENGTH_SHORT).show();
                     });
         }
+    }
+
+    private void sendVideo(String sender, String receiver, String message) {
+        CollectionReference usersCollection = db.collection("messages");
+
+        HashMap<String, Object> messageData = new HashMap<>();
+        Timestamp timestamp = Timestamp.now();
+        messageData.put("sender", sender);
+        messageData.put("receiver", receiver);
+        messageData.put("message", message);
+        messageData.put("timestamp", timestamp);
+        messageData.put("type", "video");
+
+        usersCollection.add(messageData);
+        //add to notification
+        CollectionReference notifyCollection = db.collection("notification");
+        notifyCollection.add(messageData);
     }
 
     private void sendImage(String sender, String receiver, String message) {
