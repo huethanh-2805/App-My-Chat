@@ -10,11 +10,16 @@ import android.app.ProgressDialog;
 
 import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 
@@ -117,6 +122,8 @@ public class  ChatSreen extends BaseActivity {
     TextView show_message;
 
     CollectionReference cref;
+    private List<Message> unsentMessages = new ArrayList<>(); // Danh sách tạm tin nhắn chưa gửi
+    private boolean isNetworkConnected;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -227,50 +234,96 @@ public class  ChatSreen extends BaseActivity {
 
 
         setThemeBasedOnSelectedTheme();
-        DocumentReference docRef = FirebaseFirestore.getInstance().collection("users").document(userReceiverID);
 
-        docRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
-            @Override
-            public void onEvent(@androidx.annotation.Nullable DocumentSnapshot value, @androidx.annotation.Nullable FirebaseFirestoreException error) {
-                if(error!=null){
-                    Log.w(TAG, "Listen failed.", error);
-                    return;
-                }
-                if(value!=null&&value.exists()){
-                    String data=value.getString("status");
-                    if(Objects.equals(data, "1")){
-                        txtStatus.setText("Online");
-                        txtStatus.setVisibility(View.VISIBLE);
-                    }
-                    else{
-                        txtStatus.setText("Offline");
-                        txtStatus.setVisibility(View.VISIBLE);
-                    }
+        // Đăng ký BroadcastReceiver
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
+        NetworkChangeReceiver networkChangeReceiver = new NetworkChangeReceiver();
+        registerReceiver(networkChangeReceiver, intentFilter);
 
-                }
-                else{
-                    Log.d(TAG, "Current data: null");
-                }
-            }
-        });
         //
 //        Intent serviceIntent = new Intent(this, MessageNotification.class);
 //        serviceIntent.putExtra("otherUser", userReceiverID);
 //        startService(serviceIntent);
     }
 
+    //Cập nhật liên túc trạng thái mạng
+    public class NetworkChangeReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            isNetworkConnected = isNetworkConnected();
+            if (isNetworkConnected) {
+                DocumentReference docRef = FirebaseFirestore.getInstance().collection("users").document(userReceiverID);
+
+                docRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
+                    @Override
+                    public void onEvent(@androidx.annotation.Nullable DocumentSnapshot value, @androidx.annotation.Nullable FirebaseFirestoreException error) {
+                        if(error!=null){
+                            Log.w(TAG, "Listen failed.", error);
+                            return;
+                        }
+                        if(value!=null&&value.exists()){
+                            String data=value.getString("status");
+                            if(Objects.equals(data, "1")){
+                                txtStatus.setText("Online");
+                                txtStatus.setVisibility(View.VISIBLE);
+                            }
+                            else{
+                                txtStatus.setText("Offline");
+                                txtStatus.setVisibility(View.VISIBLE);
+                            }
+
+                        }
+                        else{
+                            Log.d(TAG, "Current data: null");
+                        }
+                    }
+                });
+            } else {
+                txtStatus.setText("No internet connection...");
+                txtStatus.setVisibility(View.VISIBLE);
+            }
+        }
+    }
+
+    //Kiểm tra kết nối mạng
+    private boolean isNetworkConnected() {
+        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+        return networkInfo != null && networkInfo.isConnected();
+    }
+
 
     private void chooseImage() {
-        Intent intent = new Intent();
-        intent.setType("image/*");
-        intent.setAction(Intent.ACTION_GET_CONTENT);
-        startActivityForResult(Intent.createChooser(intent, "Select Image"), PICK_IMAGE_REQUEST);
+        checkSenderIsBlock(fUser.getUid(), userReceiverID);
+        if (check1) {
+            showSenderIsBlockDialogBox();
+            text_send.setText("");
+        } else if (check2) {
+            showReceiverIsBlockDialogBox();
+            text_send.setText("");
+        } else if (!check1 && !check2){
+            Intent intent = new Intent();
+            intent.setType("image/*");
+            intent.setAction(Intent.ACTION_GET_CONTENT);
+            startActivityForResult(Intent.createChooser(intent, "Select Image"), PICK_IMAGE_REQUEST);
+        }
+
     }
 
     private void chooseFile() {
-        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-        intent.setType("*/*");
-        startActivityForResult(intent, PICK_FILE_REQUEST_CODE);
+        checkSenderIsBlock(fUser.getUid(), userReceiverID);
+        if (check1) {
+            showSenderIsBlockDialogBox();
+            text_send.setText("");
+        } else if (check2) {
+            showReceiverIsBlockDialogBox();
+            text_send.setText("");
+        } else if (!check1 && !check2){
+            Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+            intent.setType("*/*");
+            startActivityForResult(intent, PICK_FILE_REQUEST_CODE);
+        }
     }
 
     @Override
@@ -280,11 +333,20 @@ public class  ChatSreen extends BaseActivity {
             filePath = data.getData();
             String fileExtension = getFileExtension(filePath);
 
-            if (fileExtension.equals("png") || fileExtension.equals("jpg") ){
-                uploadImage();
-            }
-            else if (fileExtension.equals("pdf") || fileExtension.equals("txt") ){
-                uploadFile();
+            checkSenderIsBlock(fUser.getUid(), userReceiverID);
+            if (check1) {
+                showSenderIsBlockDialogBox();
+                text_send.setText("");
+            } else if (check2) {
+                showReceiverIsBlockDialogBox();
+                text_send.setText("");
+            } else if (!check1 && !check2){
+                if (fileExtension.equals("png") || fileExtension.equals("jpg") ){
+                    uploadImage();
+                }
+                else if (fileExtension.equals("pdf") || fileExtension.equals("txt") ){
+                    uploadFile();
+                }
             }
         }
     }

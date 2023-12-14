@@ -1,9 +1,13 @@
 package com.example.mychat;
 
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,6 +17,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.SearchView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -54,6 +59,7 @@ public class ContactActivity extends Fragment implements View.OnClickListener, A
 
     Context context;
     MainFragment mainFragment;
+    TextView txtStatus;
     public static ContactActivity newInstance(String strArg) {
         ContactActivity fragment = new ContactActivity();
         Bundle args = new Bundle();
@@ -86,6 +92,7 @@ public class ContactActivity extends Fragment implements View.OnClickListener, A
 
         imgNewContact = (ImageView) layout_contact.findViewById(R.id.imgAdd);
         imgNewContact.setOnClickListener(this);
+        txtStatus = layout_contact.findViewById(R.id.txtStatus);
         getListUserFromDatabase();
 
         searchUserWithUserName();
@@ -189,6 +196,32 @@ public class ContactActivity extends Fragment implements View.OnClickListener, A
             adapter.notifyDataSetChanged();
             getListUserFromDatabase();
 
+        }
+
+        // Đăng ký BroadcastReceiver
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
+        NetworkChangeReceiver networkChangeReceiver = new NetworkChangeReceiver();
+        context.registerReceiver(networkChangeReceiver, intentFilter);
+    }
+
+    //Lắng nghe sự thay đổi của mạng
+    public class NetworkChangeReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (isNetworkConnected(context)) {
+                txtStatus.setVisibility(View.GONE);
+            } else {
+                txtStatus.setText("No internet connection...");
+                txtStatus.setVisibility(View.VISIBLE);
+            }
+        }
+
+        //Kiểm tra kết nối mang
+        private boolean isNetworkConnected(Context context) {
+            ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+            NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+            return activeNetwork != null && activeNetwork.isConnectedOrConnecting();
         }
     }
 
