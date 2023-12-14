@@ -48,6 +48,9 @@ dependencies {
     implementation("de.hdodenhof:circleimageview:3.1.0")
     implementation ("com.github.bumptech.glide:glide:4.16.0")
 
+    implementation ("org.apache.poi:poi:4.1.0")
+    implementation ("org.apache.poi:poi-ooxml:5.1.0")
+
 
     // Import the BoM for the Firebase platform
     implementation(platform("com.google.firebase:firebase-bom:32.5.0"))
