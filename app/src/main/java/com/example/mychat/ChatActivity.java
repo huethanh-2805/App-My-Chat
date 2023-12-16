@@ -47,12 +47,13 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import nl.joery.animatedbottombar.AnimatedBottomBar;
 
 
 public class ChatActivity extends Fragment implements View.OnClickListener, AdapterView.OnItemClickListener {
-    ImageView imgNewChat;
+    ImageView imgNewGroup;
     SearchView searchView;
     ListView listView;
     FirebaseAuth auth=FirebaseAuth.getInstance();
@@ -62,6 +63,7 @@ public class ChatActivity extends Fragment implements View.OnClickListener, Adap
     Query query;
     //
     List<User> user=new ArrayList<>();//new ArrayList<>(); //tên người liên hệ
+    List<String> group=new ArrayList<>();
     String emailCurrentUser;
     SharedPreferences sharedPreferences;
     private MyArrayAdapter adapter;
@@ -102,24 +104,26 @@ public class ChatActivity extends Fragment implements View.OnClickListener, Adap
         listView.setTextFilterEnabled(true);
         listView.setOnItemClickListener(this);
 
-        imgNewChat = (ImageView) layout_chat.findViewById(R.id.imgNewChat);
-
-//        getListUserFromDatabase();
-
-
+        imgNewGroup = (ImageView) layout_chat.findViewById(R.id.imgNewGroup);
+        imgNewGroup.setOnClickListener(this);
+//      getListUserFromDatabase();
         return layout_chat;
     }
+
+
 
     @Override
     public void onResume() {
         super.onResume();
-        getListUserFromDatabase();
+        getListGroup();
         searchUserWithUserName();
     }
 
     @Override
     public void onClick(View view) {
-
+        if (view.getId()==imgNewGroup.getId()) {
+            startActivity(new Intent(context,AddGroupActivity.class));
+        }
     }
 
     private void searchUserWithUserName() {
@@ -139,6 +143,45 @@ public class ChatActivity extends Fragment implements View.OnClickListener, Adap
             }
         });
     }
+    private void getListGroup() {
+        CollectionReference cGroup = FirebaseFirestore.getInstance().collection("groups");
+        AtomicInteger tasksCompleted = new AtomicInteger(0);
+        AtomicInteger totalTasks = new AtomicInteger(0); // Số lượng tác vụ cần hoàn thành
+        cGroup.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                for (QueryDocumentSnapshot document : task.getResult()) {
+                    List<DocumentReference> members = (List<DocumentReference>) document.get("member");
+                    if (members != null) {
+                        totalTasks.addAndGet(members.size()); // Cập nhật tổng số lượng tác vụ cần hoàn thành
+
+                        for (DocumentReference member : members) {
+                            member.get().addOnCompleteListener(memberTask -> {
+                                if (memberTask.isSuccessful()) {
+                                    DocumentSnapshot documentSnapshot = memberTask.getResult();
+                                    if (documentSnapshot.exists()) {
+                                        if (documentSnapshot.getId().equals(auth.getCurrentUser().getUid())) {
+                                            group.add(document.getId());
+                                        }
+                                    }
+                                } else {
+                                    // Xử lý lỗi khi không thể lấy DocumentReference
+                                }
+
+                                // Tăng số lượng tác vụ đã hoàn thành
+                                int count = tasksCompleted.incrementAndGet();
+
+                                // Kiểm tra xem đã hoàn thành tất cả các tác vụ chưa
+                                if (count == totalTasks.get()) {
+                                    // Nếu đã hoàn thành tất cả, thực hiện công việc tiếp theo ở đây
+                                    getListUserFromDatabase();
+                                }
+                            });
+                        }
+                    }
+                }
+            }
+        });
+    }
 
     private void getListUserFromDatabase() {
         user.clear();
@@ -152,10 +195,34 @@ public class ChatActivity extends Fragment implements View.OnClickListener, Adap
         Query user2contact = cref.whereEqualTo("sender", currentUser).orderBy("timestamp", Query.Direction.DESCENDING);
         Query contact2user = cref.whereEqualTo("receiver", currentUser).orderBy("timestamp", Query.Direction.DESCENDING);
 
+        Task<QuerySnapshot> g2uTask=null;
+        if (group.size()!=0){
+            Query group2user = cref.whereIn("receiver", group).orderBy("timestamp", Query.Direction.DESCENDING);
 
+            g2uTask = group2user.get();
+            g2uTask.addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                    if (task.isSuccessful()) {
+                        QuerySnapshot querySnapshot = task.getResult();
+                        if (querySnapshot != null && !querySnapshot.isEmpty()) {
+                            // Có dữ liệu trả về từ truy vấn
+                            for (DocumentSnapshot document : querySnapshot.getDocuments()) {
+                                // Xử lý dữ liệu ở đây
+                            }
+                        } else {
+                            // Không có dữ liệu trả về từ truy vấn
+                        }
+                    } else {
+                        // Xử lý khi truy vấn không thành công
+                    }
+                }
+            });
+        }
         //Toast.makeText(context,auth.getCurrentUser().getUid().toString(), Toast.LENGTH_SHORT).show();
         Task<QuerySnapshot> u2cTask = user2contact.get();
         Task<QuerySnapshot> c2uTask = contact2user.get();
+
         u2cTask.addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(Task<QuerySnapshot> task) {
@@ -186,7 +253,14 @@ public class ChatActivity extends Fragment implements View.OnClickListener, Adap
                 }
             }
         });
-        Task<List<QuerySnapshot>> mergedTask = Tasks.whenAllSuccess(u2cTask, c2uTask);
+
+        Task<List<QuerySnapshot>> mergedTask=null;
+        if (g2uTask!=null) {
+            mergedTask = Tasks.whenAllSuccess(u2cTask, c2uTask, g2uTask);
+        }
+        else {
+            mergedTask = Tasks.whenAllSuccess(u2cTask, c2uTask);
+        }
         mergedTask.addOnCompleteListener(new OnCompleteListener<List<QuerySnapshot>>() {
             @Override
             public void onComplete(Task<List<QuerySnapshot>> task) {
@@ -199,7 +273,7 @@ public class ChatActivity extends Fragment implements View.OnClickListener, Adap
                     }
                     // Get latest message from EACH contact
                     List<DocumentSnapshot> result = new ArrayList<>();
-                    //
+
                     for (DocumentSnapshot document : mergedDocuments) {
                         //get contact
                         String contact = document.getString("receiver");
@@ -255,11 +329,13 @@ public class ChatActivity extends Fragment implements View.OnClickListener, Adap
 
                     //SAU KHI CÓ ĐƯỢC RESULT
                     final int totalUsers = result.size();
-                    sortDescendingDocument(result);
+//                    sortDescendingDocument(result);
 
 
                     final int[] counter = {0};
                     CollectionReference userRef = db.collection("users");
+                    CollectionReference groupRef = db.collection("groups");
+
                     for (DocumentSnapshot d : result) {
                         String latestMessage = d.getString("message");
                         String type = d.getString("type");
@@ -276,13 +352,21 @@ public class ChatActivity extends Fragment implements View.OnClickListener, Adap
                                 contact = d.getString("sender");
                             }
                         }
-                        else latestMessage = "Bạn: " + latestMessage;
+                        else {
+                            if (group.contains(contact) && d.getString("sender").equals(currentUser)) {
+                                if (!latestMessage.equals(" ")) {
+                                    latestMessage = "Bạn: " + latestMessage;
+                                }
+                            }
+                        }
 
                         if(d.getString("receiver").equals("")){
                             contact = d.getString("receiver_delete");
                         }
                         //lấy ref của contact
                         DocumentReference userDoc = userRef.document(contact);
+                        DocumentReference groupDoc = groupRef.document(contact);
+
                         //lấy những thông tin cần thiết của contact
                         String[] uid = new String[1];
                         String[] email = new String[1];
@@ -293,30 +377,58 @@ public class ChatActivity extends Fragment implements View.OnClickListener, Adap
                         }
                         String[] latest = {latestMessage};
 
-                        userDoc.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                            @Override
-                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                if (task.isSuccessful()) {
-                                    DocumentSnapshot userSnapshot = task.getResult();
-                                    if (userSnapshot.exists()) {
-                                        uid[0] = userSnapshot.getId();
-                                        username[0] = userSnapshot.getString("username");
-                                        email[0] = userSnapshot.getString("email");
-                                        Timestamp timestamp = (Timestamp) userSnapshot.get("timestamp");
-                                        user.add(new User(username[0], latest[0], userSnapshot.getString("avatarUrl"), latest[0], uid[0],timestamp));
+                        if (group.contains(contact)) {
+                            groupDoc.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                @Override
+                                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                    if (task.isSuccessful()) {
+                                        DocumentSnapshot groupSnapshot = task.getResult();
+                                        if (groupSnapshot.exists()) {
+                                            uid[0] = groupSnapshot.getId();
+                                            username[0] = groupSnapshot.getString("username");
+                                            email[0] = groupSnapshot.getString("email");
+                                            Timestamp timestamp = (Timestamp) groupSnapshot.get("timestamp");
+                                            User u=new User(username[0], latest[0], groupSnapshot.getString("avatarUrl"), latest[0], uid[0],timestamp);
+                                            if (email[0].equals(" ")) {
+                                                u.setIsGroup();
+                                            }
+                                            user.add(u);
+                                            adapter = new MyArrayAdapter(context, R.layout.array_adapter, user);
+                                            listView.setAdapter(adapter);
+                                            adapter.notifyDataSetChanged();
+                                        }
+                                    }
+                                }
+                            });
+                            counter[0]++;
+                        }
+
+                        else {
+                            userDoc.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                @Override
+                                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                    if (task.isSuccessful()) {
+                                        DocumentSnapshot userSnapshot = task.getResult();
+                                        if (userSnapshot.exists()) {
+                                            uid[0] = userSnapshot.getId();
+                                            username[0] = userSnapshot.getString("username");
+                                            email[0] = userSnapshot.getString("email");
+                                            Timestamp timestamp = (Timestamp) userSnapshot.get("timestamp");
+                                            user.add(new User(username[0], latest[0], userSnapshot.getString("avatarUrl"), latest[0], uid[0], timestamp));
 //                                        if (user.size()>1){
 //                                            Collections.sort(user,Comparator.comparing(User::getTimestamp,Comparator.reverseOrder()));
 //
 //                                        }
-                                        adapter = new MyArrayAdapter(context, R.layout.array_adapter, user);
-                                        listView.setAdapter(adapter);
-                                        adapter.notifyDataSetChanged();
+                                            adapter = new MyArrayAdapter(context, R.layout.array_adapter, user);
+                                            listView.setAdapter(adapter);
+                                            adapter.notifyDataSetChanged();
+                                        }
                                     }
                                 }
-                            }
-                        });
+                            });
+                            counter[0]++;
+                        }
                         //user.add(new User("username[0]",latestMessage, R.drawable.ic_avt, latestMessage,"uid[0]"));
-                        counter[0]++;
                         // Kiểm tra nếu tất cả các cuộc gọi đã hoàn thành
                         if (counter[0] == totalUsers) {
 //                            sortDescendingTime(user);
@@ -330,9 +442,7 @@ public class ChatActivity extends Fragment implements View.OnClickListener, Adap
                 }
             }
         });
-
     }
-
     private static void sortDescendingDocument(List<DocumentSnapshot> result) {
         Collections.sort(result, new Comparator<DocumentSnapshot>() {
             @Override
@@ -370,6 +480,12 @@ public class ChatActivity extends Fragment implements View.OnClickListener, Adap
         User item=(User)adapterView.getItemAtPosition(i);
         Intent intent=new Intent(context, ChatSreen.class);
         intent.putExtra("receiverID",item.getUid());
+        if (item.isGroup()) {
+            intent.putExtra("group", true);
+        }
+        else {
+            intent.putExtra("group", false);
+        }
         startActivity(intent);
     }
     private void applyNightMode() {

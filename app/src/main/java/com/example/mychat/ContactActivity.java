@@ -132,6 +132,10 @@ public class ContactActivity extends Fragment implements View.OnClickListener, A
                     if (documentSnapshot.exists()) { //get EVERY documents within the collection
                         //get the userContact array
                         List<DocumentReference> docUser = (List<DocumentReference>) documentSnapshot.get("userContact");
+                        List<DocumentReference> docGroup = (List<DocumentReference>) documentSnapshot.get("groups");
+                        if (docGroup!=null) {
+                            docUser.addAll(docGroup);
+                        }
                         //get the total
                         final int totalUsers = docUser.size();
                         final int[] counter = {0};
@@ -145,16 +149,21 @@ public class ContactActivity extends Fragment implements View.OnClickListener, A
                                             String username = userSnapshot.getString("username");
                                             String email = userSnapshot.getString("email");
                                             String uid=userSnapshot.getId();
-                                            user.add(new User(username, "abc", userSnapshot.getString("avatarUrl"), email,uid, Timestamp.now()));
+                                            User u=new User(username, "abc", userSnapshot.getString("avatarUrl"), email,uid, Timestamp.now());
+                                            if (email.equals(" ")) {
+                                                u.setIsGroup();
+                                            }
+                                            user.add(u);
                                         }
                                     }
+
                                     counter[0]++;
                                     // Kiểm tra nếu tất cả các cuộc gọi đã hoàn thành
                                     if (counter[0] == totalUsers) {
-                                        // Tất cả các cuộc gọi đã hoàn thành, cập nhật adapter ở đây
-                                        adapter = new MyArrayAdapter(context, R.layout.array_adapter, user);
-                                        listView.setAdapter(adapter);
-                                        adapter.notifyDataSetChanged();
+                                            // Tất cả các cuộc gọi đã hoàn thành, cập nhật adapter ở đây
+                                            adapter = new MyArrayAdapter(context, R.layout.array_adapter, user);
+                                            listView.setAdapter(adapter);
+                                            adapter.notifyDataSetChanged();
                                     }
                                 }
                             }).addOnFailureListener(new OnFailureListener() {
@@ -165,6 +174,7 @@ public class ContactActivity extends Fragment implements View.OnClickListener, A
                                 }
                             });
                         }
+
                     }
 
                 } else {
@@ -179,6 +189,12 @@ public class ContactActivity extends Fragment implements View.OnClickListener, A
           User item=(User)adapterView.getItemAtPosition(i);
           Intent intent=new Intent(context, ChatSreen.class);
           intent.putExtra("receiverID",item.getUid());
+          if (item.isGroup()) {
+              intent.putExtra("group", true);
+          }
+          else {
+              intent.putExtra("group", false);
+          }
           startActivity(intent);
     }
     @Override

@@ -9,7 +9,6 @@ import android.app.ProgressDialog;
 
 
 import android.annotation.SuppressLint;
-import android.app.ProgressDialog;
 import android.content.ContentResolver;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -31,7 +30,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -53,7 +51,6 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.squareup.picasso.Picasso;
@@ -63,8 +60,8 @@ import com.google.firebase.storage.UploadTask;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class  ChatSreen extends BaseActivity {
 
@@ -88,7 +85,9 @@ public class  ChatSreen extends BaseActivity {
     TextView username;
 
     MessageAdapter messageAdapter;
-    List<Message> mMessage;
+    MessageGroupAdapter messageGroupAdapter;
+
+    List<Message> mMessage=new ArrayList<>();
 
     RecyclerView recyclerView;
 
@@ -106,10 +105,13 @@ public class  ChatSreen extends BaseActivity {
     SharedPreferences sharedPreferences;
     ImageView btn_more;
     String userReceiverID;
-    private boolean check1;
-    private boolean check2;
+    private boolean check1=false;
+    private boolean check2=false;
 
+    boolean isGroup;
     TextView txtStatus;
+    List<String> id=new ArrayList<>();
+    List<String> img=new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -144,84 +146,30 @@ public class  ChatSreen extends BaseActivity {
 
         intent = getIntent();
         userReceiverID = intent.getStringExtra("receiverID");
-
+        isGroup=intent.getBooleanExtra("group",false);
 
         fUser = FirebaseAuth.getInstance().getCurrentUser();
 
-        btn_chooseImage.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                chooseImage();
-            }
-        });
-
-        btn_file.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                chooseFile();
-            }
-        });
-
-
-
-        btn_send.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                checkSenderIsBlock(fUser.getUid(), userReceiverID);
-            }
-        });
-
-        btn_back.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                finish();
-            }
-        });
-
-
-
-        db.collection("users").document(userReceiverID)
-                .get()
-                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                    @Override
-                    public void onSuccess(DocumentSnapshot documentSnapshot) {
-                        if (documentSnapshot.exists()) {
-                            // Lấy giá trị của trường "username" và "email" từ document
-                            String name = documentSnapshot.getString("username");
-                            String avatar=documentSnapshot.getString("avatarUrl");
-                            btn_more.setOnClickListener(new View.OnClickListener() {
-                                @Override
-                                public void onClick(View v) {
-                                    Intent intent = new Intent(ChatSreen.this, ConversationInformation.class);
-                                    intent.putExtra("user_name",name);
-                                    intent.putExtra("my_id", fUser.getUid()); //Gửi id của mình
-                                    intent.putExtra("user_id", userReceiverID); //Gửi id của người chat với mình
-                                    intent.putExtra("avatarUrl", avatar); //Gửi avatar
-                                    ChatSreen.this.startActivity(intent);
-                                }
-                            });
-                            username.setText(name);
-                            if (avatar!=null) {
-                                Picasso.get().load(avatar).into(profile_image);
-                            }
-                            readMessages(fUser.getUid(), userReceiverID, avatar);
-                        } else {
-                            Toast.makeText(getApplicationContext(), "Document không tồn tại", Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                })
-
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Toast.makeText(getApplicationContext(), "Fail read field in database", Toast.LENGTH_SHORT).show();
-                    }
-                });
-
-
+        setOnClickListener();
+        getInfo();
         setThemeBasedOnSelectedTheme();
-        DocumentReference docRef = FirebaseFirestore.getInstance().collection("users").document(userReceiverID);
+        getStatus();
+//        Intent serviceIntent = new Intent(this, MessageNotification.class);
+//        serviceIntent.putExtra("otherUser", userReceiverID);
+//        startService(serviceIntent);
+    }
 
+    private void getInfo() {
+        if (!isGroup) {
+            getInfoUser();
+        }
+        else {
+            getInfoGroup();
+        }
+    }
+
+    private void getStatus() {
+        DocumentReference docRef = FirebaseFirestore.getInstance().collection("users").document(userReceiverID);
         docRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
             @Override
             public void onEvent(@androidx.annotation.Nullable DocumentSnapshot value, @androidx.annotation.Nullable FirebaseFirestoreException error) {
@@ -246,11 +194,192 @@ public class  ChatSreen extends BaseActivity {
                 }
             }
         });
-        //
-        Intent serviceIntent = new Intent(this, MessageNotification.class);
-        serviceIntent.putExtra("otherUser", userReceiverID);
-        startService(serviceIntent);
     }
+
+    private void setOnClickListener() {
+        btn_chooseImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                chooseImage();
+            }
+        });
+
+        btn_file.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                chooseFile();
+            }
+        });
+
+
+        btn_send.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+//                checkSenderIsBlock(fUser.getUid(), userReceiverID);
+                handleSendMessage();
+            }
+        });
+
+        btn_back.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
+    }
+
+    private void getInfoUser() {
+        db.collection("users").document(userReceiverID)
+                .get()
+                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                    @Override
+                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                        if (documentSnapshot.exists()) {
+                            // Lấy giá trị của trường "username" và "email" từ document
+                            String name = documentSnapshot.getString("username");
+                            String avatar=documentSnapshot.getString("avatarUrl");
+                            btn_more.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    Intent intent = new Intent(ChatSreen.this, ConversationInformation.class);
+                                    intent.putExtra("user_name",name);
+                                    intent.putExtra("my_id", fUser.getUid()); //Gửi id của mình
+                                    intent.putExtra("user_id", userReceiverID); //Gửi id của người chat với mình
+                                    intent.putExtra("avatarUrl", avatar); //Gửi avatar
+                                    ChatSreen.this.startActivity(intent);
+                                }
+                            });
+                            username.setText(name);
+                            if (avatar!=null) {
+                                Picasso.get().load(avatar).into(profile_image);
+                            }
+                            readMessagesUser(fUser.getUid(), userReceiverID, avatar);
+                        } else {
+                            Toast.makeText(getApplicationContext(), "Document không tồn tại", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                })
+
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Toast.makeText(getApplicationContext(), "Fail read field in database", Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+    private interface MemberInfoCallback {
+        void onMemberInfoReceived();
+    }
+    private void getInfoGroup() {
+        id.clear();
+        img.clear();
+        db.collection("groups").document(userReceiverID)
+                .get()
+                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                    @Override
+                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                        if (documentSnapshot.exists()) {
+                            // Lấy giá trị của trường "username" và "email" từ document
+                            String name = documentSnapshot.getString("username");
+                            String avatar=documentSnapshot.getString("avatarUrl");
+                            List<DocumentReference> members=(List<DocumentReference>)documentSnapshot.get("member");
+                            getUidAndImgMember(members, new MemberInfoCallback() {
+                                @Override
+                                public void onMemberInfoReceived() {
+                                    btn_more.setOnClickListener(new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View v) {
+                                            Intent intent = new Intent(ChatSreen.this, ConversationInformation.class);
+                                            intent.putExtra("user_name", name);
+                                            intent.putExtra("my_id", fUser.getUid());
+                                            intent.putExtra("user_id", userReceiverID);
+                                            intent.putExtra("avatarUrl", avatar);
+                                            ChatSreen.this.startActivity(intent);
+                                        }
+                                    });
+                                    username.setText(name);
+                                    if (avatar != null) {
+                                        Picasso.get().load(avatar).into(profile_image);
+                                    }
+                                    readMessagesGroup(fUser.getUid(), userReceiverID);
+                                }
+                            });
+                            username.setText(name);
+                            if (avatar!=null) {
+                                Picasso.get().load(avatar).into(profile_image);
+                            }
+                            readMessagesGroup(fUser.getUid(),userReceiverID);
+                        } else {
+                            Toast.makeText(getApplicationContext(), "Document không tồn tại", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                })
+
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Toast.makeText(getApplicationContext(), "Fail read field in database", Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+
+//    private void getUidAndImgMember(List<DocumentReference> members) {
+//        for (DocumentReference d : members) {
+//            d.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+//                @Override
+//                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+//                    if (task.isSuccessful()) {
+//                        DocumentSnapshot userSnapshot = task.getResult();
+//                        if (userSnapshot.exists()) {
+//                            String uid = userSnapshot.getId();
+//                            String image = userSnapshot.getString("avatarUrl");
+//                            id.add(uid);
+//                            img.add(image);
+//                        }
+//                    }
+//                }
+//            }).addOnFailureListener(new OnFailureListener() {
+//                @Override
+//                public void onFailure(@NonNull Exception e) {
+//                }
+//            });
+//        }
+//    }
+private void getUidAndImgMember(List<DocumentReference> members, MemberInfoCallback callback) {
+    // Đếm số lượng yêu cầu
+    AtomicInteger count = new AtomicInteger(0);
+    int size = members.size();
+
+    for (DocumentReference d : members) {
+        d.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot userSnapshot = task.getResult();
+                    if (userSnapshot.exists()) {
+                        String uid = userSnapshot.getId();
+                        String image = userSnapshot.getString("avatarUrl");
+                        id.add(uid);
+                        img.add(image);
+                    }
+                }
+                // Kiểm tra nếu đã hoàn thành việc lấy thông tin cho tất cả thành viên
+                if (count.incrementAndGet() == size) {
+                    callback.onMemberInfoReceived(); // Gọi callback khi hoàn thành
+                }
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                // Xử lý khi có lỗi
+                // Kiểm tra nếu đã hoàn thành việc lấy thông tin cho tất cả thành viên
+                if (count.incrementAndGet() == size) {
+                    callback.onMemberInfoReceived(); // Gọi callback khi hoàn thành
+                }
+            }
+        });
+    }
+}
 
 
     private void chooseImage() {
@@ -418,9 +547,9 @@ public class  ChatSreen extends BaseActivity {
         super.onResume();
         setThemeBasedOnSelectedTheme();
         //
-        Intent serviceIntent = new Intent(this, MessageNotification.class);
-        serviceIntent.putExtra("otherUser", userReceiverID);
-        startService(serviceIntent);
+//        Intent serviceIntent = new Intent(this, MessageNotification.class);
+//        serviceIntent.putExtra("otherUser", userReceiverID);
+//        startService(serviceIntent);
     }
 
 
@@ -439,7 +568,6 @@ public class  ChatSreen extends BaseActivity {
         messageData.put("type", "text");
 
         usersCollection.add(messageData);
-
         //add notification
         CollectionReference notifyCollection = db.collection("notification");
         notifyCollection.add(messageData);
@@ -461,6 +589,7 @@ public class  ChatSreen extends BaseActivity {
             }
             text_send.setText("");
         }
+
     }
 
     //Kiểm tra coi sender có bị receiver block hay không
@@ -550,9 +679,8 @@ public class  ChatSreen extends BaseActivity {
                 .setPositiveButton("Close", null)
                 .show();
     }
-
-    private void readMessages(final String myid, final String userid, final String imageurl) {
-        mMessage = new ArrayList<>();
+    private void readMessagesUser(final String myid, final String userid, final String imageurl) {
+        mMessage.clear();
         CollectionReference chatsCollection = db.collection("messages");
 
         chatsCollection.orderBy("timestamp", Query.Direction.ASCENDING)
@@ -581,7 +709,6 @@ public class  ChatSreen extends BaseActivity {
                                 if ((message.getReceiver().equals(userid) && message.getSender().equals(myid))) {
                                     if (!message.getAppearStatus()) {
                                         if (!message.getMessage().equals(" ")) {
-
                                             mMessage.add(message);
                                             message.setAppeared();
                                         }
@@ -591,7 +718,6 @@ public class  ChatSreen extends BaseActivity {
                                 if ((message.getReceiver().equals(myid) && message.getSender().equals(""))) {
                                     if (!message.getAppearStatus() && d.getString("sender_delete").equals(userid)) {
                                         if (!message.getMessage().equals(" ")) {
-
                                             mMessage.add(message);
                                             message.setAppeared();
                                         }
@@ -601,7 +727,6 @@ public class  ChatSreen extends BaseActivity {
                                 if ((message.getSender().equals(myid) && message.getReceiver().equals(""))) {
                                     if (!message.getAppearStatus() && d.getString("receiver_delete").equals(userid)) {
                                         if (!message.getMessage().equals(" ")) {
-
                                             mMessage.add(message);
                                             message.setAppeared();
                                         }
@@ -616,7 +741,42 @@ public class  ChatSreen extends BaseActivity {
                     }
                 });
     }
+    private void readMessagesGroup(final String myid, final String groupid) {
+        mMessage.clear();
+        CollectionReference chatsCollection = db.collection("messages");
 
+        chatsCollection.orderBy("timestamp", Query.Direction.ASCENDING)
+                .addSnapshotListener(new EventListener<QuerySnapshot>() {
+                    @Override
+                    public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
+                        if (e != null) {
+                            // Xử lý lỗi nếu có
+                            return;
+                        }
+                        if (queryDocumentSnapshots != null) {
+                            mMessage.clear();
+                            List<DocumentSnapshot> list = queryDocumentSnapshots.getDocuments();
+                            for (DocumentSnapshot d : list) {
+                                Message message = d.toObject(Message.class);
+
+                                assert message != null;
+                                if (message.getReceiver().equals(groupid) && id.contains(message.getSender())) {
+                                    if (!message.getAppearStatus()) {
+                                        if (!message.getMessage().equals(" ")) {
+                                            mMessage.add(message);
+                                            message.setAppeared();
+                                        }
+                                    }
+                                }
+                            }
+                            messageGroupAdapter = new MessageGroupAdapter(ChatSreen.this, mMessage);
+                            recyclerView.setAdapter(messageGroupAdapter);
+                        } else {
+                            Toast.makeText(ChatSreen.this, "Không tìm thấy dữ liệu trong cơ sở dữ liệu", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+    }
     private void applyNightMode() {
         sharedPreferences=MyChat.getSharedPreferences();
         boolean nightMode=sharedPreferences.getBoolean("night",false);
@@ -702,8 +862,8 @@ public class  ChatSreen extends BaseActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        Intent serviceIntent = new Intent(this, MessageNotification.class);
-        serviceIntent.putExtra("otherUser", "");
-        startService(serviceIntent);
+//        Intent serviceIntent = new Intent(this, MessageNotification.class);
+//        serviceIntent.putExtra("otherUser", "");
+//        startService(serviceIntent);
     }
 }

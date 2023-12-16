@@ -18,9 +18,15 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import org.w3c.dom.Text;
 
@@ -30,37 +36,35 @@ import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
 
-public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHolder> {
+public class MessageGroupAdapter extends RecyclerView.Adapter<MessageGroupAdapter.ViewHolder> {
     public static final int MSG_TYPE_LEFT = 0;
     public static final int MSG_TYPE_RIGHT = 1;
     private final Context mContext;
     private final List<Message> mMessage;
-
     FirebaseUser fUser;
 
     public String imageUrl;
 
 
-    public MessageAdapter(Context mContext, List<Message> mMessage, String imageUrl) {
+    public MessageGroupAdapter(Context mContext, List<Message> mMessage) {
         this.mMessage = mMessage;
         this.mContext = mContext;
-        this.imageUrl = imageUrl;
     }
 
     @NonNull
     @Override
-    public MessageAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public MessageGroupAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         if (viewType == MSG_TYPE_RIGHT) {
             View view = LayoutInflater.from(mContext).inflate(R.layout.chat_item_right, parent, false);
-            return new MessageAdapter.ViewHolder(view);
+            return new MessageGroupAdapter.ViewHolder(view);
         } else {
             View view = LayoutInflater.from(mContext).inflate(R.layout.chat_item_left, parent, false);
-            return new MessageAdapter.ViewHolder(view);
+            return new MessageGroupAdapter.ViewHolder(view);
         }
     }
 
     @Override
-    public void onBindViewHolder(@NonNull MessageAdapter.ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull MessageGroupAdapter.ViewHolder holder, int position) {
         Message message = mMessage.get(position);
         // Chuyển đổi timestamp sang định dạng ngày giờ
         Timestamp firebaseTimestamp = message.getTimestamp(); // Lấy timestamp từ message
@@ -73,7 +77,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
         sdf.setTimeZone(TimeZone.getDefault());
         String dateString = sdf.format(new Date(timestampInMillis));
 
-// Hiển thị ngày giờ vào TextView
+        // Hiển thị ngày giờ vào TextView
 
         if (message.getType() != null) {
             if (message.getType().equals("image")) {
@@ -141,9 +145,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
             holder.show_time.setText(dateString);
 
         }
-
-        Glide.with(mContext).load(imageUrl).into(holder.profile_image);
-
+        setAvatarUrl(holder, message);
 
 //        if (imageUrl.equals("default")){
 //            holder.profile_image.setImageResource(R.drawable.ic_avt);
@@ -152,6 +154,32 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
 //        }
     }
 
+    private void setAvatarUrl(@NonNull ViewHolder holder, Message message) {
+        final String[] img = {null};
+        DocumentReference doc = FirebaseFirestore.getInstance().collection("users").document(message.getSender());
+        doc.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot documentSnapshot = task.getResult();
+                    if (documentSnapshot.exists()) {
+                        img[0] =documentSnapshot.getString("avatarUrl");
+                        if (img[0]!=null) {
+                            Glide.with(mContext).load(img[0]).into(holder.profile_image);
+                        }
+                        else {
+                            holder.profile_image.setImageResource(R.drawable.ic_avt);
+                        }
+                    }
+                }
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+
+            }
+        });
+    }
 
     @Override
     public int getItemCount() {
@@ -182,8 +210,6 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
             show_file = itemView.findViewById(R.id.show_file);
             title_file = itemView.findViewById(R.id.title_file);
         }
-
-
 
     }
     public int getItemViewType(int position) {

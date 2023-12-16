@@ -103,7 +103,7 @@ public class LoginActivity extends Activity implements View.OnClickListener {
                     handleGoogleAccessToken(account);
                 } catch (ApiException e) {
                     e.printStackTrace();
-//                    Toast.makeText(getApplicationContext(),""+task.getResult(),Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(),"fail 1",Toast.LENGTH_SHORT).show();
                 }
             }
             progressBar.setVisibility(View.INVISIBLE);
@@ -118,7 +118,7 @@ public class LoginActivity extends Activity implements View.OnClickListener {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
                 if (task.isSuccessful()) {
-//                    Toast.makeText(getApplicationContext(), "Google signin success", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), "Google signin success", Toast.LENGTH_SHORT).show();
                     user = auth.getCurrentUser();
                     if (user != null) {
                         startActivity(new Intent(LoginActivity.this, MainFragment.class));
@@ -127,7 +127,7 @@ public class LoginActivity extends Activity implements View.OnClickListener {
                         finish();
                     }
                 } else {
-//                    Toast.makeText(getApplicationContext(),"Authentication failed", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(),"Authentication failed", Toast.LENGTH_SHORT).show();
                 }
             }
         });
