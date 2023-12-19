@@ -34,6 +34,7 @@ import com.google.firebase.firestore.SetOptions;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -41,35 +42,38 @@ import java.util.Objects;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
-public class AddContactActivity extends Activity implements View.OnClickListener {
+public class AddGroupActivity extends Activity implements View.OnClickListener {
     ImageView imgAdd;
     EditText editText;
     ListView listView;
+
 
     ImageView back;
     FirebaseAuth auth = FirebaseAuth.getInstance();
 
     FirebaseFirestore db;
-    CollectionReference cref;
+    DocumentReference dref;
     //
     List<User> user = new ArrayList<>(); //tên người liên hệ
-    private MyArrayAdapter adapter;
+    List<User> userAdapter=new ArrayList<>();
+    private AdapterNewGroup adapter;
     Context context;
     MainFragment mainFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_add_contact);
+        setContentView(R.layout.activity_add_group);
         context=getApplicationContext();
         imgAdd = (ImageView) findViewById(R.id.add);
         imgAdd.setOnClickListener(this);
         back = (ImageView) findViewById(R.id.back);
         back.setOnClickListener(this);
-        listView = (ListView) findViewById(R.id.listView);
-        onClickListView();
         editText = (EditText) findViewById(R.id.editText);
+//        editText.requestFocus();
         searchUserAdd();
+        getContactExists();
+        listView = (ListView) findViewById(R.id.listView);
     }
 
 
@@ -78,7 +82,6 @@ public class AddContactActivity extends Activity implements View.OnClickListener
         editText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-                imgAdd.setVisibility(View.GONE);
             }
 
             @Override
@@ -87,81 +90,126 @@ public class AddContactActivity extends Activity implements View.OnClickListener
 
             @Override
             public void afterTextChanged(Editable s) {
-                checkContactExists();
+                searchMailExist();
             }
         });
     }
 
-
-    private int selectedPosition = -1; // Biến để lưu trữ vị trí của item được chọn trước đó
-    private User userAdd;
-    private void onClickListView() {
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                view.setBackgroundResource(R.color.lightblue);
-                userAdd=(User)parent.getItemAtPosition(position);
-                showDialogUserInfo(view);
+    private void showBtnAdd() {
+        for (User u: user) {
+            if (u.isChecked()){
+                imgAdd.setVisibility(View.VISIBLE);
+                return;
             }
-
-        });
+        }
+        imgAdd.setVisibility(View.GONE);
     }
 
-    private void showDialogUserInfo(View view) {
-        AlertDialog.Builder myBuilder = new AlertDialog.Builder(this);
-        LayoutInflater inflater = getLayoutInflater();
-        View dialogView = inflater.inflate(R.layout.custom_dialog, null);
-        myBuilder.setView(dialogView);
 
-        ImageView avt = dialogView.findViewById(R.id.avt);
-//        Picasso.get().load(userAdd.getImg()).into(avt);
-        avt.setImageResource(R.drawable.ic_avt);
-        TextView username = dialogView.findViewById(R.id.username);
-        username.setText(userAdd.getName());
-        TextView email = dialogView.findViewById(R.id.email);
-        email.setText(userAdd.getEmail());
-        TextView bio = dialogView.findViewById(R.id.bio);
-        bio.setText(userAdd.getString());
+//    private void onClickListView() {
+//        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+//            @Override
+//            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+//                view.setBackgroundResource(R.color.lightblue);
+//            }
+//        });
+//    }
+//    private void showDialogUserInfo(View view) {
+//        AlertDialog.Builder myBuilder = new AlertDialog.Builder(this);
+//        LayoutInflater inflater = getLayoutInflater();
+//        View dialogView = inflater.inflate(R.layout.custom_dialog, null);
+//        myBuilder.setView(dialogView);
+//
+//        ImageView avt = dialogView.findViewById(R.id.avt);
+////        Picasso.get().load(userAdd.getImg()).into(avt);
+//        avt.setImageResource(R.drawable.ic_avt);
+//        TextView username = dialogView.findViewById(R.id.username);
+//        username.setText(userAdd.getName());
+//        TextView email = dialogView.findViewById(R.id.email);
+//        email.setText(userAdd.getEmail());
+//        TextView bio = dialogView.findViewById(R.id.bio);
+//        bio.setText(userAdd.getString());
+//
+//        myBuilder.setTitle("Add contact")
+//                .setIcon(R.drawable.ic_add_friend)
+//                .setPositiveButton("Close", new DialogInterface.OnClickListener() {
+//                    @Override
+//                    public void onClick(DialogInterface dialog, int which) {
+//                        view.setBackgroundResource(R.color.transparent);
+//
+//                    }
+//                })
+//                .setNegativeButton("Add", new DialogInterface.OnClickListener() {
+//                    @Override
+//                    public void onClick(DialogInterface dialogInterface, int i) {
+//                        view.setBackgroundResource(R.color.transparent);
+//
+//                        saveUserContact(userAdd.getEmail(),userAdd.getName());
+//                        sendMessage(auth.getUid(),userAdd.getUid()," ");
+//                    }});
+//        AlertDialog alertDialog = myBuilder.create();
+//        alertDialog.show();
+//    }
 
-        myBuilder.setTitle("Add contact")
-                .setIcon(R.drawable.ic_add_friend)
-                .setPositiveButton("Close", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        view.setBackgroundResource(R.color.transparent);
-
-                    }
-                })
-                .setNegativeButton("Add", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        view.setBackgroundResource(R.color.transparent);
-
-                        saveUserContact(userAdd.getEmail(),userAdd.getName());
-                        sendMessage(auth.getUid(),userAdd.getUid()," ");
-                    }});
-        AlertDialog alertDialog = myBuilder.create();
-        alertDialog.show();
-    }
-    protected void checkContactExists() {
-        user.clear();
+    protected void searchMailExist() {
+        userAdapter.clear();
         final String emailToCheck = editText.getText().toString().trim();
+        for (User u : user) {
+            if (u.getEmail().contains(emailToCheck)) {
+                userAdapter.add(u);
+            }
+        }
+        adapter.notifyDataSetChanged();
+    }
+    protected void getContactExists() {
+        userAdapter.clear();
         db = FirebaseFirestore.getInstance();
-        cref = db.collection("users");
-        cref.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+        dref = db.collection("contact").document(auth.getCurrentUser().getUid());
+        dref.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful()) {
-                    for (DocumentSnapshot d : task.getResult()) {
-                        String email = d.getString("email");
-                        if (!emailToCheck.isEmpty() && email.contains(emailToCheck)) {
-                            String username = d.getString("username");
-                            user.add(new User(username, "...", d.getString("avatarUrl"), email,d.getId(),Timestamp.now()));
+                    DocumentSnapshot document = task.getResult();
+                    if (document.exists()) {
+                        // Tài liệu tồn tại, đọc dữ liệu từ trường userContact
+                        List<DocumentReference> userContacts = (List<DocumentReference>) document.get("userContact");
+                        if (userContacts != null) {
+                            for (DocumentReference contactRef : userContacts) {
+                                contactRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                        if (task.isSuccessful()) {
+                                            DocumentSnapshot contactDocument = task.getResult();
+                                            if (contactDocument.exists()) {
+                                                // Xử lý dữ liệu từ tài liệu được tham chiếu tại đây
+                                                // Ví dụ: Lấy thông tin từ tài liệu contactDocument
+                                                String email = contactDocument.getString("email");
+                                                String username = contactDocument.getString("username");
+                                                User u=new User(username, "...", contactDocument.getString("avatarUrl"), email,contactDocument.getId(),Timestamp.now());
+                                                user.add(u);
+                                                userAdapter.add(user.get(user.size()-1));
+                                                adapter = new AdapterNewGroup(AddGroupActivity.this, R.layout.adapter_new_group,userAdapter);
+                                                listView.setAdapter(adapter);
+                                                adapter.notifyDataSetChanged();
+                                            } else {
+                                                // Tài liệu không tồn tại
+                                            }
+                                        } else {
+                                            // Đã xảy ra lỗi khi lấy tài liệu tham chiếu
+                                        }
+                                    }
+                                });
+                            }
+
+                        } else {
+                            // Trường userContact không tồn tại hoặc là null
                         }
-                        adapter = new MyArrayAdapter(AddContactActivity.this, R.layout.array_adapter, user);
-                        listView.setAdapter(adapter);
-                        adapter.notifyDataSetChanged();
+                    } else {
+                        // Tài liệu không tồn tại
                     }
+                }
+                else {
+
                 }
             }
         }).addOnFailureListener(new OnFailureListener() {
@@ -172,17 +220,135 @@ public class AddContactActivity extends Activity implements View.OnClickListener
         });
     }
 
+    List<User> us=new ArrayList<>();
+    private void findUserAdd() {
+        us.clear();
+        for (User u:user) {
+            if (u.isChecked()) {
+                us.add(u);
+            }
+        }
+    }
+
     @Override
     public void onClick(View v) {
-//        if (v.getId()==R.id.add){
-//            saveUserContact(userAdd.getEmail(),userAdd.getName());
-////            saveUserChat(userAdd.getUid(),auth.getCurrentUser().getUid(),"");
-//            sendMessage(auth.getCurrentUser().getUid(),userAdd.getUid(),"123");
-//        }
+
         if(v.getId()==R.id.back) {
             finish();
         }
+        if (v.getId()==R.id.add) {
+            findUserAdd();
+            if (us.size() != 0) {
+                StringBuilder message = new StringBuilder("Bạn muốn tạo nhóm với ");
+                for (User u : us) {
+                    message.append(u.getName()).append(" , ");
+                }
+                AlertDialog.Builder myBuilder = new AlertDialog.Builder(this);
+                myBuilder.setIcon(R.drawable.ic_noti)
+                        .setTitle("New Group")
+                        .setMessage(message)
+                        .setPositiveButton("Close", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+
+                            }
+                        })
+                        .setNegativeButton("Create", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                saveGroup();
+                            }})
+                        .show();
+            }
+            else {
+                AlertDialog.Builder myBuilder = new AlertDialog.Builder(this);
+                myBuilder.setIcon(R.drawable.ic_noti)
+                        .setTitle("New Group")
+                        .setMessage("Vui lòng chọn người dùng để tạo nhóm")
+                        .setPositiveButton("Close", null)
+                        .show();
+            }
+        }
     }
+
+    private void saveGroup() {
+        FirebaseFirestore ff=FirebaseFirestore.getInstance();
+        CollectionReference groupCollection = ff.collection("groups");
+
+        List<DocumentReference> userReferences = new ArrayList<>();
+        StringBuilder n=new StringBuilder("Nhóm của "+auth.getCurrentUser().getDisplayName()+" ");
+
+        for (User user : us) {
+            String uid = user.getUid();
+            // Tạo DocumentReference từ uid của mỗi người dùng và thêm vào danh sách
+            DocumentReference userReference = ff.collection("users").document(uid);
+            userReferences.add(userReference);
+            n.append(", ").append(user.getName());
+        }
+        userReferences.add(ff.collection("users").document(auth.getCurrentUser().getUid()));
+
+        String name=n.toString();
+        HashMap<String, Object> groupInfo = new HashMap<>();
+        Timestamp timestamp = Timestamp.now();
+        groupInfo.put("username",name);
+        groupInfo.put("email"," ");
+        groupInfo.put("creator", auth.getCurrentUser().getUid() );
+        groupInfo.put("member", userReferences);
+        groupInfo.put("timestamp",timestamp);
+        groupInfo.put("avatarUrl","https://firebasestorage.googleapis.com/v0/b/mychat-7f8c6.appspot.com/o/images%2F1701658755851.jpg?alt=media&token=c256c427-9a37-4c12-bafe-73b78fe6d3a4");
+
+        groupCollection.add(groupInfo)
+                .addOnSuccessListener(documentReference -> {
+                    String documentUid = documentReference.getId(); // Lấy uid của document vừa thêm
+                    sendMessage(auth.getUid(),documentUid," ");
+                    saveGroupContact(documentUid,auth.getCurrentUser().getUid()); // Sử dụng uid này nếu cần thiết
+                    for (User u:us) {
+                        saveGroupContact(documentUid,u.getUid());
+                    }
+                    showNiceDialogBox();
+                })
+                .addOnFailureListener(e -> {
+                    // Thêm không thành công
+                    // Xử lý lỗi ở đây
+                });
+    }
+    private void saveGroupContact(String id,String uid) {
+        FirebaseFirestore ff=FirebaseFirestore.getInstance();
+        CollectionReference contactCollection = ff.collection("contact");
+        DocumentReference userDocument = contactCollection.document(uid);
+        // Đọc mảng hiện tại từ tài liệu
+        userDocument.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot documentSnapshot = task.getResult();
+                    if (documentSnapshot.exists()) {
+                        List<DocumentReference> groups = (List<DocumentReference>) documentSnapshot.get("groups");
+
+                        if (groups == null) {
+                            groups = new ArrayList<>();
+                        }
+
+                        if (!groups.contains(ff.collection("groups").document(id))) {
+                            groups.add(ff.collection("groups").document(id));
+                            Map<String, Object> data = new HashMap<>();
+                            data.put("groups", groups);
+                            // Sử dụng merge() để chỉ cập nhật trường 'groups' mà không thay đổi các trường khác
+                            userDocument.set(data, SetOptions.merge())
+                                    .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<Void> task) {
+                                            // Xử lý khi hoàn thành (nếu cần)
+
+                                        }
+                                    });
+                        }
+                    }
+                }
+            }
+        });
+    }
+
 
     private void sendMessage(String sender, String receiver, String message) {
         CollectionReference usersCollection = db.collection("messages");
@@ -199,9 +365,7 @@ public class AddContactActivity extends Activity implements View.OnClickListener
         messageData.put("type", "text");
 
         usersCollection.add(messageData);
-        //add notification
     }
-
 //    private void saveUserChat(String user1,String user2,String message) {
 //        CollectionReference chatsCollection = db.collection("chats");
 //
@@ -239,18 +403,12 @@ public class AddContactActivity extends Activity implements View.OnClickListener
 //        });
 //    }
 
+    public void showNiceDialogBox(){
+        String message="Create group successfully!";
 
-    public void showNiceDialogBox(boolean check){
-        String message;
-        if(check) {
-            message="Add contact successfully!";
-        }
-        else {
-            message="This contact was added before!";
-        }
         AlertDialog.Builder myBuilder = new AlertDialog.Builder(this);
         myBuilder.setIcon(R.drawable.ic_noti)
-                .setTitle("Add contact")
+                .setTitle("Create Group")
                 .setMessage(message)
                 .setPositiveButton("Close", null)
                 .show();
@@ -286,6 +444,8 @@ public class AddContactActivity extends Activity implements View.OnClickListener
                                 .addOnFailureListener(e -> {
                                     // Xử lý khi không thể tạo document
                                 });
+
+
                     }
 
                     List<DocumentReference> userAdds = (List<DocumentReference>) documentSnapshot.get("userContact");
@@ -321,7 +481,6 @@ public class AddContactActivity extends Activity implements View.OnClickListener
                                     public void onComplete(@NonNull Task<Void> task) {
                                         // Xử lý khi hoàn thành (nếu cần)
 //                                                            showNiceDialogBox(true);
-
                                     }
                                 });
                     }
@@ -370,14 +529,14 @@ public class AddContactActivity extends Activity implements View.OnClickListener
                                                         @Override
                                                         public void onComplete(@NonNull Task<Void> task) {
                                                             // Xử lý khi hoàn thành (nếu cần)
-                                                            showNiceDialogBox(true);
-                                                            saveUser(userAdd.getUid());
+                                                            showNiceDialogBox();
+//                                                            saveUser(userAdd.getUid());
 
                                                         }
                                                     });
                                         }
                                         else{
-                                            showNiceDialogBox(false);
+                                            showNiceDialogBox();
                                         }
                                     }
                                 } else {

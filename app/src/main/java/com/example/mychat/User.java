@@ -10,7 +10,8 @@ public class User {
     private String uid;
     private final String email;
     Timestamp timestamp;
-
+    private boolean isChecked;
+    private boolean isGroup;
     public User(String name, String string, String img, String email, String uid, Timestamp timestamp) {
         this.name = name;
         this.string = string;
@@ -18,10 +19,21 @@ public class User {
         this.email=email;
         this.uid=uid;
         this.timestamp=timestamp;
+        this.isChecked=false;
+        this.isGroup=false;
     }
 
+    public boolean isGroup() {return isGroup;}
+    public void setIsGroup() {
+        isGroup=true;
+    }
+    public boolean isChecked() {
+        return isChecked;
+    }
 
-
+    public void setChecked(boolean checked) {
+        isChecked = checked;
+    }
     public String getName(){
         return this.name;
     }

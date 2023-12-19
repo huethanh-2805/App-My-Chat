@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/layout_listview"
+    android:orientation="horizontal">
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/imgView"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_marginLeft="5dp"
+            android:src ="@drawable/default_profile_pic"
+            android:layout_margin="10dp"
+            android:scaleType="centerCrop"
+            />
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:orientation="vertical">
+            <TextView
+                android:id="@+id/txtName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="NAME"
+                android:textSize="18dp"
+                android:textStyle="bold"
+                android:paddingLeft="10dp"
+                android:gravity="center_vertical">
+            </TextView>
+
+            <TextView
+                android:id="@+id/txtString"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="\@username"
+                android:textSize="16dp"
+                android:paddingLeft="10dp"
+                android:gravity="center_vertical">
+            </TextView>
+
+
+        </LinearLayout>
+        <CheckBox
+            android:id="@+id/checkUser"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:focusable="false"
+            android:layout_gravity="center_vertical"
+            android:clickable="false"
+            />
+    </LinearLayout>
+
+</LinearLayout>

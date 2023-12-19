@@ -70,31 +70,33 @@ public class MessageNotification extends Service {
                     return;
                 }
                 for (DocumentSnapshot newMessage : querySnapshot.getDocuments()) {
-                    if (newMessage.exists()){
+                    if (newMessage.exists()) {
                         //Toast.makeText(getApplicationContext(),"CHANGE CAUGHT", Toast.LENGTH_SHORT).show();
                         //chỉ xử lý những bộ được thêm vào
                         DocumentSnapshot docSnap = newMessage;
                         String receiver = docSnap.getString("receiver");
-                        if (receiver.equals(currentUser)) { //lấy những bộ mà người dùng là receiver
-                            String idNotification = docSnap.getId();
-                            String sender = docSnap.getString("sender");
-                            DocumentReference notifyDoc = db.collection("notification").document(idNotification);
-                            DocumentReference userDoc = db.collection("users").document(sender);
-                            userDoc.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>(){
-                                @Override
-                                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                    if (task.isSuccessful()) {
-                                        DocumentSnapshot userSnapshot = task.getResult();
-                                        if (userSnapshot.exists()) {
-                                            String sendername = userSnapshot.getString("username");
-                                            if (sender.equals(otherUser))
-                                            Notify(sendername, sender);
-                                            //Toast.makeText(getApplicationContext(),"TIN NHẮN MỚI TỪ " + sendername, Toast.LENGTH_SHORT).show();
+                        if (receiver != null) {
+                            if (receiver.equals(currentUser)) { //lấy những bộ mà người dùng là receiver
+                                String idNotification = docSnap.getId();
+                                String sender = docSnap.getString("sender");
+                                DocumentReference notifyDoc = db.collection("notification").document(idNotification);
+                                DocumentReference userDoc = db.collection("users").document(sender);
+                                userDoc.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                        if (task.isSuccessful()) {
+                                            DocumentSnapshot userSnapshot = task.getResult();
+                                            if (userSnapshot.exists()) {
+                                                String sendername = userSnapshot.getString("username");
+                                                if (sender.equals(otherUser))
+                                                    Notify(sendername, sender);
+                                                //Toast.makeText(getApplicationContext(),"TIN NHẮN MỚI TỪ " + sendername, Toast.LENGTH_SHORT).show();
+                                            }
                                         }
                                     }
-                                }
-                            });
-                            notifyDoc.delete();
+                                });
+                                notifyDoc.delete();
+                            }
                         }
                     }
                 }

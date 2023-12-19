@@ -4,27 +4,31 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.media.MediaPlayer;
 import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebView;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.MediaController;
 import android.widget.RelativeLayout;
+import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
-import android.widget.VideoView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+
+import org.w3c.dom.Text;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -32,48 +36,35 @@ import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
 
-
-
-public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHolder> {
+public class MessageGroupAdapter extends RecyclerView.Adapter<MessageGroupAdapter.ViewHolder> {
     public static final int MSG_TYPE_LEFT = 0;
     public static final int MSG_TYPE_RIGHT = 1;
-
     private final Context mContext;
     private final List<Message> mMessage;
-    private OnItemClickListener onItemClickListener;
     FirebaseUser fUser;
-    private WebView webView;
-
-    private long downloadID;
 
     public String imageUrl;
-    private Uri localFileUri;
 
 
-
-
-    public MessageAdapter(Context mContext, List<Message> mMessage, String imageUrl) {
+    public MessageGroupAdapter(Context mContext, List<Message> mMessage) {
         this.mMessage = mMessage;
         this.mContext = mContext;
-        this.imageUrl = imageUrl;
     }
-    public void setOnItemClickListener(OnItemClickListener listener){
-        this.onItemClickListener=listener;
-    }
+
     @NonNull
     @Override
-    public MessageAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public MessageGroupAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         if (viewType == MSG_TYPE_RIGHT) {
             View view = LayoutInflater.from(mContext).inflate(R.layout.chat_item_right, parent, false);
-            return new MessageAdapter.ViewHolder(view);
+            return new MessageGroupAdapter.ViewHolder(view);
         } else {
             View view = LayoutInflater.from(mContext).inflate(R.layout.chat_item_left, parent, false);
-            return new MessageAdapter.ViewHolder(view);
+            return new MessageGroupAdapter.ViewHolder(view);
         }
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull MessageGroupAdapter.ViewHolder holder, int position) {
         Message message = mMessage.get(position);
         // Chuyển đổi timestamp sang định dạng ngày giờ
         Timestamp firebaseTimestamp = message.getTimestamp(); // Lấy timestamp từ message
@@ -86,83 +77,12 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
         sdf.setTimeZone(TimeZone.getDefault());
         String dateString = sdf.format(new Date(timestampInMillis));
 
-        holder.show_message.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (onItemClickListener != null) {
-                    CharSequence options[] = new CharSequence[]{
-                            "Gỡ tin nhắn",
-                            "Chuyển tiếp",
-                            "Cancel"
-                    };
-                    AlertDialog.Builder builder = new AlertDialog.Builder(v.getContext());
-                    builder.setTitle("Choose One");
-                    builder.setItems(options, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                                                                   // we will be downloading the pdf
-                            if (which == 0) {
-                                onItemClickListener.onItemClick(message);
-                            }
-                            if (which == 1) {
-                                dialog.dismiss();
-                            }
-                            if (which == 2) {
-                                dialog.dismiss();
-                            }
-                        }
-                    });
-                    builder.show();
-                }
-            }
-        });
-
-        holder.show_image.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (onItemClickListener != null) {
-                    CharSequence options[] = new CharSequence[]{
-                            "Gỡ tin nhắn",
-                            "Chuyển tiếp",
-                            "Cancel"
-                    };
-                    AlertDialog.Builder builder = new AlertDialog.Builder(v.getContext());
-                    builder.setTitle("Choose One");
-                    builder.setItems(options, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            // we will be downloading the pdf
-                            if (which == 0) {
-                                onItemClickListener.onItemClick(message);
-                            }
-                            if (which == 1) {
-                                dialog.dismiss();
-                            }
-                            if (which == 2) {
-                                dialog.dismiss();
-                            }
-                        }
-                    });
-                    builder.show();
-                }
-            }
-        });
-
-
-        if(message.getMessage().equals("Nội dung đã bị gỡ"))
-        {
-            holder.show_message.setText("Nội dung đã bị gỡ");
-            holder.show_message.setBackgroundResource(R.drawable.background_remove);
-        }
-
-// Hiển thị ngày giờ vào TextView
+        // Hiển thị ngày giờ vào TextView
 
         if (message.getType() != null) {
             if (message.getType().equals("image")) {
                 holder.show_file.setVisibility(View.GONE);
-                holder.videolayout.setVisibility(View.GONE);
                 holder.show_image.setVisibility(View.VISIBLE);
-
                 RelativeLayout.LayoutParams txtShowTime = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
                 txtShowTime.addRule(RelativeLayout.BELOW, holder.show_image.getId());
                 txtShowTime.addRule(RelativeLayout.ALIGN_RIGHT, holder.show_image.getId());
@@ -170,36 +90,10 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
                 holder.show_time.setLayoutParams(txtShowTime);
                 holder.show_time.setLayoutParams(txtShowTime);
                 holder.show_time.setText(dateString);
-
                 Glide.with(mContext).load(message.getMessage()).into(holder.show_image);
 
-            } else if (message.getType().equals("video")){
-                holder.show_file.setVisibility(View.GONE);
+            } else if (message.getType().equals("file") || message.getType().equals("pdf") || message.getType().equals("txt")) {
                 holder.show_image.setVisibility(View.GONE);
-                holder.videolayout.setVisibility(View.VISIBLE);
-
-                Uri videoUri = Uri.parse(message.getMessage());
-//                MediaController mediaController = new MediaController(mContext);
-//
-//                mediaController.setAnchorView(holder.show_video);
-//                holder.show_video.setMediaController(mediaController);
-
-                // Set the video URI and start playback
-                holder.show_video.setVideoURI(videoUri);
-                holder.show_video.start();
-
-                // Set an error listener to handle any playback errors
-                holder.show_video.setOnErrorListener(new MediaPlayer.OnErrorListener() {
-                    @Override
-                    public boolean onError(MediaPlayer mediaPlayer, int what, int extra) {
-                        Toast.makeText(mContext,"Error display video",Toast.LENGTH_SHORT);
-                        return false;
-                    }
-                });
-            }
-            else if (message.getType().equals("file") || message.getType().equals("pdf") || message.getType().equals("txt") || message.getType().equals("docx")) {
-                holder.show_image.setVisibility(View.GONE);
-                holder.videolayout.setVisibility(View.GONE);
                 holder.show_file.setVisibility(View.VISIBLE);
                 if (message.getTitle() != null) {
                     holder.title_file.setText(message.getTitle());
@@ -209,7 +103,6 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
                     public void onClick(View v) {
                         CharSequence options[] = new CharSequence[]{
                                 "View",
-                                "Gỡ tin nhắn",
                                 "Cancel"
                         };
                         AlertDialog.Builder builder = new AlertDialog.Builder(v.getContext());
@@ -223,22 +116,14 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
                                         Intent intent1 = new Intent(Intent.ACTION_VIEW);
                                         intent1.setDataAndType(Uri.parse(message.getMessage()), "text/plain");
                                         mContext.startActivity(intent1);
-                                    } else if (message.getType().equals("pdf")) {
+                                    } else {
                                         Intent intent1 = new Intent(Intent.ACTION_VIEW);
                                         intent1.setDataAndType(Uri.parse(message.getMessage()), "application/pdf");
-                                        mContext.startActivity(intent1);
-                                    }
-                                    else{
-                                        Intent intent1 = new Intent(Intent.ACTION_VIEW,Uri.parse(message.getMessage()));
                                         mContext.startActivity(intent1);
                                     }
                                 }
 
                                 if (which == 1) {
-                                    onItemClickListener.onItemClick(message);
-                                }
-                                if(which == 2)
-                                {
                                     dialog.dismiss();
                                 }
                             }
@@ -247,7 +132,6 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
                     }
                 });
             } else {
-                holder.videolayout.setVisibility(View.GONE);
                 holder.show_file.setVisibility(View.GONE);
                 holder.show_image.setVisibility(View.GONE);
                 holder.show_message.setText(message.getMessage());
@@ -255,16 +139,13 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
 
             }
         } else {
-            holder.videolayout.setVisibility(View.GONE);
-            holder.show_file.setVisibility(View.GONE);
+
             holder.show_image.setVisibility(View.GONE);
             holder.show_message.setText(message.getMessage());
             holder.show_time.setText(dateString);
 
         }
-
-        Glide.with(mContext).load(imageUrl).into(holder.profile_image);
-
+        setAvatarUrl(holder, message);
 
 //        if (imageUrl.equals("default")){
 //            holder.profile_image.setImageResource(R.drawable.ic_avt);
@@ -273,7 +154,32 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
 //        }
     }
 
+    private void setAvatarUrl(@NonNull ViewHolder holder, Message message) {
+        final String[] img = {null};
+        DocumentReference doc = FirebaseFirestore.getInstance().collection("users").document(message.getSender());
+        doc.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot documentSnapshot = task.getResult();
+                    if (documentSnapshot.exists()) {
+                        img[0] =documentSnapshot.getString("avatarUrl");
+                        if (img[0]!=null) {
+                            Glide.with(mContext).load(img[0]).into(holder.profile_image);
+                        }
+                        else {
+                            holder.profile_image.setImageResource(R.drawable.ic_avt);
+                        }
+                    }
+                }
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
 
+            }
+        });
+    }
 
     @Override
     public int getItemCount() {
@@ -281,13 +187,11 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
-        MediaController mediaController;
+
 
         public TextView show_message;
 
         public ImageView show_image;
-
-        public VideoView show_video;
         public TextView show_time;
         public ImageView profile_image;
 
@@ -295,29 +199,19 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
 
         public LinearLayout show_file;
 
-        public RelativeLayout videolayout;
-
+        public WebView webView;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             show_image = itemView.findViewById(R.id.show_image);
-
-            videolayout=itemView.findViewById(R.id.videoLayout);
-
-            show_video = itemView.findViewById(R.id.videoView);
-            mediaController = new MediaController(show_video.getContext());
-
-            show_video.setMediaController(mediaController);
-            mediaController.setAnchorView(show_video);
-
             show_message = itemView.findViewById(R.id.show_message);
             profile_image = itemView.findViewById(R.id.profile_image);
             show_time = itemView.findViewById(R.id.show_time);
             show_file = itemView.findViewById(R.id.show_file);
             title_file = itemView.findViewById(R.id.title_file);
         }
-    }
 
+    }
     public int getItemViewType(int position) {
         fUser = FirebaseAuth.getInstance().getCurrentUser();
         if (mMessage.get(position).getSender().equals(fUser.getUid())) {
@@ -326,6 +220,4 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
             return MSG_TYPE_LEFT;
         }
     }
-
-
 }
