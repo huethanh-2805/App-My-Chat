@@ -3,16 +3,23 @@ package com.example.mychat;
 
 
 import static android.content.ContentValues.TAG;
-
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 
 
 import android.annotation.SuppressLint;
+
+import android.content.BroadcastReceiver;
+
 import android.content.ContentResolver;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 
@@ -50,6 +57,7 @@ import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -57,6 +65,7 @@ import com.squareup.picasso.Picasso;
 
 import com.google.firebase.storage.UploadTask;
 
+import java.sql.Time;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -69,6 +78,7 @@ public class  ChatSreen extends BaseActivity {
     private static final int PICK_IMAGE_REQUEST = 1;
 
     private static final int PICK_FILE_REQUEST_CODE = 1;
+    private static final int PICK_VIDEO_REQUEST = 1;
     private Uri filePath;
     private FirebaseStorage storage;
     private StorageReference storageReference;
@@ -97,6 +107,7 @@ public class  ChatSreen extends BaseActivity {
     ImageButton btn_send;
     ImageButton btn_chooseImage;
 
+    ImageButton btn_chooseVideo;
     ImageButton btn_file;
     EditText text_send;
     Intent intent;
@@ -112,6 +123,12 @@ public class  ChatSreen extends BaseActivity {
     TextView txtStatus;
     List<String> id=new ArrayList<>();
     List<String> img=new ArrayList<>();
+
+    TextView show_message;
+
+    CollectionReference cref;
+    private List<Message> unsentMessages = new ArrayList<>(); // Danh sách tạm tin nhắn chưa gửi
+    private boolean isNetworkConnected;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -135,6 +152,7 @@ public class  ChatSreen extends BaseActivity {
 
         btn_file=findViewById(R.id.btn_file);
         btn_chooseImage=findViewById(R.id.image_btn);
+        btn_chooseVideo=findViewById(R.id.btn_video);
         storage = FirebaseStorage.getInstance();
         storageReference = storage.getReference();
 
@@ -154,9 +172,9 @@ public class  ChatSreen extends BaseActivity {
         getInfo();
         setThemeBasedOnSelectedTheme();
         getStatus();
-//        Intent serviceIntent = new Intent(this, MessageNotification.class);
-//        serviceIntent.putExtra("otherUser", userReceiverID);
-//        startService(serviceIntent);
+        Intent serviceIntent = new Intent(this, MessageNotification.class);
+        serviceIntent.putExtra("otherUser", userReceiverID);
+        startService(serviceIntent);
     }
 
     private void getInfo() {
@@ -203,7 +221,12 @@ public class  ChatSreen extends BaseActivity {
                 chooseImage();
             }
         });
-
+        btn_chooseVideo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                openVideoChooser();
+            }
+        });
         btn_file.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -323,6 +346,7 @@ public class  ChatSreen extends BaseActivity {
                 });
     }
 
+
 //    private void getUidAndImgMember(List<DocumentReference> members) {
 //        for (DocumentReference d : members) {
 //            d.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
@@ -378,21 +402,105 @@ private void getUidAndImgMember(List<DocumentReference> members, MemberInfoCallb
                 }
             }
         });
+
+        setThemeBasedOnSelectedTheme();
+
+        // Đăng ký BroadcastReceiver
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
+        NetworkChangeReceiver networkChangeReceiver = new NetworkChangeReceiver();
+        registerReceiver(networkChangeReceiver, intentFilter);
+
+        //
+        Intent serviceIntent = new Intent(this, MessageNotification.class);
+        serviceIntent.putExtra("otherUser", userReceiverID);
+        startService(serviceIntent);
     }
 }
 
+    //Cập nhật liên túc trạng thái mạng
+    public class NetworkChangeReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            isNetworkConnected = isNetworkConnected();
+            if (isNetworkConnected) {
+                DocumentReference docRef = FirebaseFirestore.getInstance().collection("users").document(userReceiverID);
+
+                docRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
+                    @Override
+                    public void onEvent(@androidx.annotation.Nullable DocumentSnapshot value, @androidx.annotation.Nullable FirebaseFirestoreException error) {
+                        if(error!=null){
+                            Log.w(TAG, "Listen failed.", error);
+                            return;
+                        }
+                        if(value!=null&&value.exists()){
+                            String data=value.getString("status");
+                            if(Objects.equals(data, "1")){
+                                txtStatus.setText("Online");
+                                txtStatus.setVisibility(View.VISIBLE);
+                            }
+                            else{
+                                txtStatus.setText("Offline");
+                                txtStatus.setVisibility(View.VISIBLE);
+                            }
+
+                        }
+                        else{
+                            Log.d(TAG, "Current data: null");
+                        }
+                    }
+                });
+            } else {
+                txtStatus.setText("No internet connection...");
+                txtStatus.setVisibility(View.VISIBLE);
+            }
+        }
+    }
+
+    //Kiểm tra kết nối mạng
+    private boolean isNetworkConnected() {
+        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+        return networkInfo != null && networkInfo.isConnected();
+    }
+
+    private void openVideoChooser() {
+        Intent intent = new Intent();
+        intent.setType("video/*");
+        intent.setAction(Intent.ACTION_GET_CONTENT);
+        startActivityForResult(Intent.createChooser(intent, "Select Video"), PICK_VIDEO_REQUEST);
+    }
 
     private void chooseImage() {
-        Intent intent = new Intent();
-        intent.setType("image/*");
-        intent.setAction(Intent.ACTION_GET_CONTENT);
-        startActivityForResult(Intent.createChooser(intent, "Select Image"), PICK_IMAGE_REQUEST);
+        checkSenderIsBlock(fUser.getUid(), userReceiverID);
+        if (check1) {
+            showSenderIsBlockDialogBox();
+            text_send.setText("");
+        } else if (check2) {
+            showReceiverIsBlockDialogBox();
+            text_send.setText("");
+        } else if (!check1 && !check2){
+            Intent intent = new Intent();
+            intent.setType("image/*");
+            intent.setAction(Intent.ACTION_GET_CONTENT);
+            startActivityForResult(Intent.createChooser(intent, "Select Image"), PICK_IMAGE_REQUEST);
+        }
+
     }
 
     private void chooseFile() {
-        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-        intent.setType("*/*");
-        startActivityForResult(intent, PICK_FILE_REQUEST_CODE);
+        checkSenderIsBlock(fUser.getUid(), userReceiverID);
+        if (check1) {
+            showSenderIsBlockDialogBox();
+            text_send.setText("");
+        } else if (check2) {
+            showReceiverIsBlockDialogBox();
+            text_send.setText("");
+        } else if (!check1 && !check2){
+            Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+            intent.setType("*/*");
+            startActivityForResult(intent, PICK_FILE_REQUEST_CODE);
+        }
     }
 
     @Override
@@ -402,11 +510,23 @@ private void getUidAndImgMember(List<DocumentReference> members, MemberInfoCallb
             filePath = data.getData();
             String fileExtension = getFileExtension(filePath);
 
-            if (fileExtension.equals("png") || fileExtension.equals("jpg") ){
-                uploadImage();
-            }
-            else if (fileExtension.equals("pdf") || fileExtension.equals("txt") ){
-                uploadFile();
+            checkSenderIsBlock(fUser.getUid(), userReceiverID);
+            if (check1) {
+                showSenderIsBlockDialogBox();
+                text_send.setText("");
+            } else if (check2) {
+                showReceiverIsBlockDialogBox();
+                text_send.setText("");
+            } else if (!check1 && !check2){
+                if (fileExtension.equals("png") || fileExtension.equals("jpg") ){
+                    uploadImage();
+                }
+                else if (fileExtension.equals("pdf") || fileExtension.equals("txt") || fileExtension.equals("docx")){
+                    uploadFile();
+                }
+                else if (fileExtension.equals("mp4")){
+                    uploadVideoToStorage();
+                }
             }
         }
     }
@@ -441,6 +561,32 @@ private void getUidAndImgMember(List<DocumentReference> members, MemberInfoCallb
         String fileExtension = mimeTypeMap.getExtensionFromMimeType(contentResolver.getType(uri));
         Toast.makeText(this, fileExtension, Toast.LENGTH_SHORT).show();
         return fileExtension;
+    }
+
+    private void uploadVideoToStorage() {
+        if (filePath != null) {
+            final ProgressDialog progressDialog = new ProgressDialog(this);
+            progressDialog.setTitle("Uploading...");
+            progressDialog.show();
+
+            StorageReference storageRef = storage.getReference().child("videos/" + System.currentTimeMillis() + ".mp4");
+            storageRef.putFile(filePath)
+                    .addOnSuccessListener(taskSnapshot -> {
+                        // Video uploaded successfully
+                        progressDialog.dismiss();
+                        storageRef.getDownloadUrl().addOnSuccessListener(uri -> {
+                            String videoUrl = uri.toString();
+                            sendVideo(fUser.getUid(), userReceiverID, videoUrl);
+                        });
+                    })
+                    .addOnFailureListener(e -> {
+                        // Handle unsuccessful uploads
+                        Toast.makeText(ChatSreen.this, "Upload failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    });
+        }
+        else {
+            Toast.makeText(this, "No video selected", Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void uploadImage() {
@@ -509,6 +655,23 @@ private void getUidAndImgMember(List<DocumentReference> members, MemberInfoCallb
         }
     }
 
+    private void sendVideo(String sender, String receiver, String message) {
+        CollectionReference usersCollection = db.collection("messages");
+
+        HashMap<String, Object> messageData = new HashMap<>();
+        Timestamp timestamp = Timestamp.now();
+        messageData.put("sender", sender);
+        messageData.put("receiver", receiver);
+        messageData.put("message", message);
+        messageData.put("timestamp", timestamp);
+        messageData.put("type", "video");
+
+        usersCollection.add(messageData);
+        //add to notification
+        CollectionReference notifyCollection = db.collection("notification");
+        notifyCollection.add(messageData);
+    }
+
     private void sendImage(String sender, String receiver, String message) {
         CollectionReference usersCollection = db.collection("messages");
 
@@ -547,9 +710,9 @@ private void getUidAndImgMember(List<DocumentReference> members, MemberInfoCallb
         super.onResume();
         setThemeBasedOnSelectedTheme();
         //
-//        Intent serviceIntent = new Intent(this, MessageNotification.class);
-//        serviceIntent.putExtra("otherUser", userReceiverID);
-//        startService(serviceIntent);
+        Intent serviceIntent = new Intent(this, MessageNotification.class);
+        serviceIntent.putExtra("otherUser", userReceiverID);
+        startService(serviceIntent);
     }
 
 
@@ -734,13 +897,21 @@ private void getUidAndImgMember(List<DocumentReference> members, MemberInfoCallb
                                 }
                             }
                             messageAdapter = new MessageAdapter(ChatSreen.this, mMessage, imageurl);
+                            messageAdapter.setOnItemClickListener(new OnItemClickListener() {
+                                @Override
+                                public void onItemClick(Message mess) {
+                                    showDeleteDialog(mess);
+                                }
+                            });
                             recyclerView.setAdapter(messageAdapter);
+
                         } else {
                             Toast.makeText(ChatSreen.this, "Không tìm thấy dữ liệu trong cơ sở dữ liệu", Toast.LENGTH_SHORT).show();
                         }
                     }
                 });
     }
+
     private void readMessagesGroup(final String myid, final String groupid) {
         mMessage.clear();
         CollectionReference chatsCollection = db.collection("messages");
@@ -777,6 +948,103 @@ private void getUidAndImgMember(List<DocumentReference> members, MemberInfoCallb
                     }
                 });
     }
+
+    private String messageID;
+
+    private void findDocumentMessageId(Message mess) {
+        FirebaseFirestore firestore=FirebaseFirestore.getInstance();
+        CollectionReference cre = firestore.collection("messages");
+
+        cre.whereEqualTo("message", mess.getMessage())
+                .whereEqualTo("receiver", mess.getReceiver())
+                .whereEqualTo("sender", mess.getSender())
+                .whereEqualTo("timestamp", (Timestamp)mess.getTimestamp())
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            for (QueryDocumentSnapshot d : task.getResult()) {
+                                // Xử lý tài liệu ở đây
+                                 messageID = d.getId();
+                                if (messageID!=null) {
+                                    Toast.makeText(getApplicationContext(), messageID, Toast.LENGTH_SHORT).show();
+                                    deleteMessage(messageID);
+
+                                }
+                                else {
+                                    Toast.makeText(getApplicationContext(), "null", Toast.LENGTH_SHORT).show();
+
+                                }
+                                // Bạn có thể sử dụng messageID theo cách cần thiết
+                            }
+                        } else {
+                            // Xử lý lỗi
+                            Log.w(TAG, "Lỗi khi lấy tài liệu.", task.getException());
+                        }
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Toast.makeText(getApplicationContext(),"fail",Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+    private void deleteMessage(String messageId) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        CollectionReference messagesRef = db.collection("messages");
+
+        HashMap<String, Object> updates = new HashMap<>();
+        updates.put("message", "Nội dung đã bị gỡ");
+        updates.put("type","text");
+        // Gọi hàm để xóa tin nhắn
+        messagesRef.document(messageId)
+                .update(updates)
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+//                        Toast.makeText(ChatSreen.this, "Tin nhắn đã được xóa", Toast.LENGTH_SHORT).show();
+
+                    }
+
+
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        // Xóa tin nhắn thất bại
+                        Toast.makeText(ChatSreen.this, "Không thể gỡ tin nhắn", Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+
+    private void showDeleteDialog(final Message message) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Xác nhận gỡ tin nhắn");
+        builder.setMessage("Bạn có chắc chắn muốn gỡ tin nhắn này?");
+        builder.setPositiveButton("Gỡ", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                // Gọi hàm để xóa tin nhắn
+                findDocumentMessageId(message);
+
+//                Timestamp timestamp=findDocumentMessageId(message);
+            }
+        });
+        builder.setNegativeButton("Hủy", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                // Đóng Dialog nếu người dùng chọn Hủy
+                dialog.dismiss();
+            }
+        });
+
+        // Hiển thị Dialog
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
     private void applyNightMode() {
         sharedPreferences=MyChat.getSharedPreferences();
         boolean nightMode=sharedPreferences.getBoolean("night",false);
@@ -786,6 +1054,10 @@ private void getUidAndImgMember(List<DocumentReference> members, MemberInfoCallb
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
         }
     }
+
+    // Hàm để xóa tin nhắn từ Firestore và cập nhật RecyclerView
+
+
 
 
     @SuppressLint("ResourceAsColor")
@@ -859,11 +1131,12 @@ private void getUidAndImgMember(List<DocumentReference> members, MemberInfoCallb
                 break;
         }
     }
+
     @Override
     protected void onPause() {
         super.onPause();
-//        Intent serviceIntent = new Intent(this, MessageNotification.class);
-//        serviceIntent.putExtra("otherUser", "");
-//        startService(serviceIntent);
+        Intent serviceIntent = new Intent(this, MessageNotification.class);
+        serviceIntent.putExtra("otherUser", "");
+        startService(serviceIntent);
     }
 }

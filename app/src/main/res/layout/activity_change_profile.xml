@@ -44,56 +44,66 @@
         android:orientation="vertical"
         android:layout_centerHorizontal="true"
         android:layout_below="@id/chooseButton"
-        android:id="@+id/changeProfileName"
+        android:id="@+id/changeProfile"
         android:layout_marginBottom="16dp"
-        android:layout_marginTop="16dp">
-        <TextView
-            style="@style/TEXT"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/user_name"
-            android:layout_margin="5dp"
-            android:textStyle="bold">
-        </TextView>
+        android:layout_marginTop="16dp"
+        android:layout_marginLeft="50dp"
+        android:layout_marginRight="50dp">
 
-        <EditText
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <TextView
+                style="@style/TEXT"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:layout_marginLeft="5dp"
+                android:layout_marginBottom="5dp"
+                android:textSize="16dp"
+                android:text="@string/user_name"
+                android:textStyle="bold"></TextView>
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@drawable/ic_edit"
+                android:id="@+id/btn_editName"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:layout_marginRight="5dp">
+
+            </ImageView>
+        </RelativeLayout>
+
+        <TextView
             android:id="@+id/changeUsername"
             style="@style/EDITTEXT"
-            android:layout_width="match_parent"
-            android:layout_height="40dp"
-            android:hint="Enter your new profile name"
+            android:layout_width="260dp"
+            android:layout_height="wrap_content"
             android:inputType="text"
             android:paddingLeft="16dp"
             android:paddingTop="10dp"
             android:paddingRight="16dp"
             android:paddingBottom="10dp"
             android:background="@drawable/boder_searchview"
-            android:textSize="16sp"></EditText>
-    </LinearLayout>
+            android:textSize="16sp"></TextView>
 
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:layout_centerHorizontal="true"
-        android:layout_below="@id/changeProfileName"
-        android:id="@+id/changeProfileEmail"
-        android:layout_marginBottom="16dp"
-        android:layout_marginTop="16dp">
         <TextView
             style="@style/TEXT"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:layout_marginLeft="5dp"
+            android:layout_marginBottom="5dp"
+            android:textSize="16dp"
             android:text="@string/user_email"
-            android:layout_margin="5dp"
-            android:textStyle="bold">
-        </TextView>
+            android:textStyle="bold"></TextView>
 
-        <EditText
+        <TextView
             android:id="@+id/changeEmail"
             style="@style/EDITTEXT"
-            android:layout_width="match_parent"
-            android:layout_height="40dp"
+            android:layout_width="260dp"
+            android:layout_height="wrap_content"
             android:hint="Enter your new profile email"
             android:inputType="text"
             android:paddingLeft="16dp"
@@ -101,52 +111,69 @@
             android:paddingRight="16dp"
             android:paddingBottom="10dp"
             android:background="@drawable/boder_searchview"
-            android:textSize="16sp"></EditText>
-    </LinearLayout>
+            android:textSize="16sp"></TextView>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <TextView
+                style="@style/TEXT"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/user_password"
+                android:layout_marginTop="10dp"
+                android:layout_marginLeft="5dp"
+                android:layout_marginBottom="5dp"
+                android:textSize="16dp"
+                android:textStyle="bold">
+
+            </TextView>
+
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@drawable/ic_edit"
+                android:id="@+id/btn_editPassword"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:layout_marginRight="5dp">
+
+            </ImageView>
+        </RelativeLayout>
+
+
+            <TextView
+                android:id="@+id/changePassword"
+                style="@style/EDITTEXT"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="********"
+                android:inputType="text"
+                android:paddingLeft="16dp"
+                android:paddingTop="10dp"
+                android:paddingRight="16dp"
+                android:paddingBottom="10dp"
+                android:background="@drawable/boder_searchview"
+                android:textSize="16sp"></TextView>
+        </LinearLayout>
 
     <LinearLayout
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:layout_centerHorizontal="true"
-        android:layout_below="@id/changeProfileEmail"
-        android:id="@+id/changeProfilePassword"
-        android:layout_marginBottom="16dp"
-        android:layout_marginTop="16dp">
-        <TextView
-            style="@style/TEXT"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/user_password"
-            android:layout_margin="5dp"
-            android:textStyle="bold">
-        </TextView>
-
-        <EditText
-            android:id="@+id/changePassword"
-            style="@style/EDITTEXT"
+        android:layout_below="@id/changeProfile"
+        android:layout_marginLeft="80dp"
+        android:layout_marginRight="80dp">
+        <Button
+            android:id="@+id/uploadButton"
             android:layout_width="match_parent"
             android:layout_height="40dp"
-            android:hint="Enter your new profile password"
-            android:inputType="text"
-            android:paddingLeft="16dp"
-            android:paddingTop="10dp"
-            android:paddingRight="16dp"
-            android:paddingBottom="10dp"
-            android:background="@drawable/boder_searchview"
-            android:textSize="16sp"></EditText>
+            android:layout_centerHorizontal="true"
+            android:layout_margin="16dp"
+            android:text="Update profile"
+            android:textColor="@color/white"
+            android:textSize="12dp"
+            android:background="@drawable/edittext_border"/>
     </LinearLayout>
 
-    <Button
-        android:id="@+id/uploadButton"
-        android:layout_width="match_parent"
-        android:layout_height="40dp"
-        android:layout_below="@id/changeProfilePassword"
-        android:layout_centerHorizontal="true"
-        android:layout_margin="16dp"
-        android:text="Update profile"
-        android:textColor="@color/white"
-        android:textSize="12dp"
-        android:background="@drawable/edittext_border"/>
 
 </RelativeLayout>

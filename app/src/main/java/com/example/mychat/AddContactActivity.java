@@ -201,6 +201,7 @@ public class AddContactActivity extends Activity implements View.OnClickListener
         usersCollection.add(messageData);
         //add notification
     }
+
 //    private void saveUserChat(String user1,String user2,String message) {
 //        CollectionReference chatsCollection = db.collection("chats");
 //
@@ -237,6 +238,7 @@ public class AddContactActivity extends Activity implements View.OnClickListener
 //            }
 //        });
 //    }
+
 
     public void showNiceDialogBox(boolean check){
         String message;
@@ -319,6 +321,7 @@ public class AddContactActivity extends Activity implements View.OnClickListener
                                     public void onComplete(@NonNull Task<Void> task) {
                                         // Xử lý khi hoàn thành (nếu cần)
 //                                                            showNiceDialogBox(true);
+
                                     }
                                 });
                     }

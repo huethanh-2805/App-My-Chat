@@ -51,8 +51,22 @@
             android:layout_margin="20dp">
         </SearchView>
 
+        <TextView
+            android:id="@+id/txtStatus"
+            android:text="Online"
+            android:visibility="gone"
+            android:textStyle="bold"
+            android:gravity="center_horizontal"
+            android:background="@color/green"
+            android:textColor="@color/white"
+            android:layout_width="match_parent"
+            android:layout_below="@+id/bar_layout"
+            android:layout_height="wrap_content">
+        </TextView>
+
         <ListView
             android:id="@+id/listView"
+            android:layout_below="@+id/txtStatus"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_margin="10dp"

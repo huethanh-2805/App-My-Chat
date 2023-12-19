@@ -43,7 +43,7 @@ public class MainFragment extends BaseActivity {
         //
 //        Intent serviceIntent = new Intent(this, MessageNotification.class);
 //        stopService(serviceIntent);
-        //
+
     }
 
     public void changeFragment(Fragment selectedFragment) {
@@ -88,7 +88,6 @@ public class MainFragment extends BaseActivity {
             }
             @Override
             public void onTabReselected(int i, @NonNull AnimatedBottomBar.Tab tab) {
-
             }
         });
 
