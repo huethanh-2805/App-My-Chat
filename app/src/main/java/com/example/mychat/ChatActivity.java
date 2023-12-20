@@ -371,6 +371,7 @@ public class ChatActivity extends Fragment implements View.OnClickListener, Adap
                         String latestMessage = d.getString("message");
                         String type = d.getString("type");
                         if (!type.equals("text")) latestMessage = "[FILE ĐÍNH KÈM]";
+                        if (type.equals("screenshot")) latestMessage = "[CHỤP MÀN HÌNH]";
                         if (type.equals("image")) latestMessage = "[ẢNH]";
                         if (type.equals("video")) latestMessage = "[VIDEO]";
                         //
