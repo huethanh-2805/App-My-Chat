@@ -180,7 +180,13 @@ public class  ChatSreen extends BaseActivity {
         setOnClickListener();
         getInfo();
         setThemeBasedOnSelectedTheme();
-        getStatus();
+
+        // Đăng ký BroadcastReceiver
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
+        NetworkChangeReceiver networkChangeReceiver = new NetworkChangeReceiver();
+        registerReceiver(networkChangeReceiver, intentFilter);
+
         Intent serviceIntent = new Intent(this, MessageNotification.class);
         serviceIntent.putExtra("otherUser", userReceiverID);
         startService(serviceIntent);
@@ -195,34 +201,6 @@ public class  ChatSreen extends BaseActivity {
         else {
             getInfoGroup();
         }
-    }
-
-    private void getStatus() {
-        DocumentReference docRef = FirebaseFirestore.getInstance().collection("users").document(userReceiverID);
-        docRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
-            @Override
-            public void onEvent(@androidx.annotation.Nullable DocumentSnapshot value, @androidx.annotation.Nullable FirebaseFirestoreException error) {
-                if(error!=null){
-                    Log.w(TAG, "Listen failed.", error);
-                    return;
-                }
-                if(value!=null&&value.exists()){
-                    String data=value.getString("status");
-                    if(Objects.equals(data, "1")){
-                        txtStatus.setText("Online");
-                        txtStatus.setVisibility(View.VISIBLE);
-                    }
-                    else{
-                        txtStatus.setText("Offline");
-                        txtStatus.setVisibility(View.VISIBLE);
-                    }
-
-                }
-                else{
-                    Log.d(TAG, "Current data: null");
-                }
-            }
-        });
     }
 
     private void setOnClickListener() {
@@ -445,6 +423,9 @@ private void getUidAndImgMember(List<DocumentReference> members, MemberInfoCallb
         public void onReceive(Context context, Intent intent) {
             isNetworkConnected = isNetworkConnected();
             if (isNetworkConnected) {
+                if(isGroup){
+                    txtStatus.setVisibility(View.GONE);
+                }
                 DocumentReference docRef = FirebaseFirestore.getInstance().collection("users").document(userReceiverID);
 
                 docRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
