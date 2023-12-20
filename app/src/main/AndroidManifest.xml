@@ -18,10 +18,17 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.MyChat"
         tools:targetApi="34">
+        <activity
+            android:name=".CustomListMembers"
+            android:exported="false" />
+        <activity
+            android:name=".MembersGroup"
+            android:exported="false" />
+
         <service
             android:name=".MessageNotification"
             android:enabled="true"
-            android:exported="true"></service>
+            android:exported="true" />
 
         <activity
             android:name=".ConversationInformation"

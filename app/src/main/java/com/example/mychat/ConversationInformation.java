@@ -50,8 +50,10 @@ import java.util.Map;
 
 public class ConversationInformation extends BaseActivity {
     String[] items = new String[]{"Change theme", "Media", "Block", "Delete chat"};
+    String[] groupItems =  new String[]{"Change theme", "Media", "Block", "Delete chat", "Chat members", "Add people", "Change chat name", "Change photo", "Leave group"};
     String[] themes = new String[]{"Light Blue", "Nice blue", "Nice green", "Nice Fire", "Nice orange", "Nice pink", "Loso", "Love", "Black heart", "Sweet Chocolate", "Cocacola", "Mochi mochi"};
     Integer[] icons = {R.drawable.ic_theme, R.drawable.ic_picture, R.drawable.ic_block, R.drawable.ic_delete};
+    Integer[] iconsGroup = {R.drawable.ic_theme, R.drawable.ic_picture, R.drawable.ic_block, R.drawable.ic_delete, R.drawable.ic_members, R.drawable.ic_add_user, R.drawable.ic_edit, R.drawable.ic_changephoto, R.drawable.ic_leave};
     Integer[] colors = {R.drawable.ic_light1, R.drawable.ic_light2, R.drawable.ic_light3, R.drawable.ic_dark1, R.drawable.ic_dark2, R.drawable.ic_dark3, R.drawable.theme3d1, R.drawable.theme_love3d, R.drawable.theme_blackheart, R.drawable.theme_socola, R.drawable.theme_cocacola, R.drawable.theme_mochi};
     ListView listView;
     ListView listViewThemes;
@@ -59,6 +61,7 @@ public class ConversationInformation extends BaseActivity {
     ImageView btn_back;
     ImageView profile_image;
     Intent intent;
+    boolean isGroup;
     final FirebaseFirestore db = FirebaseFirestore.getInstance();
     private boolean isUserBlocked; //Biến để kiểm tra user có bị lock hay không
     @Override
@@ -71,7 +74,8 @@ public class ConversationInformation extends BaseActivity {
         intent = getIntent();
         String name = intent.getStringExtra("user_name");
         String myID = intent.getStringExtra("my_id");    //Nhận id của mình
-        String userID = intent.getStringExtra("user_id");//Nhận id của người chat với mình
+        String userID = intent.getStringExtra("user_id");//Nhận id của người chat với mình or ID của group
+        isGroup = intent.getBooleanExtra("check_group", true);
 
         //Set avatar của receiver
         profile_image = findViewById(R.id.profile_image);
@@ -83,8 +87,12 @@ public class ConversationInformation extends BaseActivity {
         txtUserName.setText(name);
 
         listView = findViewById(R.id.listView);
-        checkUserBlocked(myID, userID);
-
+        if(isGroup){
+            CustomListMore adapter = new CustomListMore(ConversationInformation.this, R.layout.custom_listview_more, groupItems, iconsGroup);
+            listView.setAdapter(adapter);
+        } else {
+            checkUserBlocked(myID, userID);
+        }
 
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -100,6 +108,23 @@ public class ConversationInformation extends BaseActivity {
                         break;
                     case 3:
                         showDeleteConfirmationDialog(myID, userID);
+                        break;
+                    case 4:
+                        Intent intentMembers = new Intent(ConversationInformation.this, MembersGroup.class);
+                        intentMembers.putExtra("groupID", userID);
+                        ConversationInformation.this.startActivity(intentMembers);
+                        break;
+                    case 5:
+
+                        break;
+                    case 6:
+
+                        break;
+                    case 7:
+
+                        break;
+                    case 8:
+                       
                         break;
 
                 }
@@ -136,11 +161,9 @@ public class ConversationInformation extends BaseActivity {
                         }
 
                         if(isUserBlocked){
-                            //Toast.makeText(getApplicationContext(), "isBlock", Toast.LENGTH_SHORT).show();
                             items[2] = "Unblock";
                         }
                         else {
-                            //Toast.makeText(getApplicationContext(), "isNotBlock", Toast.LENGTH_SHORT).show();
                             items[2] = "Block";
                         }
                         CustomListMore adapter = new CustomListMore(ConversationInformation.this, R.layout.custom_listview_more, items, icons);

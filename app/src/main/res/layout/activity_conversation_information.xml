@@ -19,7 +19,7 @@
         android:layout_marginRight="10dp">
     </ImageView>
 
-    <ImageView
+    <de.hdodenhof.circleimageview.CircleImageView
         android:layout_width="100dp"
         android:layout_height="100dp"
         android:layout_marginTop="20dp"
@@ -27,7 +27,7 @@
         android:scaleType="centerCrop"
         android:id="@+id/profile_image"
         android:src="@drawable/ic_avt">
-    </ImageView>
+    </de.hdodenhof.circleimageview.CircleImageView>
 
     <TextView
         style="@style/TEXT"
