@@ -4,15 +4,19 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.media.MediaPlayer;
 import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebView;
 import android.widget.ImageView;
+import android.widget.MediaController;
 import android.widget.RelativeLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
+import android.widget.VideoView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -81,6 +85,7 @@ public class MessageGroupAdapter extends RecyclerView.Adapter<MessageGroupAdapte
 
         if (message.getType() != null) {
             if (message.getType().equals("image")) {
+                holder.videolayout.setVisibility(View.GONE);
                 holder.show_file.setVisibility(View.GONE);
                 holder.show_image.setVisibility(View.VISIBLE);
                 RelativeLayout.LayoutParams txtShowTime = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
@@ -92,8 +97,34 @@ public class MessageGroupAdapter extends RecyclerView.Adapter<MessageGroupAdapte
                 holder.show_time.setText(dateString);
                 Glide.with(mContext).load(message.getMessage()).into(holder.show_image);
 
-            } else if (message.getType().equals("file") || message.getType().equals("pdf") || message.getType().equals("txt")) {
+            }else if (message.getType().equals("video")){
+                    holder.show_file.setVisibility(View.GONE);
+                    holder.show_image.setVisibility(View.GONE);
+                    holder.videolayout.setVisibility(View.VISIBLE);
+
+                    Uri videoUri = Uri.parse(message.getMessage());
+//                MediaController mediaController = new MediaController(mContext);
+//
+//                mediaController.setAnchorView(holder.show_video);
+//                holder.show_video.setMediaController(mediaController);
+
+                    // Set the video URI and start playback
+                    holder.show_video.setVideoURI(videoUri);
+                    holder.show_video.start();
+
+                    // Set an error listener to handle any playback errors
+                    holder.show_video.setOnErrorListener(new MediaPlayer.OnErrorListener() {
+                        @Override
+                        public boolean onError(MediaPlayer mediaPlayer, int what, int extra) {
+                            Toast.makeText(mContext,"Error display video",Toast.LENGTH_SHORT);
+                            return false;
+                        }
+                    });
+                }
+             else if (message.getType().equals("file") || message.getType().equals("pdf") || message.getType().equals("txt")) {
                 holder.show_image.setVisibility(View.GONE);
+                holder.videolayout.setVisibility(View.GONE);
+
                 holder.show_file.setVisibility(View.VISIBLE);
                 if (message.getTitle() != null) {
                     holder.title_file.setText(message.getTitle());
@@ -134,6 +165,8 @@ public class MessageGroupAdapter extends RecyclerView.Adapter<MessageGroupAdapte
             } else {
                 holder.show_file.setVisibility(View.GONE);
                 holder.show_image.setVisibility(View.GONE);
+                holder.videolayout.setVisibility(View.GONE);
+
                 holder.show_message.setText(message.getMessage());
                 holder.show_time.setText(dateString);
 
@@ -141,6 +174,8 @@ public class MessageGroupAdapter extends RecyclerView.Adapter<MessageGroupAdapte
         } else {
 
             holder.show_image.setVisibility(View.GONE);
+            holder.videolayout.setVisibility(View.GONE);
+
             holder.show_message.setText(message.getMessage());
             holder.show_time.setText(dateString);
 
@@ -200,9 +235,20 @@ public class MessageGroupAdapter extends RecyclerView.Adapter<MessageGroupAdapte
         public LinearLayout show_file;
 
         public WebView webView;
+        public RelativeLayout videolayout;
+        public VideoView show_video;
+        MediaController mediaController;
+
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
+            videolayout=itemView.findViewById(R.id.videoLayout);
+
+            show_video = itemView.findViewById(R.id.videoView);
+            mediaController = new MediaController(show_video.getContext());
+
+            show_video.setMediaController(mediaController);
+            mediaController.setAnchorView(show_video);
             show_image = itemView.findViewById(R.id.show_image);
             show_message = itemView.findViewById(R.id.show_message);
             profile_image = itemView.findViewById(R.id.profile_image);
