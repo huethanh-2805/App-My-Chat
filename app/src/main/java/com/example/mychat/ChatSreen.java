@@ -14,6 +14,7 @@ import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.ContentResolver;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
@@ -25,6 +26,11 @@ import android.os.Bundle;
 
 import android.provider.OpenableColumns;
 
+import android.database.ContentObserver;
+import android.net.Uri;
+import android.os.Bundle;
+import android.os.Handler;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
 import android.webkit.MimeTypeMap;
@@ -73,7 +79,6 @@ import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class  ChatSreen extends BaseActivity {
-
 
     private static final int PICK_IMAGE_REQUEST = 1;
 
@@ -130,6 +135,9 @@ public class  ChatSreen extends BaseActivity {
     private List<Message> unsentMessages = new ArrayList<>(); // Danh sách tạm tin nhắn chưa gửi
     private boolean isNetworkConnected;
 
+    private ScreenshotDetector screenshotDetector;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         // Đặt theme trước khi gọi setContentView
@@ -175,6 +183,8 @@ public class  ChatSreen extends BaseActivity {
         Intent serviceIntent = new Intent(this, MessageNotification.class);
         serviceIntent.putExtra("otherUser", userReceiverID);
         startService(serviceIntent);
+        screenshotDetector = new ScreenshotDetector(this, fUser.getUid(), userReceiverID);
+
     }
 
     private void getInfo() {
@@ -422,6 +432,7 @@ private void getUidAndImgMember(List<DocumentReference> members, MemberInfoCallb
         Intent serviceIntent = new Intent(this, MessageNotification.class);
         serviceIntent.putExtra("otherUser", userReceiverID);
         startService(serviceIntent);
+        //
     }
 }
 
@@ -720,6 +731,8 @@ private void getUidAndImgMember(List<DocumentReference> members, MemberInfoCallb
         Intent serviceIntent = new Intent(this, MessageNotification.class);
         serviceIntent.putExtra("otherUser", userReceiverID);
         startService(serviceIntent);
+        //
+        screenshotDetector.start();
     }
 
 
@@ -1145,5 +1158,7 @@ private void getUidAndImgMember(List<DocumentReference> members, MemberInfoCallb
         Intent serviceIntent = new Intent(this, MessageNotification.class);
         serviceIntent.putExtra("otherUser", "");
         startService(serviceIntent);
+        //
+        screenshotDetector.stop();
     }
 }
