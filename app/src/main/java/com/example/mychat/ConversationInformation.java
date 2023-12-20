@@ -11,7 +11,10 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
+import android.util.TypedValue;
+import android.view.Gravity;
 import android.view.View;
 
 import android.widget.AdapterView;
@@ -20,19 +23,23 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 
+import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 //import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
+import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -64,6 +71,7 @@ public class ConversationInformation extends BaseActivity {
     boolean isGroup;
     final FirebaseFirestore db = FirebaseFirestore.getInstance();
     private boolean isUserBlocked; //Biến để kiểm tra user có bị lock hay không
+    String userID;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -74,7 +82,7 @@ public class ConversationInformation extends BaseActivity {
         intent = getIntent();
         String name = intent.getStringExtra("user_name");
         String myID = intent.getStringExtra("my_id");    //Nhận id của mình
-        String userID = intent.getStringExtra("user_id");//Nhận id của người chat với mình or ID của group
+        userID = intent.getStringExtra("user_id");//Nhận id của người chat với mình or ID của group
         isGroup = intent.getBooleanExtra("check_group", true);
 
         //Set avatar của receiver
@@ -118,13 +126,13 @@ public class ConversationInformation extends BaseActivity {
 
                         break;
                     case 6:
-
+                        showEditName(name);
                         break;
                     case 7:
 
                         break;
                     case 8:
-                       
+
                         break;
 
                 }
@@ -141,6 +149,86 @@ public class ConversationInformation extends BaseActivity {
             }
         });
 
+    }
+
+    private void showEditName(String currentName) {
+        androidx.appcompat.app.AlertDialog.Builder builder = new androidx.appcompat.app.AlertDialog.Builder(ConversationInformation.this);
+
+        // Tạo LinearLayout để chứa TextInputLayout và EditText
+        LinearLayout layout = new LinearLayout(ConversationInformation.this);
+        layout.setOrientation(LinearLayout.VERTICAL);
+
+        // Tạo TextView để làm title
+        TextView titleTextView = new TextView(ConversationInformation.this);
+        titleTextView.setText("Change chat name");
+        titleTextView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20);
+        titleTextView.setTextColor(ContextCompat.getColor(ConversationInformation.this, R.color.blue));
+        titleTextView.setGravity(Gravity.CENTER);
+        titleTextView.setPadding(0, 20, 0, 20); // Điều chỉnh padding nếu cần
+        layout.addView(titleTextView);
+
+
+        TextInputLayout textInputLayout = new TextInputLayout(ConversationInformation.this);
+        final EditText input = new EditText(ConversationInformation.this);
+        input.setText(currentName);
+
+        textInputLayout.setHint("Enter new name");
+        textInputLayout.addView(input);
+
+        layout.addView(textInputLayout);
+        builder.setView(layout);
+
+        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                String newUsername = input.getText().toString().trim();
+
+                if (!TextUtils.isEmpty(newUsername)) {
+                    txtUserName.setText(newUsername);
+                    updateUsernameInGroup(newUsername);
+                } else {
+                    Toast.makeText(ConversationInformation.this, "Please enter a new username", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+
+        androidx.appcompat.app.AlertDialog alertDialog = builder.create();
+        alertDialog.show();
+    }
+
+    //Cập nhật lại Username của Group
+    private void updateUsernameInGroup(String newUsername) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        Map<String, Object> updateData = new HashMap<>();
+        updateData.put("username", newUsername);
+
+        db.collection("groups")
+                .document(userID)
+                .update(updateData)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Toast.makeText(ConversationInformation.this, "Failed to update username", Toast.LENGTH_SHORT).show();
+                    }
+                });
+
+        // Tạo Intent để truyền dữ liệu trả về
+        Intent resultIntent = new Intent();
+        resultIntent.putExtra("updatedUsername", newUsername);
+        setResult(RESULT_OK, resultIntent);
     }
 
     private void checkUserBlocked(String myID, String userID){

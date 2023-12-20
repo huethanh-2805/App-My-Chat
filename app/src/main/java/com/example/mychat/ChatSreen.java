@@ -136,6 +136,7 @@ public class  ChatSreen extends BaseActivity {
     private boolean isNetworkConnected;
 
     private ScreenshotDetector screenshotDetector;
+    private static final int REQUEST_CODE_CONVERSATION_INFO = 1001; // Chọn một số bất kỳ
 
 
     @Override
@@ -279,6 +280,7 @@ public class  ChatSreen extends BaseActivity {
                                     intent.putExtra("my_id", fUser.getUid()); //Gửi id của mình
                                     intent.putExtra("user_id", userReceiverID); //Gửi id của người chat với mình
                                     intent.putExtra("avatarUrl", avatar); //Gửi avatar
+                                    startActivityForResult(intent, REQUEST_CODE_CONVERSATION_INFO);
 
                                     //Gửi check group
                                     if(isGroup){
@@ -334,7 +336,8 @@ public class  ChatSreen extends BaseActivity {
                                             intent.putExtra("my_id", fUser.getUid());
                                             intent.putExtra("user_id", userReceiverID);
                                             intent.putExtra("avatarUrl", avatar);
-                                            ChatSreen.this.startActivity(intent);
+                                            //ChatSreen.this.startActivity(intent);
+                                            startActivityForResult(intent, REQUEST_CODE_CONVERSATION_INFO);
                                         }
                                     });
                                     username.setText(name);
@@ -544,6 +547,17 @@ private void getUidAndImgMember(List<DocumentReference> members, MemberInfoCallb
                 }
                 else if (fileExtension.equals("mp4")){
                     uploadVideoToStorage();
+                }
+            }
+        }
+
+        if (requestCode == REQUEST_CODE_CONVERSATION_INFO && resultCode == RESULT_OK) {
+            // Xử lý dữ liệu trả về từ ConversationInformation
+            if (data != null) {
+                String updatedUsername = data.getStringExtra("updatedUsername");
+                if (updatedUsername != null) {
+                    // Cập nhật username ở đây
+                    username.setText(updatedUsername);
                 }
             }
         }
