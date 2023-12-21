@@ -7,7 +7,7 @@
     android:orientation="vertical"
     android:layout_marginRight="20dp"
     android:layout_marginLeft="20dp"
-    tools:context=".ContactActivity"
+    tools:context=".fragment.ContactFragment"
     android:animateLayoutChanges="true">
     <LinearLayout
         android:padding="10dp"

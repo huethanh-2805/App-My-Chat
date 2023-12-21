@@ -11,7 +11,7 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
     <application
-        android:name=".MyChat"
+        android:name=".others.MyChat"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -22,31 +22,31 @@
         android:theme="@style/Theme.MyChat"
         tools:targetApi="34">
         <activity
-            android:name=".CustomListMembers"
+            android:name=".custom.CustomListMembers"
             android:exported="false" />
         <activity
-            android:name=".MembersGroup"
+            android:name=".activity.MembersGroupActivity"
             android:exported="false" />
 
         <service
-            android:name=".MessageNotification"
+            android:name=".service.MessageNotification"
             android:enabled="true"
             android:exported="true" />
 
         <activity
-            android:name=".ConversationInformation"
+            android:name=".activity.ConversationInformationActivity"
             android:exported="false" />
         <activity
-            android:name=".AppearanceActivity"
+            android:name=".activity.AppearanceActivity"
             android:exported="true" />
         <activity
-            android:name=".ChatSreen"
+            android:name=".activity.main.ChatSreenActivity"
             android:exported="true" />
         <activity
-            android:name=".MainFragment"
+            android:name=".fragment.MainFragment"
             android:exported="true" />
         <activity
-            android:name=".SignupActivity"
+            android:name=".activity.main.SignupActivity"
             android:exported="true">
             <intent-filter>
                 <data
@@ -55,37 +55,38 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".GettingStartedActivity"
+            android:name=".activity.main.GettingStartedActivity"
             android:exported="true" />
         <activity
-            android:name=".LoginActivity"
+            android:name=".activity.main.LoginActivity"
             android:exported="true" />
         <activity
-            android:name=".ForgotPasswordActivity"
+            android:name=".activity.ForgotPasswordActivity"
             android:exported="true" />
         <activity
-            android:name=".MoreActivity"
+            android:name=".fragment.MoreFragment"
             android:exported="true" />
         <activity
-            android:name=".ChatActivity"
+            android:name=".activity.AddNewMember"
             android:exported="true" />
         <activity
-            android:name=".ContactActivity"
+            android:name=".fragment.ChatFragment"
             android:exported="true" />
         <activity
-            android:name=".AddContactActivity"
+            android:name=".fragment.ContactFragment"
             android:exported="true" />
         <activity
-            android:name=".AddGroupActivity"
+            android:name=".activity.AddContactActivity"
             android:exported="true" />
         <activity
-            android:name=".ChangeProfileActivity"
+            android:name=".activity.AddGroupActivity"
             android:exported="true" />
         <activity
-            android:name=".AddNewMember"
+            android:name=".activity.ChangeProfileActivity"
             android:exported="true" />
+
         <activity
-            android:name=".MainActivity"
+            android:name=".activity.main.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -95,7 +96,7 @@
         </activity>
 
         <service
-            android:name=".MyFirebaseMessagingService"
+            android:name=".service.MyFirebaseMessagingService"
             android:directBootAware="true"
             android:exported="false">
             <intent-filter>
@@ -116,7 +117,7 @@
         <!-- </intent-filter> -->
         <!-- </activity> -->
         <receiver
-            android:name=".NetworkChangeReceiver"
+            android:name=".activity.main.ChatSreenActivity$NetworkChangeReceiver"
             android:enabled="true"
             android:exported="false">
             <intent-filter>
