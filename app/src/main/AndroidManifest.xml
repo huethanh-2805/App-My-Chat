@@ -82,6 +82,9 @@
             android:name=".ChangeProfileActivity"
             android:exported="true" />
         <activity
+            android:name=".AddNewMember"
+            android:exported="true" />
+        <activity
             android:name=".MainActivity"
             android:exported="true">
             <intent-filter>

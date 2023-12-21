@@ -94,7 +94,6 @@ public class ContactActivity extends Fragment implements View.OnClickListener, A
         imgNewContact.setOnClickListener(this);
         txtStatus = layout_contact.findViewById(R.id.txtStatus);
         getListUserFromDatabase();
-
         searchUserWithUserName();
         return layout_contact;
     }

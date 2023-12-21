@@ -1,13 +1,7 @@
 package com.example.mychat;
 
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.app.AppCompatDelegate;
-
 import android.app.AlertDialog;
-
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -16,13 +10,7 @@ import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
-
 import android.widget.AdapterView;
-
-import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -30,8 +18,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-//import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
+import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -40,6 +27,8 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.google.android.material.textfield.TextInputLayout;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -123,7 +112,9 @@ public class ConversationInformation extends BaseActivity {
                         ConversationInformation.this.startActivity(intentMembers);
                         break;
                     case 5:
-
+                        Intent intentAddMember=new Intent(ConversationInformation.this,AddNewMember.class);
+                        intentAddMember.putExtra("groupId",userID);
+                        ConversationInformation.this.startActivity(intentAddMember);
                         break;
                     case 6:
                         showEditName(name);
@@ -132,7 +123,22 @@ public class ConversationInformation extends BaseActivity {
 
                         break;
                     case 8:
+                        AlertDialog.Builder myBuilder = new AlertDialog.Builder(ConversationInformation.this);
+                        myBuilder.setIcon(R.drawable.ic_noti)
+                                .setTitle("Leave chat?")
+                                .setMessage("Đoạn tin nhắn này sẽ biến mất. Bạn sẽ không nhận được bất cứ tin nhắn nào nữa.")
+                                .setPositiveButton("Close", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
 
+                                    }
+                                })
+                                .setNegativeButton("Leave", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialogInterface, int i) {
+                                        leaveChat();
+                                    }})
+                                .show();
                         break;
 
                 }
@@ -150,6 +156,89 @@ public class ConversationInformation extends BaseActivity {
         });
 
     }
+
+    private void leaveChat(){
+        FirebaseFirestore ff = FirebaseFirestore.getInstance();
+        CollectionReference contactCollection = ff.collection("groups");
+        DocumentReference groupDocument = contactCollection.document(userID);
+        FirebaseUser fUser = FirebaseAuth.getInstance().getCurrentUser();
+
+        String uidToRemove=fUser.getUid();
+        DocumentReference userReferenceToRemove = ff.collection("users").document(uidToRemove);
+
+        groupDocument.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot documentSnapshot = task.getResult();
+                    if (documentSnapshot.exists()) {
+                        List<DocumentReference> members = (List<DocumentReference>) documentSnapshot.get("member");
+                        if (members == null) {
+                            return;
+                        }
+                        // Xóa DocumentReference cụ thể khỏi danh sách members
+                        members.remove(userReferenceToRemove);
+                        Map<String, Object> data = new HashMap<>();
+                        data.put("member", members);
+
+                        // Sử dụng merge() để chỉ cập nhật trường 'member' mà không thay đổi các trường khác
+                        groupDocument.set(data, SetOptions.merge())
+                                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<Void> task) {
+                                        removeGroupContact();
+                                    }
+                                });
+                    }
+                }
+            }
+        });
+    }
+
+    private void removeGroupContact(){
+        FirebaseFirestore ff = FirebaseFirestore.getInstance();
+        FirebaseUser fUser = FirebaseAuth.getInstance().getCurrentUser();
+
+        CollectionReference contactCollection = ff.collection("contact");
+        DocumentReference groupDocument = contactCollection.document(fUser.getUid());
+
+
+        String uidToRemove=userID;
+        DocumentReference groupReferenceToRemove = ff.collection("groups").document(uidToRemove);
+
+        groupDocument.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot documentSnapshot = task.getResult();
+                    if (documentSnapshot.exists()) {
+                        List<DocumentReference> groups = (List<DocumentReference>) documentSnapshot.get("groups");
+                        if (groups == null) {
+                            return;
+                        }
+                        // Xóa DocumentReference cụ thể khỏi danh sách members
+                        groups.remove(groupReferenceToRemove);
+                        Map<String, Object> data = new HashMap<>();
+                        data.put("groups", groups);
+
+                        // Sử dụng merge() để chỉ cập nhật trường 'member' mà không thay đổi các trường khác
+                        groupDocument.set(data, SetOptions.merge())
+                                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<Void> task) {
+                                        // Xử lý khi cập nhật thành công
+                                        Toast.makeText(ConversationInformation.this,"Leaved chat",Toast.LENGTH_SHORT).show();
+                                        Intent intent=new Intent(ConversationInformation.this,MainFragment.class);
+                                        startActivity(intent);
+
+                                    }
+                                });
+                    }
+                }
+            }
+        });
+    }
+
 
     private void showEditName(String currentName) {
         androidx.appcompat.app.AlertDialog.Builder builder = new androidx.appcompat.app.AlertDialog.Builder(ConversationInformation.this);
