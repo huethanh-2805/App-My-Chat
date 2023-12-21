@@ -6,6 +6,7 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.USE_NOTIFICATIONS" />
 
     <application
         android:name=".MyChat"
@@ -18,10 +19,14 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.MyChat"
         tools:targetApi="34">
+        <activity
+            android:name=".MediaGridActivity"
+            android:exported="false" />
+
         <service
             android:name=".MessageNotification"
             android:enabled="true"
-            android:exported="true"></service>
+            android:exported="true" />
 
         <activity
             android:name=".ConversationInformation"

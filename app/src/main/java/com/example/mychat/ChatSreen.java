@@ -172,9 +172,6 @@ public class  ChatSreen extends BaseActivity {
         getInfo();
         setThemeBasedOnSelectedTheme();
         getStatus();
-        Intent serviceIntent = new Intent(this, MessageNotification.class);
-        serviceIntent.putExtra("otherUser", userReceiverID);
-        startService(serviceIntent);
     }
 
     private void getInfo() {
@@ -269,6 +266,7 @@ public class  ChatSreen extends BaseActivity {
                                     intent.putExtra("my_id", fUser.getUid()); //Gửi id của mình
                                     intent.putExtra("user_id", userReceiverID); //Gửi id của người chat với mình
                                     intent.putExtra("avatarUrl", avatar); //Gửi avatar
+                                    intent.putExtra("isGroup",isGroup);
                                     ChatSreen.this.startActivity(intent);
                                 }
                             });
@@ -410,11 +408,6 @@ private void getUidAndImgMember(List<DocumentReference> members, MemberInfoCallb
         intentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
         NetworkChangeReceiver networkChangeReceiver = new NetworkChangeReceiver();
         registerReceiver(networkChangeReceiver, intentFilter);
-
-        //
-        Intent serviceIntent = new Intent(this, MessageNotification.class);
-        serviceIntent.putExtra("otherUser", userReceiverID);
-        startService(serviceIntent);
     }
 }
 
@@ -667,9 +660,8 @@ private void getUidAndImgMember(List<DocumentReference> members, MemberInfoCallb
         messageData.put("type", "video");
 
         usersCollection.add(messageData);
-        //add to notification
-        CollectionReference notifyCollection = db.collection("notification");
-        notifyCollection.add(messageData);
+        //add notification
+        sendNotification(sender,receiver,isGroup);
     }
 
     private void sendImage(String sender, String receiver, String message) {
@@ -684,9 +676,8 @@ private void getUidAndImgMember(List<DocumentReference> members, MemberInfoCallb
         messageData.put("type", "image");
 
         usersCollection.add(messageData);
-        //add to notification
-        CollectionReference notifyCollection = db.collection("notification");
-        notifyCollection.add(messageData);
+        //add notification
+        sendNotification(sender,receiver,isGroup);
     }
 
     private void sendFile(String sender, String receiver, String message) {
@@ -702,6 +693,9 @@ private void getUidAndImgMember(List<DocumentReference> members, MemberInfoCallb
         messageData.put("type", getFileExtension(filePath));
 
         usersCollection.add(messageData);
+
+        //add notification
+        sendNotification(sender,receiver,isGroup);
     }
 
 
@@ -709,10 +703,6 @@ private void getUidAndImgMember(List<DocumentReference> members, MemberInfoCallb
     protected void onResume() {
         super.onResume();
         setThemeBasedOnSelectedTheme();
-        //
-        Intent serviceIntent = new Intent(this, MessageNotification.class);
-        serviceIntent.putExtra("otherUser", userReceiverID);
-        startService(serviceIntent);
     }
 
 
@@ -732,8 +722,7 @@ private void getUidAndImgMember(List<DocumentReference> members, MemberInfoCallb
 
         usersCollection.add(messageData);
         //add notification
-        CollectionReference notifyCollection = db.collection("notification");
-        notifyCollection.add(messageData);
+        sendNotification(sender,receiver,isGroup);
     }
 
     private void handleSendMessage() {
@@ -952,7 +941,7 @@ private void getUidAndImgMember(List<DocumentReference> members, MemberInfoCallb
     private String messageID;
 
     private void findDocumentMessageId(Message mess) {
-        FirebaseFirestore firestore=FirebaseFirestore.getInstance();
+        FirebaseFirestore firestore =FirebaseFirestore.getInstance();
         CollectionReference cre = firestore.collection("messages");
 
         cre.whereEqualTo("message", mess.getMessage())
@@ -1008,7 +997,6 @@ private void getUidAndImgMember(List<DocumentReference> members, MemberInfoCallb
 
                     }
 
-
                 })
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
@@ -1056,9 +1044,6 @@ private void getUidAndImgMember(List<DocumentReference> members, MemberInfoCallb
     }
 
     // Hàm để xóa tin nhắn từ Firestore và cập nhật RecyclerView
-
-
-
 
     @SuppressLint("ResourceAsColor")
     private void setThemeBasedOnSelectedTheme() {
@@ -1135,8 +1120,50 @@ private void getUidAndImgMember(List<DocumentReference> members, MemberInfoCallb
     @Override
     protected void onPause() {
         super.onPause();
-        Intent serviceIntent = new Intent(this, MessageNotification.class);
-        serviceIntent.putExtra("otherUser", "");
-        startService(serviceIntent);
+    }
+
+    protected void sendNotification(String sender, String receiver, boolean isGroup) {
+        if (!isGroup) {
+            CollectionReference notificationCollection = db.collection("notification");
+            //
+            HashMap<String, Object> notification = new HashMap<>();
+            Timestamp timestamp = Timestamp.now();
+            //
+            notification.put("sender", sender);
+            notification.put("receiver", receiver);
+            notification.put("isGroup", false);
+            notification.put("timestamp", timestamp);
+            //
+            notificationCollection.add(notification);
+        }
+        else {//isGroup, receiver is group id BUT IN NOTIFICATION GROUP BECOME SENDER
+            DocumentReference docRef = db.collection("groups").document(receiver);
+            docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                    if (task.isSuccessful()) {
+                        DocumentSnapshot groupSnapshot = task.getResult();
+                        if (groupSnapshot.exists()) {
+                            ArrayList<String> members = (ArrayList<String>) groupSnapshot.get("member");
+                            for (String member : members) {
+                                if (!member.equals(sender)) {//gửi thông báo cho tất cả thành viên trong nhóm trừ người gửi
+                                    CollectionReference notificationCollection = db.collection("notification");
+                                    //
+                                    HashMap<String, Object> notification = new HashMap<>();
+                                    Timestamp timestamp = Timestamp.now();
+                                    //
+                                    notification.put("sender", receiver); //xem như group là người gửi
+                                    notification.put("receiver", member);
+                                    notification.put("isGroup", true);
+                                    notification.put("timestamp", timestamp);
+                                    //
+                                    notificationCollection.add(notification);
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
     }
 }

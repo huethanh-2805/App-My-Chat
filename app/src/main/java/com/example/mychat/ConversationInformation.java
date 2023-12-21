@@ -72,6 +72,7 @@ public class ConversationInformation extends BaseActivity {
         String name = intent.getStringExtra("user_name");
         String myID = intent.getStringExtra("my_id");    //Nhận id của mình
         String userID = intent.getStringExtra("user_id");//Nhận id của người chat với mình
+        boolean isGroup = intent.getBooleanExtra("isGroup", false);
 
         //Set avatar của receiver
         profile_image = findViewById(R.id.profile_image);
@@ -94,6 +95,7 @@ public class ConversationInformation extends BaseActivity {
                         showThemeSelectionDialog();
                         break;
                     case 1:
+                        showMediaGrid(name, myID, userID, isGroup);
                         break;
                     case 2:
                         showBlockConfirmationDialog(myID, userID, name);
@@ -101,7 +103,6 @@ public class ConversationInformation extends BaseActivity {
                     case 3:
                         showDeleteConfirmationDialog(myID, userID);
                         break;
-
                 }
             }
         });
@@ -419,6 +420,15 @@ public class ConversationInformation extends BaseActivity {
     private void applyTheme(int themeIndex) {
         ThemeHelper.saveSelectedTheme(this, themeIndex);
         recreate(); // Recreate the activity to apply the new theme
+    }
+
+    private void showMediaGrid(String username, String myId, String userId, boolean isGroup){
+        Intent intent = new Intent(this, MediaGridActivity.class);
+        intent.putExtra("user_name",username);
+        intent.putExtra("my_id", myId);
+        intent.putExtra("user_id", userId);
+        intent.putExtra("isGroup", isGroup);
+        ConversationInformation.this.startActivity(intent);
     }
 
 }
