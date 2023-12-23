@@ -2,11 +2,14 @@ package com.example.mychat;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.Toast;
@@ -28,7 +31,7 @@ import java.util.Arrays;
 
 public class MediaGridActivity extends AppCompatActivity {
     Context context;
-    private GridView gridView;
+    private RecyclerView recyclerView;
     private GridViewAdapter gridViewAdapter;
     private ImageView btn_back;
 
@@ -39,14 +42,16 @@ public class MediaGridActivity extends AppCompatActivity {
     String userID;
     boolean isGroup;
 
-    ArrayList<String> grid;
+    ArrayList<String> uriList;
+    ArrayList<String> typeList;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_media_grid);
         //
         btn_back = findViewById(R.id.back);
-        gridView = findViewById(R.id.gridView);
+        recyclerView = findViewById(R.id.recyclerView);
         //
         context = getApplicationContext();
         intent = getIntent();
@@ -54,45 +59,51 @@ public class MediaGridActivity extends AppCompatActivity {
         myID = intent.getStringExtra("my_id");
         userID = intent.getStringExtra("user_id");
         isGroup = intent.getBooleanExtra("isGroup",false);
-        //
+        //set up grid 3 cột
+        GridLayoutManager gridManager = new GridLayoutManager(MediaGridActivity.this, 3);
+        recyclerView.setLayoutManager(gridManager);
         //Toast.makeText(context,myID + " " + userID, Toast.LENGTH_SHORT).show();
         //if (!isGroup) Toast.makeText(context,"NOT GROUP", Toast.LENGTH_SHORT).show();
         //
-        grid = new ArrayList<String>();
-        //
         showMediaGridView(myID,userID);
+        //
+        btn_back.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
     }
     protected void showMediaGridView(String myID, String userID) {//userID can be group id
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        //
-        String string = "https://firebasestorage.googleapis.com/v0/b/mychat-7f8c6.appspot.com/o/images%2F1701674431709.jpg?alt=media&token=b9305495-0958-41ab-a107-ae5500e7367c";
-        grid.add(string);
-        gridViewAdapter = new GridViewAdapter(MediaGridActivity.this, grid);
-        gridView.setAdapter(gridViewAdapter);
-
-        if(!isGroup) return;
         //get MESSAGE collection
         CollectionReference ref = db.collection("messages");
         //
-        Query query = ref.whereIn("receiver", Arrays.asList(myID, userID))
+        Query query;
+        if (isGroup) query = ref.whereIn("receiver", Arrays.asList(myID, userID))
+                .orderBy("timestamp", Query.Direction.DESCENDING);
+        else query = ref.whereIn("receiver", Arrays.asList(myID, userID))
                 .whereIn("sender", Arrays.asList(myID, userID))
                 .orderBy("timestamp", Query.Direction.DESCENDING);
-        //
         Task<QuerySnapshot> task = query.get();
         task.addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if (task.isSuccessful()) {
                     QuerySnapshot querySnapshot = task.getResult();
+                    uriList = new ArrayList<String>();
+                    typeList = new ArrayList<String>();
                     for (QueryDocumentSnapshot d : querySnapshot) {
                         String type = d.getString("type");
-                        String link = d.getString("message");
-                        if (type.equals("video") || type.equals("image")) {
-                            //Toast.makeText(context,link, Toast.LENGTH_SHORT).show();
-                            grid.add(link);
+                        if (type.equals("image") || type.equals("video")) {
+                            String link = d.getString("message");
+                            uriList.add(link);
+                            typeList.add(type);
                         }
                     }
-                    gridViewAdapter.notifyDataSetChanged();
+                    //
+                    gridViewAdapter = new GridViewAdapter(MediaGridActivity.this, uriList, typeList);
+                    recyclerView.setAdapter(gridViewAdapter);
                 } else {
                     Toast.makeText(context,"fail", Toast.LENGTH_SHORT).show();
                 }
