@@ -46,6 +46,7 @@ public class MessageNotification extends Service {
 
     String currentUser;
     //
+    boolean isGroup;
     private NotificationManagerCompat notificationManager;
     public MessageNotification() {
     }
@@ -86,7 +87,11 @@ public class MessageNotification extends Service {
                                 DocumentReference notifyDoc = db.collection("notification").document(idNotification);
                                 //lấy thông tin người gửi, check xem tin nhắn có phải từ nhóm hay không
                                 String sender = docSnap.getString("sender");
-                                boolean isGroup = docSnap.getString("isGroup").equals("true");
+                                String groupCheck = docSnap.getString("isGroup");
+                                //
+                                isGroup = false;
+                                assert groupCheck != null;
+                                if (groupCheck.equals("true")) isGroup = true;
                                 DocumentReference userDoc;
                                 if (isGroup) userDoc = db.collection("groups").document(sender);
                                 else userDoc = db.collection("users").document(sender);
@@ -98,7 +103,7 @@ public class MessageNotification extends Service {
                                             if (userSnapshot.exists()) {
                                                 String sendername = userSnapshot.getString("username");
                                                 checkToSend(sendername, sender, isGroup);
-                                                MessageNotification.this.notify();
+                                                //MessageNotification.this.notify();
                                             }
                                         }
                                     }
