@@ -134,6 +134,11 @@ public class ConversationInformationActivity extends BaseActivity {
                         showEditName(name);
                         break;
                     case 7:
+                        finish();
+                        Intent intent2=new Intent(ConversationInformationActivity.this, ChangeImageGroupActivity.class);
+                        intent2.putExtra("groupId",userID);
+                        startActivity(intent2);
+
                         break;
                     case 8:
                         AlertDialog.Builder myBuilder = new AlertDialog.Builder(ConversationInformationActivity.this);

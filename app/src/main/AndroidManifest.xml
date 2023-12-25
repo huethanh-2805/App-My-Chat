@@ -37,7 +37,10 @@
             android:name=".activity.MediaGridActivity"
 
             android:exported="false" />
+        <activity
+            android:name=".activity.ChangeImageGroupActivity"
 
+            android:exported="false" />
         <service
             android:name=".service.MessageNotification"
             android:enabled="true"

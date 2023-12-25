@@ -291,7 +291,7 @@ public class AddGroupActivity extends Activity implements View.OnClickListener {
         groupInfo.put("creator", auth.getCurrentUser().getUid() );
         groupInfo.put("member", userReferences);
         groupInfo.put("timestamp",timestamp);
-        groupInfo.put("avatarUrl","https://firebasestorage.googleapis.com/v0/b/mychat-7f8c6.appspot.com/o/images%2F1701658755851.jpg?alt=media&token=c256c427-9a37-4c12-bafe-73b78fe6d3a4");
+        groupInfo.put("avatarUrl","https://firebasestorage.googleapis.com/v0/b/mychat-7f8c6.appspot.com/o/images%2Fic_avt.png?alt=media&token=bdee67b4-9273-4176-a185-24806ef76ced");
 
         groupCollection.add(groupInfo)
                 .addOnSuccessListener(documentReference -> {
