@@ -86,7 +86,7 @@ public class MessageNotification extends Service {
                                 DocumentReference notifyDoc = db.collection("notification").document(idNotification);
                                 //lấy thông tin người gửi, check xem tin nhắn có phải từ nhóm hay không
                                 String sender = docSnap.getString("sender");
-                                boolean isGroup = docSnap.getBoolean("isGroup");
+                                boolean isGroup = docSnap.getString("isGroup").equals("true");
                                 DocumentReference userDoc;
                                 if (isGroup) userDoc = db.collection("groups").document(sender);
                                 else userDoc = db.collection("users").document(sender);

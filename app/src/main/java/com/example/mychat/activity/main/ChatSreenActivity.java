@@ -1173,7 +1173,7 @@ public class ChatSreenActivity extends BaseActivity {
             //
             notification.put("sender", sender);
             notification.put("receiver", receiver);
-            notification.put("isGroup", false);
+            notification.put("isGroup", "false");
             notification.put("timestamp", timestamp);
             //
             notificationCollection.add(notification);
@@ -1196,7 +1196,7 @@ public class ChatSreenActivity extends BaseActivity {
                                     //
                                     notification.put("sender", receiver); //xem như group là người gửi
                                     notification.put("receiver", member);
-                                    notification.put("isGroup", true);
+                                    notification.put("isGroup", "true");
                                     notification.put("timestamp", timestamp);
                                     //
                                     notificationCollection.add(notification);
