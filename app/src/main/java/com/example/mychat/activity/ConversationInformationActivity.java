@@ -60,7 +60,6 @@ public class ConversationInformationActivity extends BaseActivity {
     Integer[] iconsGroup = {R.drawable.ic_theme, R.drawable.ic_picture, R.drawable.ic_block, R.drawable.ic_delete, R.drawable.ic_members, R.drawable.ic_add_user, R.drawable.ic_edit, R.drawable.ic_changephoto, R.drawable.ic_leave};
     Integer[] colors = {R.drawable.ic_light1, R.drawable.ic_light2, R.drawable.ic_light3, R.drawable.ic_dark1, R.drawable.ic_dark2, R.drawable.ic_dark3, R.drawable.theme3d1, R.drawable.theme_love3d, R.drawable.theme_blackheart, R.drawable.theme_socola, R.drawable.theme_cocacola, R.drawable.theme_mochi};
     ListView listView;
-    ListView listViewThemes;
     TextView txtUserName;
     ImageView btn_back;
     ImageView profile_image;
@@ -71,16 +70,18 @@ public class ConversationInformationActivity extends BaseActivity {
     String userID;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_conversation_information);
 
         txtUserName = findViewById(R.id.username);
         btn_back = findViewById(R.id.back);
         intent = getIntent();
+
         String name = intent.getStringExtra("user_name");
         String myID = intent.getStringExtra("my_id");    //Nhận id của mình
         userID = intent.getStringExtra("user_id");//Nhận id của người chat với mình or ID của group
-        isGroup = intent.getBooleanExtra("check_group", true);
+        isGroup = intent.getBooleanExtra("check_group", false);
 
         //Set avatar của receiver
         profile_image = findViewById(R.id.profile_image);
@@ -92,6 +93,7 @@ public class ConversationInformationActivity extends BaseActivity {
         txtUserName.setText(name);
 
         listView = findViewById(R.id.listView);
+
         if(isGroup){
             CustomListMore adapter = new CustomListMore(ConversationInformationActivity.this, R.layout.custom_listview_more, groupItems, iconsGroup);
             listView.setAdapter(adapter);
@@ -128,7 +130,6 @@ public class ConversationInformationActivity extends BaseActivity {
                         showEditName(name);
                         break;
                     case 7:
-
                         break;
                     case 8:
                         AlertDialog.Builder myBuilder = new AlertDialog.Builder(ConversationInformationActivity.this);
@@ -153,18 +154,48 @@ public class ConversationInformationActivity extends BaseActivity {
             }
         });
 
-
-
-
         btn_back.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 finish();
+                Toast.makeText(getApplicationContext(),"On back more",Toast.LENGTH_SHORT).show();
             }
         });
-
     }
+    private void checkUserBlocked(String myID, String userID){
 
+        CollectionReference contactCollection = db.collection("contact");
+        DocumentReference contactDocument = contactCollection.document(myID);
+        contactDocument.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot documentSnapshot = task.getResult();
+                    if (documentSnapshot.exists()) {
+                        List<DocumentReference> blockList = (List<DocumentReference>) documentSnapshot.get("block");
+                        if (blockList != null) {
+                            DocumentReference userToCheck = db.collection("users").document(userID);
+                            isUserBlocked = blockList.contains(userToCheck);
+                        } else {
+                            isUserBlocked = false;
+                        }
+
+                        if(isUserBlocked){
+                            items[2] = "Unblock";
+                        }
+                        else {
+                            items[2] = "Block";
+                        }
+                        CustomListMore adapter = new CustomListMore(ConversationInformationActivity.this, R.layout.custom_listview_more, items, icons);
+                        listView.setAdapter(adapter);
+                        Toast.makeText(getApplicationContext(),"On create more",Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    Log.d("TAG", "Lỗi khi lấy dữ liệu: ", task.getException());
+                }
+            }
+        });
+    }
     private void leaveChat(){
         FirebaseFirestore ff = FirebaseFirestore.getInstance();
         CollectionReference contactCollection = ff.collection("groups");
@@ -238,7 +269,6 @@ public class ConversationInformationActivity extends BaseActivity {
                                         Toast.makeText(ConversationInformationActivity.this,"Leaved chat",Toast.LENGTH_SHORT).show();
                                         Intent intent=new Intent(ConversationInformationActivity.this, MainFragment.class);
                                         startActivity(intent);
-
                                     }
                                 });
                     }
@@ -328,39 +358,7 @@ public class ConversationInformationActivity extends BaseActivity {
         setResult(RESULT_OK, resultIntent);
     }
 
-    private void checkUserBlocked(String myID, String userID){
-        CollectionReference contactCollection = db.collection("contact");
-        DocumentReference contactDocument = contactCollection.document(myID);
-        contactDocument.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.isSuccessful()) {
-                    DocumentSnapshot documentSnapshot = task.getResult();
-                    if (documentSnapshot.exists()) {
-                        List<DocumentReference> blockList = (List<DocumentReference>) documentSnapshot.get("block");
-                        if (blockList != null) {
-                            DocumentReference userToCheck = db.collection("users").document(userID);
-                            isUserBlocked = blockList.contains(userToCheck);
-                        } else {
-                            isUserBlocked = false;
-                        }
 
-                        if(isUserBlocked){
-                            items[2] = "Unblock";
-                        }
-                        else {
-                            items[2] = "Block";
-                        }
-                        CustomListMore adapter = new CustomListMore(ConversationInformationActivity.this, R.layout.custom_listview_more, items, icons);
-                        listView.setAdapter(adapter);
-
-                    }
-                } else {
-                    Log.d("TAG", "Lỗi khi lấy dữ liệu: ", task.getException());
-                }
-            }
-        });
-    }
 
     //Hiển thị thông báo hỏi lại có chắc chắn muốn block hay không
     private void showBlockConfirmationDialog(String myId, String userId, String name){
@@ -402,6 +400,7 @@ public class ConversationInformationActivity extends BaseActivity {
     }
 
     private void blockUser(String myId, String userId){
+
         CollectionReference contactCollection = db.collection("contact");
         // Truy vấn tài liệu contact có id bằng myId
         DocumentReference contactDocument = contactCollection.document(myId);
@@ -465,6 +464,7 @@ public class ConversationInformationActivity extends BaseActivity {
     }
 
     private void unblockUser(String myId, String userId){
+
         CollectionReference contactCollection = db.collection("contact");
         DocumentReference contactDocument = contactCollection.document(myId); // Truy vấn tài liệu contact có id bằng myId
 

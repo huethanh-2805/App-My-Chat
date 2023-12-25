@@ -260,7 +260,6 @@ public class ChatSreenActivity extends BaseActivity {
                                     intent.putExtra("my_id", fUser.getUid()); //Gửi id của mình
                                     intent.putExtra("user_id", userReceiverID); //Gửi id của người chat với mình
                                     intent.putExtra("avatarUrl", avatar); //Gửi avatar
-                                    startActivityForResult(intent, REQUEST_CODE_CONVERSATION_INFO);
 
                                     //Gửi check group
                                     if(isGroup){
@@ -268,7 +267,9 @@ public class ChatSreenActivity extends BaseActivity {
                                     } else {
                                         intent.putExtra("check_group", false);
                                     }
-                                    ChatSreenActivity.this.startActivity(intent);
+//                                    ChatSreenActivity.this.startActivity(intent);
+                                    startActivityForResult(intent, REQUEST_CODE_CONVERSATION_INFO);
+
                                 }
                             });
                             username.setText(name);
@@ -316,6 +317,7 @@ public class ChatSreenActivity extends BaseActivity {
                                             intent.putExtra("my_id", fUser.getUid());
                                             intent.putExtra("user_id", userReceiverID);
                                             intent.putExtra("avatarUrl", avatar);
+                                            intent.putExtra("check_group",true);
                                             //ChatSreen.this.startActivity(intent);
                                             startActivityForResult(intent, REQUEST_CODE_CONVERSATION_INFO);
                                         }
@@ -346,78 +348,55 @@ public class ChatSreenActivity extends BaseActivity {
                 });
     }
 
+    private void getUidAndImgMember(List<DocumentReference> members, MemberInfoCallback callback) {
+        // Đếm số lượng yêu cầu
+        AtomicInteger count = new AtomicInteger(0);
+        int size = members.size();
 
-//    private void getUidAndImgMember(List<DocumentReference> members) {
-//        for (DocumentReference d : members) {
-//            d.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-//                @Override
-//                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-//                    if (task.isSuccessful()) {
-//                        DocumentSnapshot userSnapshot = task.getResult();
-//                        if (userSnapshot.exists()) {
-//                            String uid = userSnapshot.getId();
-//                            String image = userSnapshot.getString("avatarUrl");
-//                            id.add(uid);
-//                            img.add(image);
-//                        }
-//                    }
-//                }
-//            }).addOnFailureListener(new OnFailureListener() {
-//                @Override
-//                public void onFailure(@NonNull Exception e) {
-//                }
-//            });
-//        }
-//    }
-private void getUidAndImgMember(List<DocumentReference> members, MemberInfoCallback callback) {
-    // Đếm số lượng yêu cầu
-    AtomicInteger count = new AtomicInteger(0);
-    int size = members.size();
-
-    for (DocumentReference d : members) {
-        d.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.isSuccessful()) {
-                    DocumentSnapshot userSnapshot = task.getResult();
-                    if (userSnapshot.exists()) {
-                        String uid = userSnapshot.getId();
-                        String image = userSnapshot.getString("avatarUrl");
-                        id.add(uid);
-                        img.add(image);
+        for (DocumentReference d : members) {
+            d.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                    if (task.isSuccessful()) {
+                        DocumentSnapshot userSnapshot = task.getResult();
+                        if (userSnapshot.exists()) {
+                            String uid = userSnapshot.getId();
+                            String image = userSnapshot.getString("avatarUrl");
+                            id.add(uid);
+                            img.add(image);
+                        }
+                    }
+                    // Kiểm tra nếu đã hoàn thành việc lấy thông tin cho tất cả thành viên
+                    if (count.incrementAndGet() == size) {
+                        callback.onMemberInfoReceived(); // Gọi callback khi hoàn thành
                     }
                 }
-                // Kiểm tra nếu đã hoàn thành việc lấy thông tin cho tất cả thành viên
-                if (count.incrementAndGet() == size) {
-                    callback.onMemberInfoReceived(); // Gọi callback khi hoàn thành
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    // Xử lý khi có lỗi
+                    // Kiểm tra nếu đã hoàn thành việc lấy thông tin cho tất cả thành viên
+                    if (count.incrementAndGet() == size) {
+                        callback.onMemberInfoReceived(); // Gọi callback khi hoàn thành
+                    }
                 }
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                // Xử lý khi có lỗi
-                // Kiểm tra nếu đã hoàn thành việc lấy thông tin cho tất cả thành viên
-                if (count.incrementAndGet() == size) {
-                    callback.onMemberInfoReceived(); // Gọi callback khi hoàn thành
-                }
-            }
-        });
+            });
 
-        setThemeBasedOnSelectedTheme();
+            setThemeBasedOnSelectedTheme();
 
-        // Đăng ký BroadcastReceiver
-        IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
-        NetworkChangeReceiver networkChangeReceiver = new NetworkChangeReceiver();
-        registerReceiver(networkChangeReceiver, intentFilter);
+            // Đăng ký BroadcastReceiver
+            IntentFilter intentFilter = new IntentFilter();
+            intentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
+            NetworkChangeReceiver networkChangeReceiver = new NetworkChangeReceiver();
+            registerReceiver(networkChangeReceiver, intentFilter);
 
-        //
-        Intent serviceIntent = new Intent(this, MessageNotification.class);
-        serviceIntent.putExtra("otherUser", userReceiverID);
-        startService(serviceIntent);
-        //
+            //
+            Intent serviceIntent = new Intent(this, MessageNotification.class);
+            serviceIntent.putExtra("otherUser", userReceiverID);
+            startService(serviceIntent);
+            //
+        }
     }
-}
 
     //Cập nhật liên túc trạng thái mạng
     public class NetworkChangeReceiver extends BroadcastReceiver {
@@ -646,21 +625,6 @@ private void getUidAndImgMember(List<DocumentReference> members, MemberInfoCallb
                         fileRef.getDownloadUrl().addOnSuccessListener(uri -> {
                             String fileUrl = uri.toString();
                             sendFile(fUser.getUid(), userReceiverID, fileUrl);
-
-//                            // Lưu đường dẫn vào Firestore
-//                            Map<String, Object> dataToSave = new HashMap<>();
-//                            dataToSave.put("file_url", fileUrl);
-//
-//                            firestore.collection("files")
-//                                    .add(dataToSave)
-//                                    .addOnSuccessListener(documentReference -> {
-//                                        // Thành công
-//                                        Toast.makeText(this, "Upload thành công", Toast.LENGTH_SHORT).show();
-//                                    })
-//                                    .addOnFailureListener(e -> {
-//                                        // Lỗi khi lưu vào Firestore
-//                                        Toast.makeText(this, "Lỗi khi lưu vào Firestore", Toast.LENGTH_SHORT).show();
-//                                    });
                         });
                     })
                     .addOnFailureListener(e -> {
@@ -1045,8 +1009,6 @@ private void getUidAndImgMember(List<DocumentReference> members, MemberInfoCallb
             public void onClick(DialogInterface dialog, int which) {
                 // Gọi hàm để xóa tin nhắn
                 findDocumentMessageId(message);
-
-//                Timestamp timestamp=findDocumentMessageId(message);
             }
         });
         builder.setNegativeButton("Hủy", new DialogInterface.OnClickListener() {
@@ -1073,9 +1035,6 @@ private void getUidAndImgMember(List<DocumentReference> members, MemberInfoCallb
     }
 
     // Hàm để xóa tin nhắn từ Firestore và cập nhật RecyclerView
-
-
-
 
     @SuppressLint("ResourceAsColor")
     private void setThemeBasedOnSelectedTheme() {
