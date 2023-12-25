@@ -1187,15 +1187,15 @@ public class ChatSreenActivity extends BaseActivity {
                         DocumentSnapshot groupSnapshot = task.getResult();
                         if (groupSnapshot.exists()) {
                             ArrayList<String> members = (ArrayList<String>) groupSnapshot.get("member");
-                            for (String member : members) {
-                                if (!member.equals(sender)) {//gửi thông báo cho tất cả thành viên trong nhóm trừ người gửi
+                            for (int i = 0; i < members.size(); i++) {
+                                if (!members.get(i).equals(sender)) {//gửi thông báo cho tất cả thành viên trong nhóm trừ người gửi
                                     CollectionReference notificationCollection = db.collection("notification");
                                     //
                                     HashMap<String, Object> notification = new HashMap<>();
                                     Timestamp timestamp = Timestamp.now();
                                     //
                                     notification.put("sender", receiver); //xem như group là người gửi
-                                    notification.put("receiver", member);
+                                    notification.put("receiver", members.get(i));
                                     notification.put("isGroup", "true");
                                     notification.put("timestamp", timestamp);
                                     //
