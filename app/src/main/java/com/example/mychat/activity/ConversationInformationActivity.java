@@ -23,6 +23,7 @@ import android.widget.Toast;
 
 import androidx.core.content.ContextCompat;
 
+import com.example.mychat.MediaGridActivity;
 import com.example.mychat.R;
 import com.example.mychat.activity.main.BaseActivity;
 import com.example.mychat.fragment.MainFragment;
@@ -80,8 +81,10 @@ public class ConversationInformationActivity extends BaseActivity {
 
         String name = intent.getStringExtra("user_name");
         String myID = intent.getStringExtra("my_id");    //Nhận id của mình
+
         userID = intent.getStringExtra("user_id");//Nhận id của người chat với mình or ID của group
         isGroup = intent.getBooleanExtra("check_group", false);
+
 
         //Set avatar của receiver
         profile_image = findViewById(R.id.profile_image);
@@ -109,6 +112,7 @@ public class ConversationInformationActivity extends BaseActivity {
                         showThemeSelectionDialog();
                         break;
                     case 1:
+                        showMediaGrid(name, myID, userID, isGroup);
                         break;
                     case 2:
                         showBlockConfirmationDialog(myID, userID, name);
@@ -116,6 +120,7 @@ public class ConversationInformationActivity extends BaseActivity {
                     case 3:
                         showDeleteConfirmationDialog(myID, userID);
                         break;
+
                     case 4:
                         Intent intentMembers = new Intent(ConversationInformationActivity.this, MembersGroupActivity.class);
                         intentMembers.putExtra("groupID", userID);
@@ -149,7 +154,6 @@ public class ConversationInformationActivity extends BaseActivity {
                                     }})
                                 .show();
                         break;
-
                 }
             }
         });
@@ -627,6 +631,15 @@ public class ConversationInformationActivity extends BaseActivity {
     private void applyTheme(int themeIndex) {
         ThemeHelper.saveSelectedTheme(this, themeIndex);
         recreate(); // Recreate the activity to apply the new theme
+    }
+
+    private void showMediaGrid(String username, String myId, String userId, boolean isGroup){
+        Intent intent = new Intent(this, MediaGridActivity.class);
+        intent.putExtra("user_name",username);
+        intent.putExtra("my_id", myId);
+        intent.putExtra("user_id", userId);
+        intent.putExtra("isGroup", isGroup);
+        ConversationInformationActivity.this.startActivity(intent);
     }
 
 }

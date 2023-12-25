@@ -183,6 +183,7 @@ public class ChatSreenActivity extends BaseActivity {
         getInfo();
         setThemeBasedOnSelectedTheme();
 
+
         // Đăng ký BroadcastReceiver
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
@@ -194,6 +195,8 @@ public class ChatSreenActivity extends BaseActivity {
         startService(serviceIntent);
         screenshotDetector = new ScreenshotDetector(this, fUser.getUid(), userReceiverID);
 
+
+//        getStatus();
     }
 
     private void getInfo() {
@@ -260,6 +263,7 @@ public class ChatSreenActivity extends BaseActivity {
                                     intent.putExtra("my_id", fUser.getUid()); //Gửi id của mình
                                     intent.putExtra("user_id", userReceiverID); //Gửi id của người chat với mình
                                     intent.putExtra("avatarUrl", avatar); //Gửi avatar
+
 
                                     //Gửi check group
                                     if(isGroup){
@@ -383,6 +387,7 @@ public class ChatSreenActivity extends BaseActivity {
             });
 
             setThemeBasedOnSelectedTheme();
+
 
             // Đăng ký BroadcastReceiver
             IntentFilter intentFilter = new IntentFilter();
@@ -646,9 +651,8 @@ public class ChatSreenActivity extends BaseActivity {
         messageData.put("type", "video");
 
         usersCollection.add(messageData);
-        //add to notification
-        CollectionReference notifyCollection = db.collection("notification");
-        notifyCollection.add(messageData);
+        //add notification
+        sendNotification(sender,receiver,isGroup);
     }
 
     private void sendImage(String sender, String receiver, String message) {
@@ -663,9 +667,8 @@ public class ChatSreenActivity extends BaseActivity {
         messageData.put("type", "image");
 
         usersCollection.add(messageData);
-        //add to notification
-        CollectionReference notifyCollection = db.collection("notification");
-        notifyCollection.add(messageData);
+        //add notification
+        sendNotification(sender,receiver,isGroup);
     }
 
     private void sendFile(String sender, String receiver, String message) {
@@ -681,6 +684,9 @@ public class ChatSreenActivity extends BaseActivity {
         messageData.put("type", getFileExtension(filePath));
 
         usersCollection.add(messageData);
+
+        //add notification
+        sendNotification(sender,receiver,isGroup);
     }
 
 
@@ -688,12 +694,14 @@ public class ChatSreenActivity extends BaseActivity {
     protected void onResume() {
         super.onResume();
         setThemeBasedOnSelectedTheme();
+
         //
         Intent serviceIntent = new Intent(this, MessageNotification.class);
         serviceIntent.putExtra("otherUser", userReceiverID);
         startService(serviceIntent);
         //
         screenshotDetector.start();
+
     }
 
 
@@ -713,8 +721,7 @@ public class ChatSreenActivity extends BaseActivity {
 
         usersCollection.add(messageData);
         //add notification
-        CollectionReference notifyCollection = db.collection("notification");
-        notifyCollection.add(messageData);
+        sendNotification(sender,receiver,isGroup);
     }
 
     private void handleSendMessage() {
@@ -933,7 +940,7 @@ public class ChatSreenActivity extends BaseActivity {
     private String messageID;
 
     private void findDocumentMessageId(Message mess) {
-        FirebaseFirestore firestore=FirebaseFirestore.getInstance();
+        FirebaseFirestore firestore =FirebaseFirestore.getInstance();
         CollectionReference cre = firestore.collection("messages");
 
         cre.whereEqualTo("message", mess.getMessage())
@@ -988,7 +995,6 @@ public class ChatSreenActivity extends BaseActivity {
 //                        Toast.makeText(ChatSreen.this, "Tin nhắn đã được xóa", Toast.LENGTH_SHORT).show();
 
                     }
-
 
                 })
                 .addOnFailureListener(new OnFailureListener() {
@@ -1116,5 +1122,51 @@ public class ChatSreenActivity extends BaseActivity {
         startService(serviceIntent);
         //
         screenshotDetector.stop();
+
+    }
+
+    protected void sendNotification(String sender, String receiver, boolean isGroup) {
+        if (!isGroup) {
+            CollectionReference notificationCollection = db.collection("notification");
+            //
+            HashMap<String, Object> notification = new HashMap<>();
+            Timestamp timestamp = Timestamp.now();
+            //
+            notification.put("sender", sender);
+            notification.put("receiver", receiver);
+            notification.put("isGroup", false);
+            notification.put("timestamp", timestamp);
+            //
+            notificationCollection.add(notification);
+        }
+        else {//isGroup, receiver is group id BUT IN NOTIFICATION GROUP BECOME SENDER
+            DocumentReference docRef = db.collection("groups").document(receiver);
+            docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                    if (task.isSuccessful()) {
+                        DocumentSnapshot groupSnapshot = task.getResult();
+                        if (groupSnapshot.exists()) {
+                            ArrayList<String> members = (ArrayList<String>) groupSnapshot.get("member");
+                            for (String member : members) {
+                                if (!member.equals(sender)) {//gửi thông báo cho tất cả thành viên trong nhóm trừ người gửi
+                                    CollectionReference notificationCollection = db.collection("notification");
+                                    //
+                                    HashMap<String, Object> notification = new HashMap<>();
+                                    Timestamp timestamp = Timestamp.now();
+                                    //
+                                    notification.put("sender", receiver); //xem như group là người gửi
+                                    notification.put("receiver", member);
+                                    notification.put("isGroup", true);
+                                    notification.put("timestamp", timestamp);
+                                    //
+                                    notificationCollection.add(notification);
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
     }
 }

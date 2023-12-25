@@ -1,5 +1,6 @@
 package com.example.mychat.fragment;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 
@@ -12,6 +13,7 @@ import androidx.fragment.app.FragmentTransaction;
 import com.example.mychat.activity.main.BaseActivity;
 import com.example.mychat.others.MyChat;
 import com.example.mychat.R;
+import com.example.mychat.service.MessageNotification;
 
 import nl.joery.animatedbottombar.AnimatedBottomBar;
 
@@ -107,15 +109,13 @@ public class MainFragment extends BaseActivity {
     @Override
     protected void onResume() {
         super.onResume();
-//        Intent serviceIntent = new Intent(this, MessageNotification.class);
-//        stopService(serviceIntent);
     }
     @Override
     protected void onPause() {
         super.onPause();
-//        Intent serviceIntent = new Intent(this, MessageNotification.class);
-//        serviceIntent.putExtra("otherUser", "");
-//        startService(serviceIntent);
+        Intent serviceIntent = new Intent(this, MessageNotification.class);
+        stopService(serviceIntent);
+        startService(serviceIntent);
     }
     @Override
     protected void onDestroy() {
