@@ -105,7 +105,8 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
                                 onItemClickListener.onItemClick(message);
                             }
                             if (which == 1) {
-                                dialog.dismiss();
+                                onItemClickListener.onItemClickForward(message);
+//                                dialog.dismiss();
                             }
                             if (which == 2) {
                                 dialog.dismiss();

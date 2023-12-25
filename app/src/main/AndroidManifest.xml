@@ -30,6 +30,9 @@
             android:name=".ConversationInformation"
             android:exported="false" />
         <activity
+            android:name=".ForwardActivity"
+            android:exported="false" />
+        <activity
             android:name=".AppearanceActivity"
             android:exported="true" />
         <activity

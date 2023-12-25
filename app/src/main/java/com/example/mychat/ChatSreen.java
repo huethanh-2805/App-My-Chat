@@ -180,9 +180,9 @@ public class  ChatSreen extends BaseActivity {
         getInfo();
         setThemeBasedOnSelectedTheme();
         getStatus();
-        Intent serviceIntent = new Intent(this, MessageNotification.class);
-        serviceIntent.putExtra("otherUser", userReceiverID);
-        startService(serviceIntent);
+//        Intent serviceIntent = new Intent(this, MessageNotification.class);
+//        serviceIntent.putExtra("otherUser", userReceiverID);
+//        startService(serviceIntent);
         screenshotDetector = new ScreenshotDetector(this, fUser.getUid(), userReceiverID);
 
     }
@@ -422,9 +422,9 @@ private void getUidAndImgMember(List<DocumentReference> members, MemberInfoCallb
         registerReceiver(networkChangeReceiver, intentFilter);
 
         //
-        Intent serviceIntent = new Intent(this, MessageNotification.class);
-        serviceIntent.putExtra("otherUser", userReceiverID);
-        startService(serviceIntent);
+//        Intent serviceIntent = new Intent(this, MessageNotification.class);
+//        serviceIntent.putExtra("otherUser", userReceiverID);
+//        startService(serviceIntent);
         //
     }
 }
@@ -721,9 +721,9 @@ private void getUidAndImgMember(List<DocumentReference> members, MemberInfoCallb
         super.onResume();
         setThemeBasedOnSelectedTheme();
         //
-        Intent serviceIntent = new Intent(this, MessageNotification.class);
-        serviceIntent.putExtra("otherUser", userReceiverID);
-        startService(serviceIntent);
+//        Intent serviceIntent = new Intent(this, MessageNotification.class);
+//        serviceIntent.putExtra("otherUser", userReceiverID);
+//        startService(serviceIntent);
         //
         screenshotDetector.start();
     }
@@ -915,6 +915,11 @@ private void getUidAndImgMember(List<DocumentReference> members, MemberInfoCallb
                                 public void onItemClick(Message mess) {
                                     showDeleteDialog(mess);
                                 }
+
+                                @Override
+                                public void onItemClickForward(Message mess) {
+                                    showForwardDialog(mess);
+                                }
                             });
                             recyclerView.setAdapter(messageAdapter);
 
@@ -1004,6 +1009,7 @@ private void getUidAndImgMember(List<DocumentReference> members, MemberInfoCallb
                     }
                 });
     }
+
     private void deleteMessage(String messageId) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         CollectionReference messagesRef = db.collection("messages");
@@ -1032,6 +1038,33 @@ private void getUidAndImgMember(List<DocumentReference> members, MemberInfoCallb
                 });
     }
 
+    private void showForwardDialog(final Message message) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Xác nhận chuyển tiếp tin nhắn");
+        builder.setMessage("Bạn có chắc chắn muốn chuyển tiếp tin nhắn này?");
+        builder.setPositiveButton("Gửi", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                // Gọi hàm để xóa tin nhắn
+//                findDocumentMessageId(message);
+                Intent intent1=new Intent(getApplicationContext(),ForwardActivity.class);
+                intent1.putExtra("messages", message.getMessage());
+                startActivity(intent1);
+
+            }
+        });
+        builder.setNegativeButton("Hủy", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                // Đóng Dialog nếu người dùng chọn Hủy
+                dialog.dismiss();
+            }
+        });
+
+        // Hiển thị Dialog
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
     private void showDeleteDialog(final Message message) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Xác nhận gỡ tin nhắn");
@@ -1148,9 +1181,9 @@ private void getUidAndImgMember(List<DocumentReference> members, MemberInfoCallb
     @Override
     protected void onPause() {
         super.onPause();
-        Intent serviceIntent = new Intent(this, MessageNotification.class);
-        serviceIntent.putExtra("otherUser", "");
-        startService(serviceIntent);
+//        Intent serviceIntent = new Intent(this, MessageNotification.class);
+//        serviceIntent.putExtra("otherUser", "");
+//        startService(serviceIntent);
         //
         screenshotDetector.stop();
     }
