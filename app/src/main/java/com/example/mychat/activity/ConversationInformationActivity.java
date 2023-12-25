@@ -23,7 +23,6 @@ import android.widget.Toast;
 
 import androidx.core.content.ContextCompat;
 
-import com.example.mychat.MediaGridActivity;
 import com.example.mychat.R;
 import com.example.mychat.activity.main.BaseActivity;
 import com.example.mychat.fragment.MainFragment;

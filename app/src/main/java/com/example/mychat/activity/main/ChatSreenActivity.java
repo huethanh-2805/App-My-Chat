@@ -41,6 +41,7 @@ import androidx.appcompat.app.AppCompatDelegate;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.mychat.activity.ForwardActivity;
 import com.example.mychat.activity.ConversationInformationActivity;
 import com.example.mychat.others.MyChat;
 import com.example.mychat.R;
@@ -182,6 +183,10 @@ public class ChatSreenActivity extends BaseActivity {
         setOnClickListener();
         getInfo();
         setThemeBasedOnSelectedTheme();
+        //getStatus();
+//        Intent serviceIntent = new Intent(this, MessageNotification.class);
+//        serviceIntent.putExtra("otherUser", userReceiverID);
+//        startService(serviceIntent);
 
 
         // Đăng ký BroadcastReceiver
@@ -394,7 +399,6 @@ public class ChatSreenActivity extends BaseActivity {
             intentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
             NetworkChangeReceiver networkChangeReceiver = new NetworkChangeReceiver();
             registerReceiver(networkChangeReceiver, intentFilter);
-
             //
             Intent serviceIntent = new Intent(this, MessageNotification.class);
             serviceIntent.putExtra("otherUser", userReceiverID);
@@ -696,9 +700,9 @@ public class ChatSreenActivity extends BaseActivity {
         setThemeBasedOnSelectedTheme();
 
         //
-        Intent serviceIntent = new Intent(this, MessageNotification.class);
-        serviceIntent.putExtra("otherUser", userReceiverID);
-        startService(serviceIntent);
+//        Intent serviceIntent = new Intent(this, MessageNotification.class);
+//        serviceIntent.putExtra("otherUser", userReceiverID);
+//        startService(serviceIntent);
         //
         screenshotDetector.start();
 
@@ -890,6 +894,11 @@ public class ChatSreenActivity extends BaseActivity {
                                 public void onItemClick(Message mess) {
                                     showDeleteDialog(mess);
                                 }
+
+                                @Override
+                                public void onItemClickForward(Message mess, String type,String title) {
+                                    showForwardDialog(mess);
+                                }
                             });
                             recyclerView.setAdapter(messageUserAdapter);
 
@@ -979,6 +988,7 @@ public class ChatSreenActivity extends BaseActivity {
                     }
                 });
     }
+
     private void deleteMessage(String messageId) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         CollectionReference messagesRef = db.collection("messages");
@@ -1006,6 +1016,35 @@ public class ChatSreenActivity extends BaseActivity {
                 });
     }
 
+    private void showForwardDialog(final Message message) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Xác nhận chuyển tiếp tin nhắn");
+        builder.setMessage("Bạn có chắc chắn muốn chuyển tiếp tin nhắn này?");
+        builder.setPositiveButton("Chuyển tiếp", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                // Gọi hàm để xóa tin nhắn
+//                findDocumentMessageId(message);
+                Intent intent1=new Intent(getApplicationContext(), ForwardActivity.class);
+                intent1.putExtra("messages", message.getMessage());
+                intent1.putExtra("type",message.getType());
+                intent1.putExtra("title",message.getTitle());
+                startActivity(intent1);
+
+            }
+        });
+        builder.setNegativeButton("Hủy", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                // Đóng Dialog nếu người dùng chọn Hủy
+                dialog.dismiss();
+            }
+        });
+
+        // Hiển thị Dialog
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
     private void showDeleteDialog(final Message message) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Xác nhận gỡ tin nhắn");
@@ -1117,9 +1156,9 @@ public class ChatSreenActivity extends BaseActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        Intent serviceIntent = new Intent(this, MessageNotification.class);
-        serviceIntent.putExtra("otherUser", "");
-        startService(serviceIntent);
+//        Intent serviceIntent = new Intent(this, MessageNotification.class);
+//        serviceIntent.putExtra("otherUser", "");
+//        startService(serviceIntent);
         //
         screenshotDetector.stop();
 

@@ -108,7 +108,8 @@ public class MessageUserAdapter extends RecyclerView.Adapter<MessageUserAdapter.
                                 onItemClickListener.onItemClick(message);
                             }
                             if (which == 1) {
-                                dialog.dismiss();
+                                onItemClickListener.onItemClickForward(message,message.getType(),message.getTitle());
+//                                dialog.dismiss();
                             }
                             if (which == 2) {
                                 dialog.dismiss();
@@ -139,7 +140,7 @@ public class MessageUserAdapter extends RecyclerView.Adapter<MessageUserAdapter.
                                 onItemClickListener.onItemClick(message);
                             }
                             if (which == 1) {
-                                dialog.dismiss();
+                                onItemClickListener.onItemClickForward(message,message.getType(),message.getTitle());
                             }
                             if (which == 2) {
                                 dialog.dismiss();
@@ -182,14 +183,42 @@ public class MessageUserAdapter extends RecyclerView.Adapter<MessageUserAdapter.
                 holder.videolayout.setVisibility(View.VISIBLE);
 
                 Uri videoUri = Uri.parse(message.getMessage());
-//                MediaController mediaController = new MediaController(mContext);
-//
-//                mediaController.setAnchorView(holder.show_video);
-//                holder.show_video.setMediaController(mediaController);
-
+                holder.show_video.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        CharSequence options[] = new CharSequence[]{
+                                "Play",
+                                "Gỡ tin nhắn",
+                                "Chuyển tiếp",
+                                "Cancel"
+                        };
+                        AlertDialog.Builder builder = new AlertDialog.Builder(view.getContext());
+                        builder.setTitle("Choose One");
+                        builder.setItems(options, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                // we will be downloading the pdf
+                                if (which == 0) {
+                                    holder.show_video.setVideoURI(videoUri);
+                                    holder.show_video.start();
+                                }
+                                if (which == 1) {
+                                    onItemClickListener.onItemClick(message);
+                                }
+                                if(which == 2)
+                                {
+                                    onItemClickListener.onItemClickForward(message,message.getType(),message.getTitle());
+                                }
+                                if(which == 3)
+                                {
+                                    dialog.dismiss();
+                                }
+                            }
+                        });
+                        builder.show();
+                    }
+                });
                 // Set the video URI and start playback
-                holder.show_video.setVideoURI(videoUri);
-                holder.show_video.start();
 
                 // Set an error listener to handle any playback errors
                 holder.show_video.setOnErrorListener(new MediaPlayer.OnErrorListener() {
@@ -213,6 +242,7 @@ public class MessageUserAdapter extends RecyclerView.Adapter<MessageUserAdapter.
                         CharSequence options[] = new CharSequence[]{
                                 "View",
                                 "Gỡ tin nhắn",
+                                "Chuyển tiếp",
                                 "Cancel"
                         };
                         AlertDialog.Builder builder = new AlertDialog.Builder(v.getContext());
@@ -242,6 +272,10 @@ public class MessageUserAdapter extends RecyclerView.Adapter<MessageUserAdapter.
                                 }
                                 if(which == 2)
                                 {
+                                    onItemClickListener.onItemClickForward(message,message.getType(),message.getTitle());
+                                }
+                                if(which == 3)
+                                {
                                     dialog.dismiss();
                                 }
                             }
@@ -267,13 +301,6 @@ public class MessageUserAdapter extends RecyclerView.Adapter<MessageUserAdapter.
         }
 
         Glide.with(mContext).load(imageUrl).into(holder.profile_image);
-
-
-//        if (imageUrl.equals("default")){
-//            holder.profile_image.setImageResource(R.drawable.ic_avt);
-//        }else{
-//            Glide.with(mContext).load(imageUrl).into(holder.profile_image);
-//        }
     }
 
 

@@ -26,12 +26,15 @@
             android:name=".custom.CustomListMembers"
             android:exported="false" />
         <activity
+            android:name=".activity.ForwardActivity"
+            android:exported="false" />
+        <activity
             android:name=".activity.MembersGroupActivity"
 
 
             android:exported="false" />
         <activity
-            android:name=".MediaGridActivity"
+            android:name=".activity.MediaGridActivity"
 
             android:exported="false" />
 

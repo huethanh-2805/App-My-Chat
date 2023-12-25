@@ -1,7 +1,6 @@
-package com.example.mychat;
+package com.example.mychat.adapter;
 
 import android.content.Context;
-import android.media.MediaPlayer;
 import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,6 +12,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.example.mychat.R;
 
 import java.util.ArrayList;
 
