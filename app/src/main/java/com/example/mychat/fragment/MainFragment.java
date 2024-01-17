@@ -1,5 +1,7 @@
 package com.example.mychat.fragment;
 
+import static com.google.android.material.internal.ContextUtils.getActivity;
+
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -106,19 +108,19 @@ public class MainFragment extends BaseActivity {
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
         }
     }
-    @Override
-    protected void onResume() {
-        super.onResume();
-    }
-    @Override
-    protected void onPause() {
-        super.onPause();
-        Intent serviceIntent = new Intent(this, MessageNotification.class);
-        stopService(serviceIntent);
-        startService(serviceIntent);
-    }
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-    }
+//    @Override
+//    protected void onResume() {
+//        super.onResume();
+//    }
+//    @Override
+//    protected void onPause() {
+//        super.onPause();
+//        Intent serviceIntent = new Intent(this, MessageNotification.class);
+//        stopService(serviceIntent);
+//        startService(serviceIntent);
+//    }
+//    @Override
+//    protected void onDestroy() {
+//        super.onDestroy();
+//    }
 }

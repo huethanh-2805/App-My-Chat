@@ -597,6 +597,12 @@ public class ConversationInformationActivity extends BaseActivity {
 
                             });
                 }
+                AlertDialog.Builder builder = new AlertDialog.Builder(ConversationInformationActivity.this);
+                builder.setMessage("Delete chat succesfull !!!")
+                        .setTitle("Delete Conversation")
+                        .setPositiveButton("Close", null);
+                AlertDialog dialog = builder.create();
+                dialog.show();
             } else {
                 Exception e = task.getException();
             }

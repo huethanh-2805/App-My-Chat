@@ -270,9 +270,9 @@ public class AddGroupActivity extends Activity implements View.OnClickListener {
     private void saveGroup() {
         FirebaseFirestore ff=FirebaseFirestore.getInstance();
         CollectionReference groupCollection = ff.collection("groups");
-
         List<DocumentReference> userReferences = new ArrayList<>();
-        StringBuilder n=new StringBuilder("Nhóm của "+auth.getCurrentUser().getDisplayName()+" ");
+
+        StringBuilder n=new StringBuilder("Nhóm của ");
 
         for (User user : us) {
             String uid = user.getUid();

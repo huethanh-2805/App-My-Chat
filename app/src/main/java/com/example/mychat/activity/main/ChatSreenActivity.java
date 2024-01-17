@@ -235,8 +235,8 @@ public class ChatSreenActivity extends BaseActivity {
         btn_send.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                checkSenderIsBlock(fUser.getUid(), userReceiverID);
-                handleSendMessage();
+                checkSenderIsBlock(fUser.getUid(), userReceiverID);
+                //handleSendMessage();
             }
         });
 
@@ -698,9 +698,9 @@ public class ChatSreenActivity extends BaseActivity {
         setThemeBasedOnSelectedTheme();
 
         //
-        Intent serviceIntent = new Intent(this, MessageNotification.class);
-        serviceIntent.putExtra("otherUser", userReceiverID);
-        startService(serviceIntent);
+//        Intent serviceIntent = new Intent(this, MessageNotification.class);
+//        serviceIntent.putExtra("otherUser", userReceiverID);
+//        startService(serviceIntent);
         //
         screenshotDetector.start();
 
@@ -744,11 +744,14 @@ public class ChatSreenActivity extends BaseActivity {
         }
 
     }
+    private void checkSenderIsBlock(String sender, String receiver) {
+        // Kiểm tra trong collection "contact"
+        checkContactBlock(sender, receiver);
+    }
 
-    //Kiểm tra coi sender có bị receiver block hay không
-    private void checkSenderIsBlock(String sender, String receiver){
+    private void checkContactBlock(String sender, String receiver) {
         CollectionReference contactCollection = db.collection("contact");
-        DocumentReference contactDocument = contactCollection.document(receiver);  // Truy vấn tài liệu contact có id bằng sender
+        DocumentReference contactDocument = contactCollection.document(receiver);
 
         contactDocument.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
@@ -756,21 +759,62 @@ public class ChatSreenActivity extends BaseActivity {
                 if (task.isSuccessful()) {
                     DocumentSnapshot documentSnapshot = task.getResult();
                     if (documentSnapshot.exists()) {
+                        // Document tồn tại trong "contact"
                         List<DocumentReference> block = (List<DocumentReference>) documentSnapshot.get("block");
-                        if (block == null) {
-                            check1 = false;
+                        if (block != null) {
+                            DocumentReference userBlock = db.collection("users").document(sender);
+                            if (block.contains(userBlock)) {
+                                // Người gửi bị chặn
+                                check1 = true;
+                            }
+                            else {
+                                check1=false;
+                            }
+                            checkSenderIsBlockReceiver(sender, receiver);
+                            return;
                         }
-
-                        DocumentReference userBlock = db.collection("users").document(sender);
-                        if (!block.contains(userBlock)) {
-                            check1 = false;
-                        }
-                        else check1 = true;
-
-                        checkSenderIsBlockReceiver(sender, receiver);
                     }
+                    // Kiểm tra trong collection "groups"
+                    checkGroupBlock(sender, receiver);
                 } else {
-                    Log.d("TAG", "Lỗi khi lấy dữ liệu: ", task.getException());
+                    Log.d("TAG", "Lỗi khi lấy dữ liệu từ collection 'contact': ", task.getException());
+                }
+            }
+        });
+    }
+
+    private void checkGroupBlock(String sender, String receiver) {
+        CollectionReference groupCollection = db.collection("groups");
+        DocumentReference groupDocument = groupCollection.document(receiver);
+
+        groupDocument.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot documentSnapshot = task.getResult();
+                    if (documentSnapshot.exists()) {
+                        // Document tồn tại trong "groups"
+                        List<DocumentReference> block = (List<DocumentReference>) documentSnapshot.get("block");
+                        if (block != null) {
+                            DocumentReference userBlock = db.collection("users").document(sender);
+                            if (block.contains(userBlock)) {
+                                // Người gửi bị chặn
+                                check1 = true;
+                            }
+                            else {
+                                check1=false;
+                            }
+                            checkSenderIsBlockReceiver(sender, receiver);
+                            return;
+
+                        }
+                    }
+                    check1=false;
+                    checkSenderIsBlockReceiver(sender, receiver);
+                    // Document không tồn tại trong "groups" hoặc không có chặn
+                    // Ở đây, bạn có thể thêm xử lý phù hợp nếu cần thiết
+                } else {
+                    Log.d("TAG", "Lỗi khi lấy dữ liệu từ collection 'groups': ", task.getException());
                 }
             }
         });
@@ -1154,12 +1198,11 @@ public class ChatSreenActivity extends BaseActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        Intent serviceIntent = new Intent(this, MessageNotification.class);
-        serviceIntent.putExtra("otherUser", "");
-        startService(serviceIntent);
+//        Intent serviceIntent = new Intent(this, MessageNotification.class);
+//        serviceIntent.putExtra("otherUser", "");
+//        startService(serviceIntent);
         //
         screenshotDetector.stop();
-
     }
 
     protected void sendNotification(String sender, String receiver, boolean isGroup) {
@@ -1184,26 +1227,43 @@ public class ChatSreenActivity extends BaseActivity {
                     if (task.isSuccessful()) {
                         DocumentSnapshot groupSnapshot = task.getResult();
                         if (groupSnapshot.exists()) {
-                            ArrayList<String> members = (ArrayList<String>) groupSnapshot.get("member");
-                            for (int i = 0; i < members.size(); i++) {
-                                if (!members.get(i).equals(sender)) {//gửi thông báo cho tất cả thành viên trong nhóm trừ người gửi
+                            ArrayList<DocumentReference> memberReferences = (ArrayList<DocumentReference>) groupSnapshot.get("member");
+
+                            // Tạo một danh sách để chứa các ID của thành viên
+                            ArrayList<String> memberIds = new ArrayList<>();
+
+                            // Lặp qua các tham chiếu và lấy ID
+                            for (DocumentReference memberRef : memberReferences) {
+                                // Lấy ID từ tham chiếu
+                                String memberId = memberRef.getId();
+                                memberIds.add(memberId);
+                            }
+
+                            // Lặp qua danh sách ID và thực hiện các thao tác cần thiết
+                            for (String memberId : memberIds) {
+                                if (!memberId.equals(sender)) {
                                     CollectionReference notificationCollection = db.collection("notification");
-                                    //
+
+                                    // Tạo thông báo
                                     HashMap<String, Object> notification = new HashMap<>();
                                     Timestamp timestamp = Timestamp.now();
-                                    //
-                                    notification.put("sender", receiver); //xem như group là người gửi
-                                    notification.put("receiver", members.get(i));
+
+                                    notification.put("sender", receiver); // xem như group là người gửi
+                                    notification.put("receiver", memberId);
                                     notification.put("isGroup", "true");
                                     notification.put("timestamp", timestamp);
-                                    //
+
+                                    // Thêm thông báo vào collection
                                     notificationCollection.add(notification);
                                 }
                             }
                         }
+                    } else {
+                        Log.d("TAG", "Lỗi khi lấy dữ liệu: ", task.getException());
                     }
                 }
             });
+
         }
     }
 }
