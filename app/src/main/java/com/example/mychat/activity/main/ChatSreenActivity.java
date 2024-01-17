@@ -183,10 +183,6 @@ public class ChatSreenActivity extends BaseActivity {
         setOnClickListener();
         getInfo();
         setThemeBasedOnSelectedTheme();
-//        getStatus();
-//        Intent serviceIntent = new Intent(this, MessageNotification.class);
-//        serviceIntent.putExtra("otherUser", userReceiverID);
-//        startService(serviceIntent);
 
 
         // Đăng ký BroadcastReceiver
@@ -195,9 +191,6 @@ public class ChatSreenActivity extends BaseActivity {
         NetworkChangeReceiver networkChangeReceiver = new NetworkChangeReceiver();
         registerReceiver(networkChangeReceiver, intentFilter);
 
-        Intent serviceIntent = new Intent(this, MessageNotification.class);
-        serviceIntent.putExtra("otherUser", userReceiverID);
-        startService(serviceIntent);
         screenshotDetector = new ScreenshotDetector(this, fUser.getUid(), userReceiverID);
 //        getStatus();
     }
@@ -397,10 +390,6 @@ public class ChatSreenActivity extends BaseActivity {
             intentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
             NetworkChangeReceiver networkChangeReceiver = new NetworkChangeReceiver();
             registerReceiver(networkChangeReceiver, intentFilter);
-            //
-            Intent serviceIntent = new Intent(this, MessageNotification.class);
-            serviceIntent.putExtra("otherUser", userReceiverID);
-            startService(serviceIntent);
             //
         }
     }
@@ -697,10 +686,6 @@ public class ChatSreenActivity extends BaseActivity {
         super.onResume();
         setThemeBasedOnSelectedTheme();
 
-        //
-//        Intent serviceIntent = new Intent(this, MessageNotification.class);
-//        serviceIntent.putExtra("otherUser", userReceiverID);
-//        startService(serviceIntent);
         //
         screenshotDetector.start();
 
@@ -1198,9 +1183,7 @@ public class ChatSreenActivity extends BaseActivity {
     @Override
     protected void onPause() {
         super.onPause();
-//        Intent serviceIntent = new Intent(this, MessageNotification.class);
-//        serviceIntent.putExtra("otherUser", "");
-//        startService(serviceIntent);
+
         //
         screenshotDetector.stop();
     }
@@ -1227,29 +1210,22 @@ public class ChatSreenActivity extends BaseActivity {
                     if (task.isSuccessful()) {
                         DocumentSnapshot groupSnapshot = task.getResult();
                         if (groupSnapshot.exists()) {
-                            ArrayList<DocumentReference> memberReferences = (ArrayList<DocumentReference>) groupSnapshot.get("member");
 
-                            // Tạo một danh sách để chứa các ID của thành viên
-                            ArrayList<String> memberIds = new ArrayList<>();
+                            ArrayList<String> members = (ArrayList<String>) groupSnapshot.get("member");
+                            assert members != null;
+                            for (String member : members) {
+                                if (!member.equals(sender)) {//gửi thông báo cho tất cả thành viên trong nhóm trừ người gửi
 
-                            // Lặp qua các tham chiếu và lấy ID
-                            for (DocumentReference memberRef : memberReferences) {
-                                // Lấy ID từ tham chiếu
-                                String memberId = memberRef.getId();
-                                memberIds.add(memberId);
-                            }
-
-                            // Lặp qua danh sách ID và thực hiện các thao tác cần thiết
-                            for (String memberId : memberIds) {
-                                if (!memberId.equals(sender)) {
                                     CollectionReference notificationCollection = db.collection("notification");
 
                                     // Tạo thông báo
                                     HashMap<String, Object> notification = new HashMap<>();
                                     Timestamp timestamp = Timestamp.now();
 
-                                    notification.put("sender", receiver); // xem như group là người gửi
-                                    notification.put("receiver", memberId);
+                                    //
+                                    notification.put("sender", receiver); //xem như group là người gửi
+                                    notification.put("receiver", member);
+
                                     notification.put("isGroup", "true");
                                     notification.put("timestamp", timestamp);
 

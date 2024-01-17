@@ -12,6 +12,7 @@ import androidx.fragment.app.FragmentActivity;
 import com.example.mychat.fragment.MainFragment;
 import com.example.mychat.others.MyChat;
 import com.example.mychat.R;
+import com.example.mychat.service.MessageNotification;
 import com.google.firebase.auth.FirebaseAuth;
 
 
@@ -55,5 +56,16 @@ public class MainActivity extends FragmentActivity {
         } else {
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
         }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+    }
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Intent notifyServiceIntent = new Intent(this, MessageNotification.class);
+        startService(notifyServiceIntent);
     }
 }
