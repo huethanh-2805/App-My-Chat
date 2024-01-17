@@ -40,7 +40,7 @@ import java.util.Objects;
 
 public class MessageNotification extends Service {
     //public static boolean notificationOn;
-    //public static boolean isRunning = true;
+    public static int isRunning;
     FirebaseFirestore db;
     FirebaseAuth auth;
     CollectionReference ref;
@@ -66,6 +66,7 @@ public class MessageNotification extends Service {
     //
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        isRunning = intent.getIntExtra("isRunning", 0);
         auth = FirebaseAuth.getInstance();
         currentUser = auth.getCurrentUser().getUid().toString();
         db = FirebaseFirestore.getInstance();
@@ -104,7 +105,7 @@ public class MessageNotification extends Service {
                                             DocumentSnapshot userSnapshot = task.getResult();
                                             if (userSnapshot.exists()) {
                                                 String sendername = userSnapshot.getString("username");
-                                                Notify(sendername, sender);
+                                                if (isRunning == 0) Notify(sendername, sender);
                                             }
                                         }
                                     }
