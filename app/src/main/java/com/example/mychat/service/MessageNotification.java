@@ -21,8 +21,8 @@ import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
-import com.example.mychat.activity.main.ChatSreenActivity;
 import com.example.mychat.R;
+import com.example.mychat.activity.main.MainActivity;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -35,6 +35,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.util.ArrayList;
 import java.util.Objects;
 
 public class MessageNotification extends Service {
@@ -75,19 +76,20 @@ public class MessageNotification extends Service {
                 if (error != null) {
                     return;
                 }
+                db = FirebaseFirestore.getInstance();
+                ArrayList<String> readList = new ArrayList<String>();
                 for (DocumentSnapshot newMessage : querySnapshot.getDocuments()) {
                     if (newMessage.exists()) {
                         //chỉ xử lý những bộ được thêm vào
-                        DocumentSnapshot docSnap = newMessage;
-                        String receiver = docSnap.getString("receiver");
+                        String receiver = newMessage.getString("receiver");
                         if (receiver != null) {
                             if (receiver.equals(currentUser)) { //lấy những bộ mà người dùng là receiver
                                 //lấy id bộ thông báo để xóa sau khi đọc thông báo xong
-                                String idNotification = docSnap.getId();
-                                DocumentReference notifyDoc = db.collection("notification").document(idNotification);
+                                String idNotification = newMessage.getId();
+                                readList.add(idNotification);
                                 //lấy thông tin người gửi, check xem tin nhắn có phải từ nhóm hay không
-                                String sender = docSnap.getString("sender");
-                                String groupCheck = docSnap.getString("isGroup");
+                                String sender = newMessage.getString("sender");
+                                String groupCheck = newMessage.getString("isGroup");
                                 //
                                 isGroup = false;
                                 assert groupCheck != null;
@@ -102,23 +104,28 @@ public class MessageNotification extends Service {
                                             DocumentSnapshot userSnapshot = task.getResult();
                                             if (userSnapshot.exists()) {
                                                 String sendername = userSnapshot.getString("username");
-                                                checkToSend(sendername, sender, isGroup);
-                                                //MessageNotification.this.notify();
+                                                Notify(sendername, sender);
                                             }
                                         }
                                     }
                                 });
-                                notifyDoc.delete();
+
                             }
                         }
                     }
                 }
+                //xóa các bộ
+                for (String docID : readList) {
+                    DocumentReference notifyDoc = db.collection("notification").document(docID);
+                    notifyDoc.delete();
+                }
+                readList.clear();
             }
         });
         return START_STICKY;
     }
     //
-    private void checkToSend(String from, String sender, boolean isGroup) {
+    private void checkToSend(String from, String sender) {
         DocumentReference docRef = FirebaseFirestore.getInstance().collection("users").document(currentUser);
         //check if offline, send notification
         docRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
@@ -130,7 +137,7 @@ public class MessageNotification extends Service {
                 if(value!=null&&value.exists()){
                     String data=value.getString("status");
                     if(Objects.equals(data, "0")){
-                        Notify(from,sender,isGroup);
+                        Notify(from,sender);
                     }
                 }
                 else{
@@ -139,24 +146,24 @@ public class MessageNotification extends Service {
             }
         });
     }
-    private void Notify(String noti, String sender, boolean isGroup) {
+    private void Notify(String noti, String sender) {
         String channelId = "channel_id";
         String channelName = "MyChat_Channel";
-        NotificationChannel notificationChannel = new NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_HIGH);
+        NotificationChannel notificationChannel = new NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_DEFAULT);
         notificationChannel.enableVibration(true);
         notificationChannel.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);
         NotificationManager notificationManager = getSystemService(NotificationManager.class);
         //
         notificationManager.createNotificationChannel(notificationChannel);
         // intent dưới dạng chờ để launch khi được tap vào
-        Intent intent = new Intent(this, ChatSreenActivity.class);
-
-        intent.putExtra("receiverID", sender);
-        intent.putExtra("group", isGroup);
+        Intent intent = new Intent(this, MainActivity.class);
         //
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        //
+        int notificationID = (int) System.currentTimeMillis();
+        //
         PendingIntent pendingIntent = PendingIntent
-                .getActivity(this, 0, intent, PendingIntent.FLAG_MUTABLE);
+                .getActivity(this, notificationID, intent, PendingIntent.FLAG_MUTABLE);
         //
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, "channel_id")
                 .setSmallIcon(R.drawable.ic_noti)
@@ -165,7 +172,7 @@ public class MessageNotification extends Service {
                 .setContentIntent(pendingIntent)
                 .setAutoCancel(true);
         // Hiện thông báo
-        notificationManager.notify(0, builder.build());
-        //
+        notificationManager.notify(notificationID, builder.build());
     }
+    //
 }
