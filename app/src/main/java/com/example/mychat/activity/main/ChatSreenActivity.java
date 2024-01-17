@@ -687,6 +687,10 @@ public class ChatSreenActivity extends BaseActivity {
         setThemeBasedOnSelectedTheme();
 
         //
+        Intent notifyServiceIntent = new Intent(this, MessageNotification.class);
+        notifyServiceIntent.putExtra("isRunning", 1 );
+        startService(notifyServiceIntent);
+        //
         screenshotDetector.start();
 
     }
@@ -1184,6 +1188,10 @@ public class ChatSreenActivity extends BaseActivity {
     protected void onPause() {
         super.onPause();
 
+        //
+        Intent notifyServiceIntent = new Intent(this, MessageNotification.class);
+        notifyServiceIntent.putExtra("isRunning", 0 );
+        startService(notifyServiceIntent);
         //
         screenshotDetector.stop();
     }

@@ -66,6 +66,7 @@ public class MainActivity extends FragmentActivity {
     protected void onResume() {
         super.onResume();
         Intent notifyServiceIntent = new Intent(this, MessageNotification.class);
+        notifyServiceIntent.putExtra("isRunning", 0 );
         startService(notifyServiceIntent);
     }
 }
