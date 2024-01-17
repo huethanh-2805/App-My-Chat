@@ -183,7 +183,7 @@ public class ChatSreenActivity extends BaseActivity {
         setOnClickListener();
         getInfo();
         setThemeBasedOnSelectedTheme();
-        //getStatus();
+//        getStatus();
 //        Intent serviceIntent = new Intent(this, MessageNotification.class);
 //        serviceIntent.putExtra("otherUser", userReceiverID);
 //        startService(serviceIntent);
@@ -199,8 +199,6 @@ public class ChatSreenActivity extends BaseActivity {
         serviceIntent.putExtra("otherUser", userReceiverID);
         startService(serviceIntent);
         screenshotDetector = new ScreenshotDetector(this, fUser.getUid(), userReceiverID);
-
-
 //        getStatus();
     }
 
@@ -700,9 +698,9 @@ public class ChatSreenActivity extends BaseActivity {
         setThemeBasedOnSelectedTheme();
 
         //
-//        Intent serviceIntent = new Intent(this, MessageNotification.class);
-//        serviceIntent.putExtra("otherUser", userReceiverID);
-//        startService(serviceIntent);
+        Intent serviceIntent = new Intent(this, MessageNotification.class);
+        serviceIntent.putExtra("otherUser", userReceiverID);
+        startService(serviceIntent);
         //
         screenshotDetector.start();
 
@@ -1156,9 +1154,9 @@ public class ChatSreenActivity extends BaseActivity {
     @Override
     protected void onPause() {
         super.onPause();
-//        Intent serviceIntent = new Intent(this, MessageNotification.class);
-//        serviceIntent.putExtra("otherUser", "");
-//        startService(serviceIntent);
+        Intent serviceIntent = new Intent(this, MessageNotification.class);
+        serviceIntent.putExtra("otherUser", "");
+        startService(serviceIntent);
         //
         screenshotDetector.stop();
 

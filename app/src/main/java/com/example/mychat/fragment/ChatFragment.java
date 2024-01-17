@@ -62,14 +62,11 @@ public class ChatFragment extends Fragment implements View.OnClickListener, Adap
     //
     FirebaseFirestore db;
     CollectionReference cref;
-    Query query;
     //
-    List<User> user=new ArrayList<>();//new ArrayList<>(); //tên người liên hệ
+    List<User> user=new ArrayList<>();
     List<String> group=new ArrayList<>();
-    String emailCurrentUser;
     SharedPreferences sharedPreferences;
     private ChatAdapter adapter;
-    AnimatedBottomBar bottomBar;
 
     Context context;
     MainFragment mainFragment;
@@ -171,45 +168,103 @@ public class ChatFragment extends Fragment implements View.OnClickListener, Adap
             }
         });
     }
+//    private void getListGroup() {
+//        CollectionReference cGroup = FirebaseFirestore.getInstance().collection("groups");
+//        AtomicInteger tasksCompleted = new AtomicInteger(0);
+//        AtomicInteger totalTasks = new AtomicInteger(0); // Số lượng tác vụ cần hoàn thành
+//        cGroup.get().addOnCompleteListener(task -> {
+//            if (task.isSuccessful()) {
+//                for (QueryDocumentSnapshot document : task.getResult()) {
+//                    List<DocumentReference> members = (List<DocumentReference>) document.get("member");
+//                    if (members != null) {
+//                        totalTasks.addAndGet(members.size()); // Cập nhật tổng số lượng tác vụ cần hoàn thành
+//
+//                        for (DocumentReference member : members) {
+//                            member.get().addOnCompleteListener(memberTask -> {
+//                                if (memberTask.isSuccessful()) {
+//                                    DocumentSnapshot documentSnapshot = memberTask.getResult();
+//                                    if (documentSnapshot.exists()) {
+//                                        if (documentSnapshot.getId().equals(auth.getCurrentUser().getUid())) {
+//                                            group.add(document.getId());
+//                                        }
+//                                    }
+//                                } else {
+//                                    // Xử lý lỗi khi không thể lấy DocumentReference
+//                                }
+//
+//                                // Tăng số lượng tác vụ đã hoàn thành
+//                                int count = tasksCompleted.incrementAndGet();
+//
+//                                // Kiểm tra xem đã hoàn thành tất cả các tác vụ chưa
+//                                if (count == totalTasks.get()) {
+//                                    // Nếu đã hoàn thành tất cả, thực hiện công việc tiếp theo ở đây
+//                                    getListUserFromDatabase();
+//                                }
+//                            });
+//                        }
+//                    }
+//                }
+//            }
+//            else {
+//                getListUserFromDatabase();
+//            }
+//        });
+//    }
     private void getListGroup() {
         CollectionReference cGroup = FirebaseFirestore.getInstance().collection("groups");
-        AtomicInteger tasksCompleted = new AtomicInteger(0);
-        AtomicInteger totalTasks = new AtomicInteger(0); // Số lượng tác vụ cần hoàn thành
+
         cGroup.get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
+                AtomicInteger tasksCompleted = new AtomicInteger(0);
+                AtomicInteger totalTasks = new AtomicInteger(0); // Số lượng tác vụ cần hoàn thành
+
+                if (task.getResult().isEmpty()) {
+                    // Nếu không có tài liệu trong cGroup, gọi getListUserFromDatabase ngay lập tức
+                    getListUserFromDatabase();
+                    return;
+                }
+
                 for (QueryDocumentSnapshot document : task.getResult()) {
                     List<DocumentReference> members = (List<DocumentReference>) document.get("member");
-                    if (members != null) {
-                        totalTasks.addAndGet(members.size()); // Cập nhật tổng số lượng tác vụ cần hoàn thành
+
+                    if (members != null && !members.isEmpty()) {
+                        totalTasks.addAndGet(members.size());
 
                         for (DocumentReference member : members) {
                             member.get().addOnCompleteListener(memberTask -> {
                                 if (memberTask.isSuccessful()) {
                                     DocumentSnapshot documentSnapshot = memberTask.getResult();
-                                    if (documentSnapshot.exists()) {
-                                        if (documentSnapshot.getId().equals(auth.getCurrentUser().getUid())) {
-                                            group.add(document.getId());
-                                        }
+                                    if (documentSnapshot.exists() && documentSnapshot.getId().equals(auth.getCurrentUser().getUid())) {
+                                        group.add(document.getId());
                                     }
                                 } else {
                                     // Xử lý lỗi khi không thể lấy DocumentReference
                                 }
 
-                                // Tăng số lượng tác vụ đã hoàn thành
                                 int count = tasksCompleted.incrementAndGet();
 
-                                // Kiểm tra xem đã hoàn thành tất cả các tác vụ chưa
                                 if (count == totalTasks.get()) {
                                     // Nếu đã hoàn thành tất cả, thực hiện công việc tiếp theo ở đây
                                     getListUserFromDatabase();
                                 }
                             });
                         }
+                    } else {
+                        // Nếu members rỗng, cũng tăng số lượng tác vụ đã hoàn thành
+                        int count = tasksCompleted.incrementAndGet();
+
+                        if (count == totalTasks.get()) {
+                            // Nếu đã hoàn thành tất cả, thực hiện công việc tiếp theo ở đây
+                            getListUserFromDatabase();
+                        }
                     }
                 }
+            } else {
+                // Xử lý lỗi khi không thể lấy dữ liệu từ cGroup
             }
         });
     }
+
 
     private void getListUserFromDatabase() {
         user.clear();
@@ -471,37 +526,6 @@ public class ChatFragment extends Fragment implements View.OnClickListener, Adap
                 }
             }
         });
-    }
-    private static void sortDescendingDocument(List<DocumentSnapshot> result) {
-        Collections.sort(result, new Comparator<DocumentSnapshot>() {
-            @Override
-            public int compare(DocumentSnapshot doc1, DocumentSnapshot doc2) {
-                // Replace "timestampField" with the actual field name in your DocumentSnapshot
-                Timestamp timestamp1 = (Timestamp) doc1.get("timestamp");
-                Timestamp timestamp2 = (Timestamp) doc2.get("timestamp");
-
-                // Sort in descending order
-                return timestamp2.compareTo(timestamp1);
-
-            }
-        });
-    }
-    private static void sortDescendingUser(List<User> result) {
-        result.sort(new Comparator<User>() {
-            @Override
-            public int compare(User user, User t1) {
-
-                Timestamp timestamp1 = (Timestamp) user.getTimestamp();
-                Timestamp timestamp2 = (Timestamp) t1.getTimestamp();
-
-                // Sort in descending order
-                return timestamp1.compareTo(timestamp2);
-            }
-        });
-    }
-
-    private void sortDescendingTime(List<User> user) {
-
     }
 
     @Override

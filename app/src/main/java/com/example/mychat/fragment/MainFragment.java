@@ -46,8 +46,8 @@ public class MainFragment extends BaseActivity {
 
         applyNightMode();
         //
-//        Intent serviceIntent = new Intent(this, MessageNotification.class);
-//        stopService(serviceIntent);
+        Intent serviceIntent = new Intent(this, MessageNotification.class);
+        stopService(serviceIntent);
 
     }
 
